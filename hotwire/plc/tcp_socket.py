@@ -25,12 +25,36 @@ STATE_CONNECTED = 2
 
 
 def _resolve_tcp_port() -> int:
-    """Return the TCP port based on config settings."""
-    if getConfigValueBool("tcp_port_15118_compliant"):
-        return 15118
+    """Return the TCP port for V2GTP.
+
+    DIN 70121 §8.7.2 does NOT mandate a specific port; both peers must
+    pick one in the IANA dynamic range (49152-65535) and advertise it
+    via SDP. The common convention is port 15118 (matching the ISO name)
+    but it is purely an operator choice.
+
+    Config keys (tried in order, for backwards compatibility):
+
+      * ``tcp_port_use_well_known`` (bool, preferred) — force port 15118
+        if True, else fall back to ``tcp_port_alternative``.
+      * ``tcp_port_15118_compliant`` (deprecated) — same semantics,
+        misleading name; kept as alias.
+      * ``tcp_port_alternative`` (int) — explicit port number. Default
+        57122 (chosen to sit in the dynamic range and avoid clashing
+        with any real DIN 70121 charging station a tester might have
+        running in the same LAN).
+    """
+    for key in ("tcp_port_use_well_known", "tcp_port_15118_compliant"):
+        try:
+            if getConfigValueBool(key):
+                return 15118
+        except SystemExit:
+            # Config key wasn't found — try the next one. We suppress
+            # SystemExit because getConfigValueBool calls sys.exit() on
+            # missing keys (legacy pyPLC behaviour).
+            continue
     try:
         return int(getConfigValue("tcp_port_alternative"))
-    except (ValueError, KeyError):
+    except (ValueError, KeyError, SystemExit):
         return 57122
 
 

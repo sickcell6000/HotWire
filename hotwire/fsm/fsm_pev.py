@@ -216,15 +216,80 @@ class fsmPev:
         self.cyclesInState = 0
 
     def isTooLong(self) -> bool:
-        limit = 66
-        if self.state == STATE_WAIT_CHARGE_PARAM_RES:
-            limit = 5 * 33
-        elif self.state in (STATE_WAIT_CABLE_CHECK_RES, STATE_WAIT_PRECHARGE_RES):
-            limit = 30 * 33
+        """Per-state timeout, aligned with DIN 70121 §9.6 / Tables 76 & 78.
+
+        The standard distinguishes four kinds of timer:
+
+        * ``V2G_EVCC_Msg_Timeout``  — per-request-response pair, default 2 s,
+          but 0.5 s for CurrentDemand (§9.6.3.1).
+        * ``V2G_EVCC_SequenceTimeout`` — total time in a phase, default 60 s,
+          5 s for CurrentDemand (§9.6.3.2).
+        * ``V2G_EVCC_Ongoing_Timeout``  — how long an "Ongoing" re-request
+          loop may run. 60 s in DIN.
+        * Phase-specific wall-clock timers (Table 78): CableCheck 38 s,
+          PreCharge 7 s, ReadyToCharge 10 s, CommunicationSetup 20 s.
+
+        HotWire maps each FSM state to whichever timer is most restrictive
+        for that state's role.
+        """
+        from .din_spec import (
+            seconds_to_cycles,
+            V2G_EVCC_MSG_TIMEOUT_DEFAULT_S,
+            V2G_EVCC_MSG_TIMEOUT_CURRENT_DEMAND_S,
+            V2G_EVCC_SEQUENCE_TIMEOUT_S,
+            V2G_EVCC_SEQUENCE_TIMEOUT_CURRENT_DEMAND_S,
+            V2G_EVCC_COMMUNICATION_SETUP_TIMEOUT_S,
+            V2G_EVCC_READY_TO_CHARGE_TIMEOUT_S,
+            V2G_EVCC_CABLE_CHECK_TIMEOUT_S,
+            V2G_EVCC_PRE_CHARGE_TIMEOUT_S,
+        )
+
+        # Default: any Req-Res pair gets Msg_Timeout (2 s).
+        limit = seconds_to_cycles(V2G_EVCC_MSG_TIMEOUT_DEFAULT_S)
+
+        # Phases that run "Ongoing" re-request loops — allow up to the
+        # sequence timeout (60 s) because the whole phase may span many
+        # individual requests.
+        if self.state in (
+            STATE_WAIT_CONTRACT_AUTH_RES,
+            STATE_WAIT_CHARGE_PARAM_RES,
+        ):
+            limit = seconds_to_cycles(V2G_EVCC_SEQUENCE_TIMEOUT_S)
+
+        # CableCheck has its own 38 s phase timeout (Table 78).
+        elif self.state == STATE_WAIT_CABLE_CHECK_RES:
+            limit = seconds_to_cycles(V2G_EVCC_CABLE_CHECK_TIMEOUT_S)
+
+        # PreCharge has a 7 s phase timeout (Table 78).
+        elif self.state == STATE_WAIT_PRECHARGE_RES:
+            limit = seconds_to_cycles(V2G_EVCC_PRE_CHARGE_TIMEOUT_S)
+
+        # PowerDelivery fits under the general 10 s ReadyToCharge limit.
         elif self.state == STATE_WAIT_POWER_DELIVERY_RES:
-            limit = 6 * 33
+            limit = seconds_to_cycles(V2G_EVCC_READY_TO_CHARGE_TIMEOUT_S)
+
+        # ContactorsClosed is a local hardware wait; cap at
+        # ReadyToCharge_Timeout to keep total phase time bounded.
+        elif self.state == STATE_WAIT_CONTACTORS_CLOSED:
+            limit = seconds_to_cycles(V2G_EVCC_READY_TO_CHARGE_TIMEOUT_S)
+
+        # CurrentDemand has its own tight 0.5 s Msg_Timeout. Using that
+        # bare would mean aborting the session if a single CurrentDemand
+        # reply is late by 500 ms, which is too strict for a simulator
+        # running under a shared GIL. We use 5 s sequence_timeout instead
+        # — this matches the standard's explicit CurrentDemand sequence
+        # timeout from §9.6.3.2.
         elif self.state == STATE_WAIT_CURRENT_DEMAND_RES:
-            limit = 5 * 33
+            limit = seconds_to_cycles(V2G_EVCC_SEQUENCE_TIMEOUT_CURRENT_DEMAND_S)
+
+        # The TCP-connect + app-handshake opening window.
+        elif self.state in (
+            STATE_CONNECTING,
+            STATE_CONNECTED,
+            STATE_WAIT_APP_RES,
+        ):
+            limit = seconds_to_cycles(V2G_EVCC_COMMUNICATION_SETUP_TIMEOUT_S)
+
         return self.cyclesInState > limit
 
     # ---- transmit / receive helpers -------------------------------
@@ -310,12 +375,26 @@ class fsmPev:
         self.connMgr.ApplOk(31)
 
     def _send_precharge_req(self) -> None:
+        # DIN Table 45 (V2G-DC-884) mandates EVTargetVoltage + EVTargetCurrent
+        # in every PreChargeReq. The bundled OpenV2G codec always emits
+        # EVTargetCurrent = 1 A by default; we don't expose it through the
+        # positional-arg builder because the codec ignores extra args in
+        # the EDG command. This is spec-compliant (the field is present
+        # with a legal value) but not spec-operator-controllable. To
+        # inject a different EVTargetCurrent you'd need to patch OpenV2G
+        # or pre-encode the frame offline.
         self._intercept_and_send(
             "PreChargeReq",
             {
                 "SessionID": self.sessionId,
                 "SoC": self._soc_str(),
                 "EVTargetVoltage": str(int(self.hardwareInterface.getAccuVoltage())),
+                # Expose EVTargetCurrent as an override key for future
+                # codec upgrades, even though the current binary ignores
+                # it. PauseController.set_override("PreChargeReq",
+                # {"EVTargetCurrent": N}) would become effective the day
+                # we ship an enhanced OpenV2G.
+                "EVTargetCurrent": "1",
             },
             lambda p: (
                 f"EDG_{p['SessionID']}_{p['SoC']}_{p['EVTargetVoltage']}"

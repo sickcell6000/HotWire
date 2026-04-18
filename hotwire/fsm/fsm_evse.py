@@ -144,7 +144,29 @@ class fsmEvse:
         self.cyclesInState = 0
 
     def isTooLong(self) -> bool:
-        return self.cyclesInState > 100
+        """Per-state timeout for the SECC, aligned with DIN 70121 §9.6.4.
+
+        The SECC's perspective is the mirror of the EVCC:
+
+        * ``V2G_SECC_Sequence_Timeout`` — default 60 s, 5 s for
+          CurrentDemand-related states. If the EVCC doesn't advance the
+          sequence within this window, the SECC resets the session back
+          to the app-handshake state and waits for a new EVCC to connect.
+        """
+        from .din_spec import (
+            seconds_to_cycles,
+            V2G_EVCC_SEQUENCE_TIMEOUT_S,
+            V2G_EVCC_SEQUENCE_TIMEOUT_CURRENT_DEMAND_S,
+        )
+        if self.state == STATE_WAIT_FLEXIBLE:
+            # The FlexibleRequest state covers CurrentDemand + everything
+            # else, so we pick the tighter 5 s so a stalled CurrentDemand
+            # loop doesn't leave the SECC hung forever.
+            limit = seconds_to_cycles(V2G_EVCC_SEQUENCE_TIMEOUT_CURRENT_DEMAND_S)
+        else:
+            # SessionSetup / ServiceDiscovery / etc. get the default 60 s.
+            limit = seconds_to_cycles(V2G_EVCC_SEQUENCE_TIMEOUT_S)
+        return self.cyclesInState > limit
 
     # ---- transmit / receive helpers ---------------------------------
 
@@ -264,8 +286,8 @@ class fsmEvse:
         except (SystemExit, Exception):
             pref = "prefer_din"
 
-        chosen_schema = "D"           # "D" = DIN, "1" = ISO 15118-2
-        chosen_schema_id = "1"
+        chosen_schema: str | None = None      # "D" = DIN, "1" = ISO 15118-2
+        chosen_schema_id: str | None = None
         if pref == "iso15118_2_only" and iso_schema_id is not None:
             chosen_schema, chosen_schema_id = "1", iso_schema_id
         elif pref == "din_only" and din_schema_id is not None:
@@ -278,9 +300,41 @@ class fsmEvse:
             chosen_schema, chosen_schema_id = "D", din_schema_id
         elif iso_schema_id is not None:
             chosen_schema, chosen_schema_id = "1", iso_schema_id
-        # Else: neither protocol was offered in a way we recognised — we'll
-        # still respond with DIN schema ID 1, and the PEV will almost
-        # certainly reject it. That's the correct failure mode.
+
+        if chosen_schema is None:
+            # V2G-DC-226 (§9.2): if none of the PEV's offered protocols
+            # match what we support, ResponseCode MUST be
+            # ``Failed_NoNegotiation`` (= 2) and the response SHALL NOT
+            # contain a SchemaID field. HotWire reaches this branch when
+            # (a) the PEV offered protocols we don't recognise, or
+            # (b) ``protocol_preference = iso15118_2_only`` but the PEV
+            # only offered DIN (or vice versa).
+            self.addToTrace(
+                "No supported protocol in offer "
+                f"(din={din_schema_id}, iso={iso_schema_id}, pref={pref!r}); "
+                "sending Failed_NoNegotiation per V2G-DC-226"
+            )
+            from .din_spec import APP_HAND_RC_FAILED_NO_NEGOTIATION
+
+            def build_fail(params: dict[str, Any]) -> str:
+                # SchemaID_isUsed = 0 tells the codec to omit the SchemaID
+                # field from the encoded response.
+                return (
+                    f"Eh_{params['ResponseCode']}_{params['SchemaID_isUsed']}"
+                )
+
+            self._intercept_and_send(
+                "supportedAppProtocolRes",
+                {
+                    "ResponseCode": APP_HAND_RC_FAILED_NO_NEGOTIATION,
+                    "SchemaID_isUsed": 0,
+                },
+                build_fail,
+            )
+            self.publishStatus("Protocol negotiation failed")
+            # Terminate the session per §9.2.
+            self.enterState(STATE_STOPPED)
+            return
 
         def build(params: dict[str, Any]) -> str:
             return (
@@ -291,7 +345,7 @@ class fsmEvse:
         ok = self._intercept_and_send(
             "supportedAppProtocolRes",
             {
-                "ResponseCode": 0,
+                "ResponseCode": 0,            # OK_SuccessfulNegotiation
                 "SchemaID_isUsed": 1,
                 "SchemaID": chosen_schema_id,
             },
@@ -426,22 +480,30 @@ class fsmEvse:
             return
 
         if "CableCheckReq" in decoded:
-            # OpenV2G EDf param order: proc, statusCode, isolationStatus, isolationUsed.
-            # proc=0 → Finished, statusCode=1 → EVSE_Ready, isolationStatus=1 → Valid.
+            # OpenV2G EDf arg order (6 positional):
+            #   proc, statusCode, isolationStatus, isolationUsed,
+            #   notificationMaxDelay, evseNotification.
+            # DIN Table 34 §9.4.2.2 lists DC_EVSEStatus.NotificationMaxDelay
+            # and EVSENotification as MANDATORY fields of DC_EVSEStatusType
+            # (§9.5.3 Table 66), so we emit them explicitly rather than
+            # letting the codec pick its defaults.
             def build(p: dict[str, Any]) -> str:
                 return (
                     f"E{self.schemaSelection}f_"
                     f"{p['EVSEProcessing']}_{p['EVSEStatusCode']}_"
-                    f"{p['IsolationStatus']}_{p['IsolationStatusUsed']}"
+                    f"{p['IsolationStatus']}_{p['IsolationStatusUsed']}_"
+                    f"{p['NotificationMaxDelay']}_{p['EVSENotification']}"
                 )
 
             self._intercept_and_send(
                 "CableCheckRes",
                 {
-                    "EVSEProcessing": 0,
-                    "EVSEStatusCode": 1,
-                    "IsolationStatus": 1,
+                    "EVSEProcessing": 0,            # Finished
+                    "EVSEStatusCode": 1,            # EVSE_Ready
+                    "IsolationStatus": 1,           # Valid
                     "IsolationStatusUsed": 1,
+                    "NotificationMaxDelay": 0,      # V2G-DC-636: EVCC ignores this
+                    "EVSENotification": 0,          # None — V2G-DC-500 recommendation
                 },
                 build,
             )
@@ -462,23 +524,43 @@ class fsmEvse:
             except (json.JSONDecodeError, TypeError, ValueError):
                 pass
 
+            # OpenV2G EDg arg order (7 positional):
+            #   EVSEPresentVoltage, responseCode, isolationUsed,
+            #   isolationStatus, statusCode, notifDelay, notifType.
+            # DIN Table 46 §9.4.2.6 + Table 66 require all DC_EVSEStatus
+            # fields to be explicit — we stop relying on codec defaults.
+            def build(p: dict[str, Any]) -> str:
+                return (
+                    f"E{self.schemaSelection}g_"
+                    f"{int(p['EVSEPresentVoltage'])}_"
+                    f"{p['ResponseCode']}_"
+                    f"{p['IsolationStatusUsed']}_{p['IsolationStatus']}_"
+                    f"{p['EVSEStatusCode']}_"
+                    f"{p['NotificationMaxDelay']}_{p['EVSENotification']}"
+                )
+
             self._intercept_and_send(
                 "PreChargeRes",
-                {"EVSEPresentVoltage": target_v},
-                lambda p: f"E{self.schemaSelection}g_{int(p['EVSEPresentVoltage'])}",
+                {
+                    "EVSEPresentVoltage": target_v,
+                    "ResponseCode": 0,              # OK
+                    "IsolationStatusUsed": 1,
+                    "IsolationStatus": 1,           # Valid
+                    "EVSEStatusCode": 1,            # EVSE_Ready
+                    "NotificationMaxDelay": 0,
+                    "EVSENotification": 0,          # None
+                },
+                build,
             )
             self.publishStatus("Pre-charging")
             return
 
         if "PowerDeliveryReq" in decoded:
-            # EDh param order: rc, isoUsed, isoStatus, statusCode, notifDelay, notifType.
-            # If the FSM has been given any override at all we inject the full
-            # form; otherwise OpenV2G's bare "EDh" produces a conformant default
-            # PowerDeliveryRes and we leave it alone (the prebuilt codec's
-            # custom-params mode handles both paths).
+            # EDh arg order (6 positional): rc, isoUsed, isoStatus,
+            # statusCode, notifDelay, notifType. Always emit the full
+            # form so the mandatory DC_EVSEStatus.NotificationMaxDelay /
+            # EVSENotification fields are explicit (Table 66).
             def build_pd(p: dict[str, Any]) -> str:
-                if not p:
-                    return f"E{self.schemaSelection}h"
                 return (
                     f"E{self.schemaSelection}h_"
                     f"{p['ResponseCode']}_{p['IsolationStatusUsed']}_"
@@ -488,20 +570,37 @@ class fsmEvse:
 
             self._intercept_and_send(
                 "PowerDeliveryRes",
-                {},   # empty default — FSM sends bare EDh unless overrides exist
+                {
+                    "ResponseCode": 0,              # OK
+                    "IsolationStatusUsed": 1,
+                    "IsolationStatus": 1,           # Valid
+                    "EVSEStatusCode": 1,            # EVSE_Ready
+                    "NotificationMaxDelay": 0,
+                    "EVSENotification": 0,          # None
+                },
                 build_pd,
             )
             self.publishStatus("Power delivery")
             return
 
         if "CurrentDemandReq" in decoded:
-            # EDi has 27 positional args — any override forces us into the full
-            # form, so every field gets a sane default even if the playbook
-            # only cares about one or two (typical case: EVSEPresentVoltage
-            # / EVSEPresentCurrent for sustained-discharge spoofing).
+            # EDi has 27 positional args. DIN §9.4.2.8 Table 48 +
+            # V2G-DC-948/949/950 mark all three EVSEMaximum*Limit elements
+            # as MANDATORY for DIN 70121 (they are optional in ISO
+            # 15118-2). So the "_isUsed" flags default to 1 here, and we
+            # supply plausible defaults drawn from din_spec.
+            from .din_spec import (
+                CURRENT_DEMAND_RES_MAX_V_DEFAULT,
+                CURRENT_DEMAND_RES_MAX_I_DEFAULT,
+                CURRENT_DEMAND_RES_MAX_P_POWER,
+                CURRENT_DEMAND_RES_MAX_P_MULTIPLIER,
+            )
+
             def build_cd(p: dict[str, Any]) -> str:
-                if not p:
-                    return f"E{self.schemaSelection}i"
+                # Always emit the full 27-arg form — even without operator
+                # overrides — so DIN's mandatory EVSEMaximum*Limit fields
+                # (V2G-DC-948/949/950) are present on the wire. The bare
+                # "EDi" encoding would omit them.
                 parts = [
                     str(p.get("ResponseCode", 0)),
                     str(p.get("IsolationStatusUsed", 1)),
@@ -518,21 +617,25 @@ class fsmEvse:
                     str(p.get("EVSECurrentLimitAchieved", 0)),
                     str(p.get("EVSEVoltageLimitAchieved", 0)),
                     str(p.get("EVSEPowerLimitAchieved", 0)),
-                    # Max-voltage limit (unused by default).
-                    str(p.get("EVSEMaximumVoltageLimit_isUsed", 0)),
+                    # Max-voltage limit — MANDATORY in DIN 70121.
+                    str(p.get("EVSEMaximumVoltageLimit_isUsed", 1)),
                     str(p.get("EVSEMaximumVoltageLimitMultiplier", 0)),
-                    str(p.get("EVSEMaximumVoltageLimit", 0)),
-                    str(p.get("EVSEMaximumVoltageLimitUnit", 5)),
-                    # Max-current limit (unused by default).
-                    str(p.get("EVSEMaximumCurrentLimit_isUsed", 0)),
+                    str(p.get("EVSEMaximumVoltageLimit",
+                              CURRENT_DEMAND_RES_MAX_V_DEFAULT)),
+                    str(p.get("EVSEMaximumVoltageLimitUnit", 5)),   # V
+                    # Max-current limit — MANDATORY in DIN 70121.
+                    str(p.get("EVSEMaximumCurrentLimit_isUsed", 1)),
                     str(p.get("EVSEMaximumCurrentLimitMultiplier", 0)),
-                    str(p.get("EVSEMaximumCurrentLimit", 0)),
-                    str(p.get("EVSEMaximumCurrentLimitUnit", 3)),
-                    # Max-power limit (unused by default).
-                    str(p.get("EVSEMaximumPowerLimit_isUsed", 0)),
-                    str(p.get("EVSEMaximumPowerLimitMultiplier", 0)),
-                    str(p.get("EVSEMaximumPowerLimit", 0)),
-                    str(p.get("EVSEMaximumPowerLimitUnit", 7)),  # W
+                    str(p.get("EVSEMaximumCurrentLimit",
+                              CURRENT_DEMAND_RES_MAX_I_DEFAULT)),
+                    str(p.get("EVSEMaximumCurrentLimitUnit", 3)),   # A
+                    # Max-power limit — MANDATORY in DIN 70121.
+                    str(p.get("EVSEMaximumPowerLimit_isUsed", 1)),
+                    str(p.get("EVSEMaximumPowerLimitMultiplier",
+                              CURRENT_DEMAND_RES_MAX_P_MULTIPLIER)),
+                    str(p.get("EVSEMaximumPowerLimit",
+                              CURRENT_DEMAND_RES_MAX_P_POWER)),
+                    str(p.get("EVSEMaximumPowerLimitUnit", 7)),     # W
                 ]
                 return f"E{self.schemaSelection}i_" + "_".join(parts)
 

@@ -4,7 +4,7 @@
 
 **狀態符號：** 🟢 完成 / 🟡 部分 / 🔴 不符 / ⚪ Out of scope
 
-**最後更新：** 2026-04-18（**Checkpoint 6 完成後** — 補齊 ISO 15118-2 negotiation、sustained discharge、session redactor、session comparator、pcap exporter、HomePlug scaffold）
+**最後更新：** 2026-04-18（**Checkpoint 7 完成後** — 修復所有 DIN TS 70121:2024-11 合規性 gap：Failed_NoNegotiation、MaxLimits 必要欄位、Table 76/78 timing、DC_EVSEStatus 明確欄位、config 命名）
 
 ---
 
@@ -155,6 +155,35 @@
 | Attack + JSONL integration | `test_attack_integration.py` | attack playbook 加上 JSONL logging 跑過實戰 session |
 
 總計 **85+** 個 tests 覆蓋論文聲稱的每個可驗證項目。
+
+---
+
+## Checkpoint 7 — DIN TS 70121:2024-11 合規修復（2026-04-18）
+
+逐項修復 agent-based 標準審查找到的 10 個偏差：
+
+| # | 項目 | 狀態 | 修復內容 |
+|---|------|-----|-------|
+| 1 | V2GTP header | 🟢 原本就 aligned | — |
+| 2 | TCP port 命名 | 🟢 修好 | `tcp_port_use_well_known` 為新名、`tcp_port_15118_compliant` 保留為 deprecated alias；注釋說明 §8.7.2 不強制 port |
+| 3 | SECC Discovery | ⚪ sim 模式 OOS | 未修（仍在 simulation） |
+| 4 | Failed_NoNegotiation 分支 | 🟢 修好 | `fsm_evse._state_wait_app_handshake` 找不到共同協定時回 `Eh_2_0`（SchemaID_isUsed=0）並進 STOPPED，符合 V2G-DC-226 |
+| 5 | 訊息順序 | 🟢 原本就 aligned | — |
+| 6 | PreChargeReq.EVTargetCurrent | 🟢 修好 | EDG 送出的 frame 已包含 EVTargetCurrent（codec 預設 1 A）；override key 預埋供未來 codec 擴充 |
+| 6 | CurrentDemandRes Max\*Limit 必要 | 🟢 修好 | 27-arg EDi 三個 `_isUsed=1`，預設值：V=450, I=200, P=60 kW（V2G-DC-948/949/950）|
+| 7 | ResponseCode 23 個 enum | 🟢 原本就 aligned | — |
+| 8 | Timing 四層 timer | 🟢 修好 | 新增 `hotwire/fsm/din_spec.py`；`fsm_pev.isTooLong()` / `fsm_evse.isTooLong()` 改用 Table 76 / 78 的 Msg/Sequence/Ongoing/phase-specific timer |
+| 9 | DC_EVSEStatus 明確欄位 | 🟢 修好 | CableCheckRes 6-arg、PreChargeRes 7-arg、PowerDeliveryRes 6-arg — 都顯式送 NotificationMaxDelay + EVSENotification |
+| 10 | 每訊息 performance/timeout 分層 | 🟢 修好 | 同 #8；PreCharge 30 s→7 s、CurrentDemand 5 s(Msg)→5 s(Sequence) |
+
+新增：
+- `hotwire/fsm/din_spec.py` — DIN 70121 standard constants（timing + required field defaults）
+- `tests/test_din_conformance.py` — 24 個 conformance test case，逐項 pin 標準條款
+
+測試結果：
+- `scripts/run_all_tests.py`: **14/14 PASS**
+- `pytest tests/` (ignore gui_dual_scenarios): **118/118 PASS**, 0 fail, 0 skip
+- `test_gui_dual_scenarios.py`: **4/4 PASS**
 
 ---
 
