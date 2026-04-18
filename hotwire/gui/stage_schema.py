@@ -218,12 +218,61 @@ STAGE_SCHEMAS_EVSE: dict[str, tuple[FieldSpec, ...]] = {
                   tooltip="7-byte EVSE identifier, hex-encoded. Default = 'ZZDEFLT'."),
     ),
 
-    # EDb: 1 arg (rc) — the codec hardcodes the rest of ServiceDiscoveryRes.
-    # Payment options / service category / energy transfer type are NOT
-    # overrideable at the command-line level; they are baked into the
-    # bundled OpenV2G binary. Exposing only ResponseCode here for honesty.
+    # EDb: 11 args. The shipped OpenV2G binary's custom-params branch
+    # activates only when >= 11 positional args are supplied (probed
+    # empirically against the vendored codec). Layout matches the builder
+    # in hotwire.fsm.fsm_evse._state_wait_service_discovery().
     "ServiceDiscoveryRes": (
         _rc_field("OK"),
+        FieldSpec(
+            key="PaymentOption", label="Payment option",
+            widget="combo",
+            options=(("Contract", 0), ("ExternalPayment", 1)),
+            default="ExternalPayment",
+            tooltip="Method the EVSE advertises; DIN Table 94.",
+        ),
+        FieldSpec(
+            key="ServiceID", label="Service ID", widget="int",
+            default=1,
+            tooltip="Arbitrary ID for the charging service (default 1).",
+        ),
+        FieldSpec(
+            key="ServiceCategory", label="Service category",
+            widget="combo",
+            options=(
+                ("EVCharging", 0), ("Internet", 1),
+                ("ContractCertificate", 2), ("OtherCustom", 3),
+            ),
+            default="EVCharging",
+            tooltip="ChargeService.ServiceCategory.",
+        ),
+        FieldSpec(
+            key="FreeService", label="Free service?", widget="combo",
+            options=(("No (paid)", 0), ("Yes (free)", 1)),
+            default="No (paid)",
+        ),
+        FieldSpec(
+            key="EnergyTransferType", label="Energy transfer type",
+            widget="combo",
+            options=(
+                ("AC_single_phase_core", 0),
+                ("AC_three_phase_core", 1),
+                ("DC_core", 2),
+                ("DC_extended", 3),
+                ("DC_combo_core", 4),
+                ("DC_dual", 5),
+            ),
+            default="DC_extended",
+            tooltip="The CCS variant the EVSE supports.",
+        ),
+        # Reserved extension slots 6..10. Default 0; operators may probe
+        # them during fuzzing. The binary ignores out-of-band values
+        # cleanly, so no clamp is applied.
+        FieldSpec(key="sd_reserved_6", label="reserved[6]", widget="int", default=0),
+        FieldSpec(key="sd_reserved_7", label="reserved[7]", widget="int", default=0),
+        FieldSpec(key="sd_reserved_8", label="reserved[8]", widget="int", default=0),
+        FieldSpec(key="sd_reserved_9", label="reserved[9]", widget="int", default=0),
+        FieldSpec(key="sd_reserved_10", label="reserved[10]", widget="int", default=0),
     ),
 
     # EDc: 1 arg (rc)

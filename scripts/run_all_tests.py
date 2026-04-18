@@ -26,6 +26,8 @@ TEST_SCRIPTS = [
     "test_pcap_export.py",
     "test_iso15118_negotiation.py",
     "test_homeplug_factory.py",
+    "test_homeplug_slac_mock.py",
+    "test_homeplug_slac_replay.py",
     "test_din_conformance.py",
     "test_random_schema_fuzz.py",
     # Integration tests (open sockets, spawn threads).

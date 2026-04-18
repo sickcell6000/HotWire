@@ -410,14 +410,35 @@ class fsmEvse:
         if "ServiceDiscoveryReq" not in decoded:
             return
 
-        # EDb accepts 1 positional arg — ResponseCode. Everything else in
-        # ServiceDiscoveryRes (payment options, service category, energy
-        # transfer type) is hardcoded in the bundled OpenV2G codec and not
-        # operator-overrideable until we ship a patched codec.
+        # EDb's custom branch activates at >= 11 positional args (probed
+        # against the shipped binary). Layout (empirical):
+        #   [0]  ResponseCode
+        #   [1]  PaymentOption (0=Contract, 1=ExternalPayment)
+        #   [2]  ServiceID (1 = default charging service)
+        #   [3]  ServiceCategory (0=EVCharging)
+        #   [4]  FreeService (0=paid, 1=free)
+        #   [5]  EnergyTransferType (2=DC_core, 3=DC_extended, ...)
+        #   [6..10] Reserved / AC+DC extension flags; zeroed.
+        def build_sd(p: dict[str, Any]) -> str:
+            parts = [
+                str(p.get("ResponseCode", 0)),
+                str(p.get("PaymentOption", 1)),         # ExternalPayment
+                str(p.get("ServiceID", 1)),
+                str(p.get("ServiceCategory", 0)),       # EVCharging
+                str(p.get("FreeService", 0)),
+                str(p.get("EnergyTransferType", 3)),    # DC_extended
+                str(p.get("sd_reserved_6", 0)),
+                str(p.get("sd_reserved_7", 0)),
+                str(p.get("sd_reserved_8", 0)),
+                str(p.get("sd_reserved_9", 0)),
+                str(p.get("sd_reserved_10", 0)),
+            ]
+            return f"E{self.schemaSelection}b_" + "_".join(parts)
+
         self._intercept_and_send(
             "ServiceDiscoveryRes",
-            {"ResponseCode": 0},
-            lambda p: f"E{self.schemaSelection}b_{p['ResponseCode']}",
+            {},
+            build_sd,
         )
         self.publishStatus("Service discovery done")
         self.enterState(STATE_WAIT_SERVICE_PAYMENT)
@@ -492,8 +513,12 @@ class fsmEvse:
                     str(p.get("SAScheduleListArrayLen", 1)),
                     str(p.get("SchedTupleStart", 0)),
                     str(p.get("PMax", 50)),
+                    # IsolationStatus "Valid" rather than "Invalid": some
+                    # strict EVs treat the latter as a fault indication and
+                    # will refuse to start CableCheck. Operators still
+                    # override this via PauseController when fuzzing.
                     str(p.get("IsolationStatusUsed", 1)),
-                    str(p.get("IsolationStatus", 0)),                # Invalid at CPD time
+                    str(p.get("IsolationStatus", 1)),                # Valid
                     str(p.get("EVSEStatusCode", 1)),                 # EVSE_Ready
                     str(p.get("NotificationMaxDelay", 0)),
                     str(p.get("EVSENotification", 0)),
@@ -560,8 +585,11 @@ class fsmEvse:
             return
 
         if "PreChargeReq" in decoded:
-            # Report the EV's target voltage back as PresentVoltage so the PEV
-            # exits the precharge loop immediately (simulation shortcut).
+            # Default simulation behaviour: report the EV's target voltage back
+            # as PresentVoltage so the PEV exits precharge immediately. An
+            # operator override from ``PauseController.set_override`` wins over
+            # this — that's the hook the ForcedDischarge attack uses to make
+            # the PEV see (for example) 500 V regardless of its own request.
             target_v = 350
             try:
                 d = json.loads(decoded)
