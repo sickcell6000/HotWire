@@ -1,0 +1,3 @@
+[submodule "vendor/OpenV2Gx"]
+	path = vendor/OpenV2Gx
+	url = https://github.com/uhi22/OpenV2Gx.git

@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs (generated at runtime)
+EVSE_LOG/
+sessions/
+*.log
+*.jsonl
+PevExiLog.txt
+RawExiLog.txt
+MacLog.txt
+DemoExiLog.txt
+*.decoded.txt
+
+# Config — the template at config/hotwire.ini IS tracked; only a user's
+# personal copy in the project root (or legacy pyPlc.ini) is ignored.
+/hotwire.ini
+/pyPlc.ini
+
+# Artifacts
+*.pcap
+*.pcapng
+results/output/
+
+# Archive (git-ignored — large legacy folder)
+archive/
+
+# OpenV2Gx build artifacts (source lives in vendor/OpenV2Gx as a submodule;
+# the shipped prebuilt binary lives in hotwire/exi/codec/OpenV2G.exe).
+vendor/OpenV2Gx/Debug/
+vendor/OpenV2Gx/Release/*.o
+vendor/OpenV2Gx/Release/*.d
+vendor/OpenV2Gx/Release/src/
