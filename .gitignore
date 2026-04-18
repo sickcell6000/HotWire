@@ -56,3 +56,7 @@ vendor/OpenV2Gx/Debug/
 vendor/OpenV2Gx/Release/*.o
 vendor/OpenV2Gx/Release/*.d
 vendor/OpenV2Gx/Release/src/
+
+# OpenV2G rebuild artifacts
+vendor/_build_openv2g/
+

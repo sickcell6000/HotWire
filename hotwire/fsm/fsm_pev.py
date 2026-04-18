@@ -376,28 +376,23 @@ class fsmPev:
 
     def _send_precharge_req(self) -> None:
         # DIN Table 45 (V2G-DC-884) mandates EVTargetVoltage + EVTargetCurrent
-        # in every PreChargeReq. The bundled OpenV2G codec always emits
-        # EVTargetCurrent = 1 A by default; we don't expose it through the
-        # positional-arg builder because the codec ignores extra args in
-        # the EDG command. This is spec-compliant (the field is present
-        # with a legal value) but not spec-operator-controllable. To
-        # inject a different EVTargetCurrent you'd need to patch OpenV2G
-        # or pre-encode the frame offline.
+        # in every PreChargeReq. With the HotWire EDG patch applied, the
+        # codec now accepts a 4th positional arg (EVTargetCurrent in A),
+        # falling back to the upstream 1 A default when absent. Operators
+        # can set the override via
+        #   PauseController.set_override("PreChargeReq",
+        #                                {"EVTargetCurrent": N})
         self._intercept_and_send(
             "PreChargeReq",
             {
                 "SessionID": self.sessionId,
                 "SoC": self._soc_str(),
                 "EVTargetVoltage": str(int(self.hardwareInterface.getAccuVoltage())),
-                # Expose EVTargetCurrent as an override key for future
-                # codec upgrades, even though the current binary ignores
-                # it. PauseController.set_override("PreChargeReq",
-                # {"EVTargetCurrent": N}) would become effective the day
-                # we ship an enhanced OpenV2G.
                 "EVTargetCurrent": "1",
             },
             lambda p: (
-                f"EDG_{p['SessionID']}_{p['SoC']}_{p['EVTargetVoltage']}"
+                f"EDG_{p['SessionID']}_{p['SoC']}_{p['EVTargetVoltage']}_"
+                f"{p['EVTargetCurrent']}"
             ),
         )
 

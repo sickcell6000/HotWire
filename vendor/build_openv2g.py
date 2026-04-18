@@ -111,12 +111,54 @@ def _build_env(cc: str) -> dict[str, str]:
     return env
 
 
+PATCHES_DIR = VENDOR_ROOT / "patches"
+
+
+def _apply_patches(dry_run: bool = False) -> None:
+    """Apply every ``*.patch`` file under ``vendor/patches/`` to the
+    submodule, skipping patches that are already applied. Keeping the
+    patches as files (rather than committing into the submodule) means
+    the submodule pointer stays at an upstream-released commit and
+    HotWire's local modifications are visible in diff form."""
+    if not PATCHES_DIR.is_dir():
+        return
+    patches = sorted(PATCHES_DIR.glob("*.patch"))
+    if not patches:
+        return
+    for patch in patches:
+        # Check whether the patch is already applied — if yes, skip.
+        check = subprocess.run(
+            ["git", "apply", "--check", "-R", str(patch)],
+            cwd=OPENV2G_ROOT,
+            capture_output=True,
+            text=True,
+        )
+        if check.returncode == 0:
+            print(f"[patch] {patch.name} already applied, skipping")
+            continue
+        print(f"[patch] applying {patch.name}")
+        if dry_run:
+            continue
+        result = subprocess.run(
+            ["git", "apply", "--whitespace=nowarn", str(patch)],
+            cwd=OPENV2G_ROOT,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            sys.stderr.write(result.stdout)
+            sys.stderr.write(result.stderr)
+            raise SystemExit(f"[patch] failed to apply {patch}")
+
+
 def build(cc: str, dry_run: bool = False) -> Path:
     if not OPENV2G_ROOT.is_dir():
         raise SystemExit(
             f"[openv2g] {OPENV2G_ROOT} missing. Did you clone the submodule?\n"
             f"  git submodule update --init --recursive"
         )
+
+    _apply_patches(dry_run=dry_run)
 
     sources = _gather_sources()
     if not sources:
