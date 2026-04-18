@@ -8,15 +8,21 @@ the dependencies that HotWire's clean package structure needs.
 """
 from __future__ import annotations
 
+import logging
 from typing import Callable, Optional
 
 from ..fsm import PauseController, fsmEvse, fsmPev
 from ..fsm.message_observer import MessageObserver
 from ..plc.homeplug import build_homeplug
+from ..sdp.client import SdpClient
+from ..sdp.server import SdpServer
 from .address_manager import addressManager
 from .conn_mgr import connMgr
 from .hardware_interface import hardwareInterface
 from .modes import C_EVSE_MODE, C_LISTEN_MODE, C_PEV_MODE
+
+
+_log = logging.getLogger(__name__)
 
 
 class HotWireWorker:
@@ -78,6 +84,18 @@ class HotWireWorker:
 
         self.oldAvlnStatus = 0
 
+        # SDP is only meaningful on real hardware. In simulation mode the
+        # addressManager hardwires ``::1`` for both sides, so the PEV
+        # already knows where the SECC is. On a real PLC link the two
+        # sides just met via SLAC and neither knows the other's IP —
+        # that's exactly what SDP is for.
+        self.sdp_server: Optional[SdpServer] = None
+        self._sdp_attempted = False
+        try:
+            self._sdp_scope_id = self.addressManager.getScopeId()
+        except Exception:                                          # noqa: BLE001
+            self._sdp_scope_id = 0
+
     # ---- logging helpers -------------------------------------------
 
     def _worker_trace(self, s: str) -> None:
@@ -124,10 +142,63 @@ class HotWireWorker:
         elif level < 50:
             self.oldAvlnStatus = 0
 
+    # ---- SDP plumbing ---------------------------------------------
+
+    def _start_sdp_server_if_needed(self) -> None:
+        """EVSE side, real hardware: once the local modem is up, start
+        the SDP responder so the PEV can find us. Idempotent — the server
+        is only created on the first call."""
+        if self.sdp_server is not None or self.isSimulationMode:
+            return
+        secc_ip = self.addressManager.getSeccIp() or "::"
+        secc_port = self.addressManager.SeccTcpPort
+        try:
+            self.sdp_server = SdpServer(
+                secc_ip=secc_ip,
+                secc_port=secc_port,
+                scope_id=self._sdp_scope_id,
+            )
+            self.sdp_server.start()
+            self._worker_trace(
+                f"[WORKER] SDP responder started on [{secc_ip}]:{secc_port}"
+            )
+        except Exception as e:                                      # noqa: BLE001
+            self._worker_trace(f"[WORKER] SDP responder failed to start: {e}")
+            self.sdp_server = None
+
+    def _run_sdp_client_if_needed(self) -> None:
+        """PEV side, real hardware: once SLAC reports Ok, multicast a
+        discovery request so we learn the SECC's IPv6 address. Called
+        once per session; guarded by ``_sdp_attempted``."""
+        if self._sdp_attempted or self.isSimulationMode:
+            return
+        # Only attempt discovery after both modems paired (SLAC done).
+        if self.connMgr.getConnectionLevel() < 20:
+            return
+        self._sdp_attempted = True
+        self._worker_trace("[WORKER] starting SDP discovery...")
+        try:
+            resp = SdpClient(scope_id=self._sdp_scope_id).discover()
+        except Exception as e:                                      # noqa: BLE001
+            self._worker_trace(f"[WORKER] SDP client error: {e}")
+            return
+        if resp is None:
+            self._worker_trace("[WORKER] SDP discovery timed out")
+            return
+        self._worker_trace(
+            f"[WORKER] SDP discovered SECC at [{resp.ip}]:{resp.port}"
+        )
+        self.addressManager.setSeccIp(str(resp.ip))
+        self.addressManager.SeccTcpPort = resp.port
+        self.connMgr.SdpOk()
+
     def mainfunction(self) -> None:
         self.nMainFunctionCalls += 1
         if self.mode == C_PEV_MODE:
             self.connMgr.mainfunction()
+            self._run_sdp_client_if_needed()
+        elif self.mode == C_EVSE_MODE:
+            self._start_sdp_server_if_needed()
         self._handle_tcp_connection_trigger()
         self.hp.mainfunction()
         self.hardwareInterface.mainfunction()
@@ -138,3 +209,9 @@ class HotWireWorker:
                 self.evse.mainfunction()
         elif self.mode == C_PEV_MODE and self.pev is not None:
             self.pev.mainfunction()
+
+    def shutdown(self) -> None:
+        """Graceful teardown — stops the SDP server thread if running."""
+        if self.sdp_server is not None:
+            self.sdp_server.stop()
+            self.sdp_server = None

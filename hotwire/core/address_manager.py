@@ -157,6 +157,60 @@ class addressManager:
     def isEvseMacNew(self) -> bool:
         return self.evseMacIsUpdated
 
+    # ---- IPv6 scope / interface helpers ----
+
+    def getInterfaceName(self) -> str:
+        """Config-selected ethernet interface name, e.g. ``eth0``.
+
+        Used by SDP and any other code that needs an interface index
+        for link-local IPv6 (``fe80::...%eth0``). Returns an empty string
+        if unset, which is acceptable in simulation mode.
+        """
+        try:
+            return getConfigValue("eth_interface") or ""
+        except Exception:                                       # noqa: BLE001
+            return ""
+
+    def getScopeId(self) -> int:
+        """Return the IPv6 scope id for the configured interface.
+
+        On Linux this is ``if_nametoindex(eth0)``. On Windows link-local
+        addresses embed the interface index in the address itself
+        (``fe80::...%N``), so we parse it out of ``localIpv6Address``
+        when available; a return of 0 lets ``socket`` pick the default
+        interface, which is the correct behaviour on loopback.
+        """
+        if self.isSimulationMode:
+            return 0
+        iface = self.getInterfaceName()
+        if iface:
+            import socket
+            try:
+                return socket.if_nametoindex(iface)
+            except (OSError, AttributeError):
+                pass
+        # Windows: extract the "%N" suffix from the first link-local addr.
+        for addr in self.localIpv6Addresses:
+            if "%" in addr:
+                try:
+                    return int(addr.split("%", 1)[1])
+                except (ValueError, IndexError):
+                    pass
+        return 0
+
+    def getLinkLocalAddressWithoutScope(self) -> str:
+        """Return the first link-local IPv6 with any ``%N`` suffix stripped.
+
+        ``socket.bind`` on Windows wants the scope via the 4-tuple's
+        ``scope_id`` field, not embedded in the string.
+        """
+        if not self.localIpv6Address:
+            return ""
+        addr = self.localIpv6Address
+        if "%" in addr:
+            addr = addr.split("%", 1)[0]
+        return addr
+
     def setPevIp(self, pevIp: bytearray | bytes | str) -> None:
         if isinstance(pevIp, (bytearray, bytes)):
             if len(pevIp) != 16:

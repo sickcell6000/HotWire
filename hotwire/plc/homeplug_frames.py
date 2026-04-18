@@ -145,6 +145,22 @@ class HomePlugFrame:
         return (self.mmtype_base == MMTYPE_CM_SLAC_MATCH
                 and self.mmsub == MMSUB_CNF)
 
+    def is_start_atten_char_ind(self) -> bool:
+        return (self.mmtype_base == MMTYPE_CM_START_ATTEN_CHAR
+                and self.mmsub == MMSUB_IND)
+
+    def is_mnbc_sound_ind(self) -> bool:
+        return (self.mmtype_base == MMTYPE_CM_MNBC_SOUND
+                and self.mmsub == MMSUB_IND)
+
+    def is_atten_char_ind(self) -> bool:
+        return (self.mmtype_base == MMTYPE_CM_ATTEN_CHAR
+                and self.mmsub == MMSUB_IND)
+
+    def is_atten_char_rsp(self) -> bool:
+        return (self.mmtype_base == MMTYPE_CM_ATTEN_CHAR
+                and self.mmsub == MMSUB_RSP)
+
 
 # --- Frame builders (thin wrappers — semantics remain in SLAC state machine) --
 
@@ -292,6 +308,171 @@ def build_slac_match_req(src_mac: bytes, dst_mac: bytes,
         src_mac=src_mac,
         mmtype_base=MMTYPE_CM_SLAC_MATCH,
         mmsub=MMSUB_REQ,
+        payload=bytes(payload),
+    )
+
+
+# --- Attenuation-round builders (ISO 15118-3 §A.7.1 / HomePlug AV 11.2.11) ----
+#
+# The attenuation characterisation exchange measures the PLC channel
+# quality between PEV and EVSE to confirm they're actually on the same
+# cable rather than overhearing a neighbour. The simplified frames we
+# emit here match what real vehicles (Ioniq 6 etc.) transmit; byte
+# positions come from HomePlug AV 2.1 Table 11-73..11-76 and
+# cross-checked against the IONIQ6/Tesla captures under
+# EVSEtestinglog/EV_Testing/.
+
+
+def build_start_atten_char_ind(
+    src_mac: bytes,
+    run_id: bytes,
+    num_sounds: int = 10,
+    timeout_100ms: int = 6,
+) -> HomePlugFrame:
+    """PEV -> (broadcast): kicks off the sounding phase.
+
+    Fields mirror HomePlug AV Table 11-73::
+
+        OUI(3) APPLICATION_TYPE(1) SECURITY_TYPE(1)
+        NUM_SOUNDS(1) TIME_OUT(1) RESP_TYPE(1)
+        FORWARDING_STA(6) RUN_ID(8)
+    """
+    assert len(src_mac) == 6 and len(run_id) == 8
+    payload = bytearray(22)
+    payload[0:3] = b"\x00\xb0\x52"
+    payload[3] = 0x00                           # APPLICATION_TYPE
+    payload[4] = 0x00                           # SECURITY_TYPE
+    payload[5] = num_sounds & 0xFF
+    payload[6] = timeout_100ms & 0xFF
+    payload[7] = 0x01                           # RESP_TYPE = 1 (reply expected)
+    # FORWARDING_STA 8..13 left as 0x00 (not used for direct PEV→EVSE)
+    for i in range(8):
+        payload[14 + i] = run_id[i]
+    return HomePlugFrame(
+        dst_mac=MAC_BROADCAST,
+        src_mac=src_mac,
+        mmtype_base=MMTYPE_CM_START_ATTEN_CHAR,
+        mmsub=MMSUB_IND,
+        payload=bytes(payload),
+    )
+
+
+def build_mnbc_sound_ind(
+    src_mac: bytes,
+    run_id: bytes,
+    remaining_sounds: int,
+    rnd_nonce: Optional[bytes] = None,
+) -> HomePlugFrame:
+    """PEV -> (broadcast): one of the ``num_sounds`` training frames.
+
+    ``rnd_nonce`` is a 16-byte random value included in the sound
+    message; real chargers hash this into their attenuation profile.
+    Leave ``None`` to fill with zeros, which is fine for the mock
+    harness.
+    """
+    import os as _os
+    assert len(src_mac) == 6 and len(run_id) == 8
+    if rnd_nonce is None:
+        rnd_nonce = _os.urandom(16)
+    payload = bytearray(54)
+    payload[0:3] = b"\x00\xb0\x52"
+    payload[3] = 0x00                           # APPLICATION_TYPE
+    payload[4] = 0x00                           # SECURITY_TYPE
+    payload[5] = 0x00                           # SENDER_ID (unused)
+    payload[6] = remaining_sounds & 0xFF        # COUNTDOWN
+    # SOURCE_ADDRESS 7..12 reserved / PEV MAC duplicate
+    for i in range(6):
+        payload[7 + i] = src_mac[i]
+    for i in range(8):
+        payload[13 + i] = run_id[i]
+    for i in range(16):
+        payload[21 + i] = rnd_nonce[i]
+    # The remaining bytes are the sound itself — we leave them zero.
+    return HomePlugFrame(
+        dst_mac=MAC_BROADCAST,
+        src_mac=src_mac,
+        mmtype_base=MMTYPE_CM_MNBC_SOUND,
+        mmsub=MMSUB_IND,
+        payload=bytes(payload),
+    )
+
+
+def build_atten_char_ind(
+    src_mac: bytes,
+    dst_mac: bytes,
+    run_id: bytes,
+    pev_mac: bytes,
+    num_sounds: int,
+    attenuation_profile: bytes = b"",
+) -> HomePlugFrame:
+    """EVSE -> PEV: attenuation profile after receiving ``num_sounds`` sounds.
+
+    ``attenuation_profile`` is a 58-byte per-tone AGC value vector in
+    real captures; we pad with zeros when the caller doesn't supply
+    one — good enough for mock/replay and for letting the PEV reach
+    its next state.
+    """
+    assert len(src_mac) == 6 and len(dst_mac) == 6
+    assert len(pev_mac) == 6 and len(run_id) == 8
+    profile = bytearray(58)
+    if attenuation_profile:
+        n = min(len(attenuation_profile), 58)
+        profile[:n] = attenuation_profile[:n]
+    # Captured IONIQ6 / Tesla CM_ATTEN_CHAR.IND payloads run 112 bytes
+    # on the wire. Internally we lay fields out 56 + 58 = 114 so that
+    # the ATTEN_PROFILE[58] group fits; the trailing bytes beyond byte
+    # 112 are ignored by peers because the preceding NUM_GROUPS says
+    # how many to read.
+    payload = bytearray(120)
+    payload[0:3] = b"\x00\xb0\x52"
+    payload[3] = 0x00                           # APPLICATION_TYPE
+    payload[4] = 0x00                           # SECURITY_TYPE
+    payload[5] = 0x00                           # SOURCE_ADDRESS_TYPE (MAC)
+    for i in range(6):
+        payload[6 + i] = pev_mac[i]             # SOURCE_ADDRESS (PEV MAC)
+    for i in range(8):
+        payload[12 + i] = run_id[i]             # RUN_ID
+    # SOURCE_ID 20..36: unused
+    # RESP_ID   37..53: unused
+    payload[54] = num_sounds & 0xFF             # NUM_SOUNDS actually received
+    payload[55] = 58                            # NUM_GROUPS (58 tones)
+    for i in range(58):
+        payload[56 + i] = profile[i]            # ATTEN_PROFILE[58]
+    # Remaining bytes stay zero.
+    return HomePlugFrame(
+        dst_mac=dst_mac,
+        src_mac=src_mac,
+        mmtype_base=MMTYPE_CM_ATTEN_CHAR,
+        mmsub=MMSUB_IND,
+        payload=bytes(payload),
+    )
+
+
+def build_atten_char_rsp(
+    src_mac: bytes,
+    dst_mac: bytes,
+    run_id: bytes,
+    pev_mac: bytes,
+    result: int = 0,
+) -> HomePlugFrame:
+    """PEV -> EVSE: acknowledges the attenuation profile."""
+    assert len(src_mac) == 6 and len(dst_mac) == 6
+    assert len(pev_mac) == 6 and len(run_id) == 8
+    payload = bytearray(53)
+    payload[0:3] = b"\x00\xb0\x52"
+    payload[3] = 0x00                           # APPLICATION_TYPE
+    payload[4] = 0x00                           # SECURITY_TYPE
+    payload[5] = 0x00                           # SOURCE_ADDRESS_TYPE
+    for i in range(6):
+        payload[6 + i] = pev_mac[i]
+    for i in range(8):
+        payload[12 + i] = run_id[i]
+    payload[52] = result & 0xFF                 # RESULT: 0 = success
+    return HomePlugFrame(
+        dst_mac=dst_mac,
+        src_mac=src_mac,
+        mmtype_base=MMTYPE_CM_ATTEN_CHAR,
+        mmsub=MMSUB_RSP,
         payload=bytes(payload),
     )
 

@@ -28,6 +28,8 @@ TEST_SCRIPTS = [
     "test_homeplug_factory.py",
     "test_homeplug_slac_mock.py",
     "test_homeplug_slac_replay.py",
+    "test_slac_attenuation.py",
+    "test_sdp.py",
     "test_din_conformance.py",
     "test_random_schema_fuzz.py",
     # Integration tests (open sockets, spawn threads).
