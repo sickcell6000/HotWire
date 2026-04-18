@@ -410,10 +410,14 @@ class fsmEvse:
         if "ServiceDiscoveryReq" not in decoded:
             return
 
+        # EDb accepts 1 positional arg — ResponseCode. Everything else in
+        # ServiceDiscoveryRes (payment options, service category, energy
+        # transfer type) is hardcoded in the bundled OpenV2G codec and not
+        # operator-overrideable until we ship a patched codec.
         self._intercept_and_send(
             "ServiceDiscoveryRes",
-            {},
-            lambda _p: f"E{self.schemaSelection}b",  # bare-default OK
+            {"ResponseCode": 0},
+            lambda p: f"E{self.schemaSelection}b_{p['ResponseCode']}",
         )
         self.publishStatus("Service discovery done")
         self.enterState(STATE_WAIT_SERVICE_PAYMENT)
@@ -438,10 +442,11 @@ class fsmEvse:
         ):
             return
 
+        # EDc accepts 1 positional arg — ResponseCode.
         self._intercept_and_send(
             "ServicePaymentSelectionRes",
-            {},
-            lambda _p: f"E{self.schemaSelection}c",
+            {"ResponseCode": 0},
+            lambda p: f"E{self.schemaSelection}c_{p['ResponseCode']}",
         )
         self.publishStatus("Payment selection done")
         self.enterState(STATE_WAIT_FLEXIBLE)
@@ -471,10 +476,54 @@ class fsmEvse:
             return
 
         if "ChargeParameterDiscoveryReq" in decoded:
+            # EDe accepts 27 positional args (legacy fsmEvse.py:659-672):
+            #   rc, proc, saslUsed, saslLen, schedStart, pMax,
+            #   isoUsed, isoStatus, statusCode, notifDelay, notifType,
+            #   maxI_mult, maxI_val, maxI_unit,
+            #   maxP_used, maxP_mult, maxP_val, maxP_unit,
+            #   maxV_mult, maxV_val, maxV_unit,
+            #   minI_mult, minI_val, minI_unit,
+            #   minV_mult, minV_val, minV_unit.
+            def build_cpd(p: dict[str, Any]) -> str:
+                parts = [
+                    str(p.get("ResponseCode", 0)),
+                    str(p.get("EVSEProcessing", 0)),                 # Finished
+                    str(p.get("SAScheduleList_isUsed", 1)),
+                    str(p.get("SAScheduleListArrayLen", 1)),
+                    str(p.get("SchedTupleStart", 0)),
+                    str(p.get("PMax", 50)),
+                    str(p.get("IsolationStatusUsed", 1)),
+                    str(p.get("IsolationStatus", 0)),                # Invalid at CPD time
+                    str(p.get("EVSEStatusCode", 1)),                 # EVSE_Ready
+                    str(p.get("NotificationMaxDelay", 0)),
+                    str(p.get("EVSENotification", 0)),
+                    # Max current limit.
+                    str(p.get("EVSEMaximumCurrentLimitMultiplier", 0)),
+                    str(p.get("EVSEMaximumCurrentLimit", 200)),
+                    str(p.get("EVSEMaximumCurrentLimitUnit", 3)),
+                    # Max power limit.
+                    str(p.get("EVSEMaximumPowerLimit_isUsed", 1)),
+                    str(p.get("EVSEMaximumPowerLimitMultiplier", 3)),
+                    str(p.get("EVSEMaximumPowerLimit", 10)),
+                    str(p.get("EVSEMaximumPowerLimitUnit", 7)),
+                    # Max voltage limit.
+                    str(p.get("EVSEMaximumVoltageLimitMultiplier", 0)),
+                    str(p.get("EVSEMaximumVoltageLimit", 450)),
+                    str(p.get("EVSEMaximumVoltageLimitUnit", 5)),
+                    # Min current / voltage.
+                    str(p.get("EVSEMinimumCurrentLimitMultiplier", 0)),
+                    str(p.get("EVSEMinimumCurrentLimit", 1)),
+                    str(p.get("EVSEMinimumCurrentLimitUnit", 3)),
+                    str(p.get("EVSEMinimumVoltageLimitMultiplier", 0)),
+                    str(p.get("EVSEMinimumVoltageLimit", 200)),
+                    str(p.get("EVSEMinimumVoltageLimitUnit", 5)),
+                ]
+                return f"E{self.schemaSelection}e_" + "_".join(parts)
+
             self._intercept_and_send(
                 "ChargeParameterDiscoveryRes",
                 {},
-                lambda _p: f"E{self.schemaSelection}e",
+                build_cpd,
             )
             self.publishStatus("Charge parameters sent")
             return
@@ -643,19 +692,36 @@ class fsmEvse:
             return
 
         if "WeldingDetectionReq" in decoded:
+            # EDj accepts 9 args: rc, isoUsed, isoStatus, statusCode,
+            # notifDelay, notifType, presentV_mult, presentV_val, presentV_unit.
+            def build_wd(p: dict[str, Any]) -> str:
+                return (
+                    f"E{self.schemaSelection}j_"
+                    f"{p.get('ResponseCode', 0)}_"
+                    f"{p.get('IsolationStatusUsed', 1)}_"
+                    f"{p.get('IsolationStatus', 1)}_"
+                    f"{p.get('EVSEStatusCode', 1)}_"
+                    f"{p.get('NotificationMaxDelay', 0)}_"
+                    f"{p.get('EVSENotification', 0)}_"
+                    f"{p.get('EVSEPresentVoltageMultiplier', 0)}_"
+                    f"{p.get('EVSEPresentVoltage', 0)}_"
+                    f"{p.get('EVSEPresentVoltageUnit', 5)}"
+                )
+
             self._intercept_and_send(
                 "WeldingDetectionRes",
                 {},
-                lambda _p: f"E{self.schemaSelection}j",
+                build_wd,
             )
             self.publishStatus("Welding detection")
             return
 
         if "SessionStopReq" in decoded:
+            # EDk accepts 1 arg — ResponseCode.
             self._intercept_and_send(
                 "SessionStopRes",
-                {},
-                lambda _p: f"E{self.schemaSelection}k",
+                {"ResponseCode": 0},
+                lambda p: f"E{self.schemaSelection}k_{p['ResponseCode']}",
             )
             self.publishStatus("Session stopped")
             self.enterState(STATE_STOPPED)

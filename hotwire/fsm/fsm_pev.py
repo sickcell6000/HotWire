@@ -465,30 +465,65 @@ class fsmPev:
         self.enterState(STATE_CONNECTED)
 
     def _state_connected(self) -> None:
-        # Pick the supportedAppProtocolReq blob based on what the operator
-        # configured. For ISO / both, try a fresh runtime-generated blob
-        # first (requires a codec with EH_ custom-params support); fall
-        # back to the Ioniq DIN blob and warn if that isn't available.
-        if self.preferred_protocol in ("iso", "both"):
-            generated = _iso_capable_app_protocol_hex()
-            if generated:
-                self.addToTrace(
-                    f"Checkpoint400: Sending generated supportedAppProtocolReq "
-                    f"(protocol={self.preferred_protocol})"
-                )
-                data = exiHexToByteArray(generated)
+        # supportedAppProtocolReq is a pre-captured EXI blob (OpenV2G can't
+        # synthesise one from command-line args). We still route it through
+        # the PauseController so playbooks + the GUI can:
+        #   (a) pause + observe the outbound blob before transmission, and
+        #   (b) swap in a different preset or a hand-crafted hex payload
+        #       via ``PauseController.set_override("supportedAppProtocolReq",
+        #       {"Preset": "tesla"} | {"PayloadHex": "8000..."})``.
+        presets = {
+            "ioniq": EXI_DEMO_SUPPORTED_APP_PROTOCOL_IONIQ,
+            "tesla": EXI_DEMO_SUPPORTED_APP_PROTOCOL_TESLA,
+        }
+        defaults = {
+            "Preset": self.preferred_protocol,
+            "PayloadHex": "",
+        }
+        params = self.pause_controller.intercept(
+            "supportedAppProtocolReq", defaults
+        )
+
+        # Explicit PayloadHex wins over preset.
+        blob_hex = params.get("PayloadHex") or ""
+        if not blob_hex:
+            preset = str(params.get("Preset", "ioniq")).lower()
+            if preset in ("iso", "both", "generated"):
+                # The "generated" preset tries to produce a multi-protocol
+                # blob via an enhanced OpenV2G; bundled codec returns None.
+                blob_hex = _iso_capable_app_protocol_hex() or ""
+                if not blob_hex:
+                    self.addToTrace(
+                        "[warn] codec lacks EH_ custom-params support; "
+                        "falling back to Ioniq DIN-only blob"
+                    )
+                    blob_hex = EXI_DEMO_SUPPORTED_APP_PROTOCOL_IONIQ
             else:
-                self.addToTrace(
-                    "[warn] codec lacks EH_ custom-params support; "
-                    "falling back to Ioniq DIN-only blob"
-                )
-                data = exiHexToByteArray(EXI_DEMO_SUPPORTED_APP_PROTOCOL_IONIQ)
-        elif self.preferred_protocol == "tesla":
-            self.addToTrace("Checkpoint400: Sending SupportedApplicationProtocolReq (Tesla)")
-            data = exiHexToByteArray(EXI_DEMO_SUPPORTED_APP_PROTOCOL_TESLA)
-        else:
-            self.addToTrace("Checkpoint400: Sending SupportedApplicationProtocolReq (Ioniq)")
-            data = exiHexToByteArray(EXI_DEMO_SUPPORTED_APP_PROTOCOL_IONIQ)
+                blob_hex = presets.get(preset,
+                                       EXI_DEMO_SUPPORTED_APP_PROTOCOL_IONIQ)
+
+        self.addToTrace(
+            f"Checkpoint400: Sending supportedAppProtocolReq ({blob_hex[:32]}...)"
+        )
+        data = exiHexToByteArray(blob_hex)
+
+        # Observer hook — match the pattern used by _intercept_and_send for
+        # other Req messages, so session logs and the GUI tree view see
+        # this as a proper 'tx' event with a decoded view and raw bytes.
+        if self.message_observer is not None:
+            try:
+                decoded_tx = exiDecode(data, "Dh")
+                obs_params: dict[str, Any] = {}
+                try:
+                    obs_params = _json.loads(decoded_tx)
+                except (ValueError, TypeError):
+                    pass
+                obs_params["_raw_exi_hex"] = blob_hex
+                name = obs_params.get("msgName", "supportedAppProtocolReq")
+                self._notify("tx", name, obs_params)
+            except Exception as e:                              # noqa: BLE001
+                self.addToTrace(f"[observer decode error] {e}")
+
         self.Tcp.transmit(bytes(addV2GTPHeader(data)))
         self.enterState(STATE_WAIT_APP_RES)
 

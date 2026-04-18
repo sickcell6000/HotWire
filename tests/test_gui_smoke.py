@@ -61,12 +61,23 @@ def test_apply_override_flows_to_pause_controller(qtbot):
     w = HotWireMainWindow(mode=C_EVSE_MODE, is_simulation=True)
     qtbot.addWidget(w)
     # Select the PreChargeRes stage, then apply an override with a known value.
+    # After Checkpoint 8 the PreChargeRes schema exposes 7 fields; applying
+    # overrides with a single user-edited value still collects every field
+    # from the form into the override dict (using schema defaults for the
+    # untouched ones).
     w.stage_config.set_stage("PreChargeRes")
     w.stage_config.load_values({"EVSEPresentVoltage": 777})
     w.stage_config._on_apply()
 
     got = w.pause_controller.get_override("PreChargeRes")
-    assert got == {"EVSEPresentVoltage": 777}
+    assert got is not None
+    assert got["EVSEPresentVoltage"] == 777
+    # The other 6 fields must also be present — otherwise a PauseController
+    # intercept that only sees a partial override could drop mandatory
+    # DIN DC_EVSEStatus fields on the wire.
+    for k in ("ResponseCode", "IsolationStatusUsed", "IsolationStatus",
+              "EVSEStatusCode", "NotificationMaxDelay", "EVSENotification"):
+        assert k in got, f"override is missing {k}"
 
 
 def test_pause_toggle_flows_to_pause_controller(qtbot):
