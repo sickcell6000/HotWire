@@ -60,3 +60,7 @@ vendor/OpenV2Gx/Release/src/
 # OpenV2G rebuild artifacts
 vendor/_build_openv2g/
 
+
+# Hardware-check artefacts
+runs/
+
