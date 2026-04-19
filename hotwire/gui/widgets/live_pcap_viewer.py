@@ -32,6 +32,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from .interface_picker import InterfacePickerCombo
+
 
 class LivePcapViewer(QWidget):
     """Dockable live MMTYPE counter."""
@@ -56,8 +58,8 @@ class LivePcapViewer(QWidget):
 
         ctrl = QHBoxLayout()
         ctrl.addWidget(QLabel("Interface:"))
-        self._iface_edit = QLineEdit()
-        self._iface_edit.setPlaceholderText("eth1 / \\Device\\NPF_...")
+        # Checkpoint 15 — ranked picker instead of raw QLineEdit.
+        self._iface_edit = InterfacePickerCombo()
         ctrl.addWidget(self._iface_edit, 1)
         self._start_btn = QPushButton("Start")
         self._stop_btn = QPushButton("Stop")
@@ -130,7 +132,7 @@ class LivePcapViewer(QWidget):
     # ---- subprocess lifecycle -------------------------------------
 
     def _on_start(self) -> None:
-        iface = self._iface_edit.text().strip()
+        iface = self._iface_edit.current_interface()
         if not iface:
             self._status.setText("<b style='color: #C62828;'>Enter an interface.</b>")
             return

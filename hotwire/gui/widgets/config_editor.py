@@ -35,6 +35,13 @@ from PyQt6.QtWidgets import (
 )
 
 from ...core import config as config_mod
+from .interface_picker import InterfacePickerCombo
+
+
+# Config keys that should be rendered with the network-interface picker.
+_INTERFACE_KEYS = frozenset({
+    "eth_interface", "eth_windows_interface_name",
+})
 
 
 # Known enum-valued keys → option list.
@@ -178,7 +185,10 @@ class ConfigEditor(QWidget):
     def _collect_values(self) -> dict[str, str]:
         out: dict[str, str] = {}
         for key, widget in self._widgets.items():
-            if isinstance(widget, QCheckBox):
+            # Interface picker first (subclass of QWidget, not any of the below).
+            if isinstance(widget, InterfacePickerCombo):
+                out[key] = widget.current_interface()
+            elif isinstance(widget, QCheckBox):
                 out[key] = "true" if widget.isChecked() else "false"
             elif isinstance(widget, QSpinBox):
                 out[key] = str(widget.value())
@@ -228,6 +238,10 @@ class ConfigEditor(QWidget):
 
 def _build_widget(key: str, value: str) -> QWidget:
     """Pick a widget based on what the current value looks like."""
+    # Interface keys get a ranked combo box instead of a QLineEdit.
+    if key in _INTERFACE_KEYS:
+        return InterfacePickerCombo(initial=value, show_refresh=True)
+
     if key in ENUM_KEYS:
         combo = QComboBox()
         combo.addItems(ENUM_KEYS[key])

@@ -33,6 +33,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from .interface_picker import InterfacePickerCombo
+
 
 _SCRIPT_DIR = Path(__file__).resolve().parent.parent.parent.parent \
     / "scripts" / "hw_check"
@@ -74,8 +76,8 @@ class HwRunnerPanel(QWidget):
             self._phase_combo.addItem(label)
         form.addRow("Phase", self._phase_combo)
 
-        self._iface_edit = QLineEdit()
-        self._iface_edit.setPlaceholderText("eth1 (Linux) / \\Device\\NPF_... (Windows)")
+        # Checkpoint 15 — ranked picker instead of raw QLineEdit.
+        self._iface_edit = InterfacePickerCombo()
         form.addRow("Interface", self._iface_edit)
 
         self._role_combo = QComboBox()
@@ -125,7 +127,7 @@ class HwRunnerPanel(QWidget):
         self._current_phase = phase_label
 
         argv = [str(_SCRIPT_DIR / script)]
-        iface = self._iface_edit.text().strip()
+        iface = self._iface_edit.current_interface()
         if iface:
             argv += ["-i", iface]
         if "phase2" in script or "phase3" in script or "phase4" in script:

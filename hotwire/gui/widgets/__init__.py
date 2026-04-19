@@ -3,6 +3,8 @@
 from .attack_launcher import AttackLauncherDialog
 from .config_editor import ConfigEditor
 from .hw_runner_panel import HwRunnerPanel
+from .interface_picker import InterfacePickerCombo
+from .interface_status_dock import NetworkInterfacesDock
 from .live_pcap_viewer import LivePcapViewer
 from .pause_dialog import PauseInterceptDialog
 from .preflight_wizard import PreflightWizard
@@ -19,7 +21,9 @@ __all__ = [
     "AttackLauncherDialog",
     "ConfigEditor",
     "HwRunnerPanel",
+    "InterfacePickerCombo",
     "LivePcapViewer",
+    "NetworkInterfacesDock",
     "PauseInterceptDialog",
     "PreflightWizard",
     "ReqResTreeView",

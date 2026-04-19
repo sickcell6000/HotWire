@@ -42,6 +42,7 @@ from .widgets import (
     ConfigEditor,
     HwRunnerPanel,
     LivePcapViewer,
+    NetworkInterfacesDock,
     PauseInterceptDialog,
     PreflightWizard,
     ReqResTreeView,
@@ -99,6 +100,10 @@ class HotWireMainWindow(QMainWindow):
         self._live_pcap_panel: LivePcapViewer | None = None
         self._config_editor_dock: QDockWidget | None = None
         self._config_editor_panel: ConfigEditor | None = None
+
+        # Checkpoint 15 — global network-interface status dock.
+        self._network_dock: QDockWidget | None = None
+        self._network_panel: NetworkInterfacesDock | None = None
 
         self._build_layout()
         self._build_menu_bar()
@@ -218,9 +223,14 @@ class HotWireMainWindow(QMainWindow):
         self._preflight_wizard_action = QAction("Run preflight &wizard…", self)
         self._hw_runner_action = QAction("Run hw_check &phase…", self)
         self._live_pcap_action = QAction("Live pcap &viewer…", self)
+        # Checkpoint 15.
+        self._network_dock_action = QAction(
+            "&Network interfaces…", self
+        )
         hw_menu.addAction(self._preflight_wizard_action)
         hw_menu.addAction(self._hw_runner_action)
         hw_menu.addAction(self._live_pcap_action)
+        hw_menu.addAction(self._network_dock_action)
 
         help_menu = mb.addMenu("&Help")
         self._about_action = QAction("&About HotWire…", self)
@@ -274,6 +284,7 @@ class HotWireMainWindow(QMainWindow):
         )
         self._hw_runner_action.triggered.connect(self._on_open_hw_runner)
         self._live_pcap_action.triggered.connect(self._on_open_live_pcap)
+        self._network_dock_action.triggered.connect(self._on_open_network_dock)
 
         self.stage_nav.stage_selected.connect(self.stage_config.set_stage)
         self.stage_nav.pause_toggled.connect(self._on_pause_toggled)
@@ -573,3 +584,19 @@ class HotWireMainWindow(QMainWindow):
         self.signals.trace_emitted.emit(
             "SUCCESS", f"[{tool_name}] {msg}"
         )
+
+    def _on_open_network_dock(self) -> None:
+        if self._network_dock is None:
+            self._network_panel = NetworkInterfacesDock(self)
+            self._network_panel.best_changed.connect(
+                lambda name: self.signals.trace_emitted.emit(
+                    "INFO", f"[network] best candidate: {name}"
+                )
+            )
+            self._network_dock = QDockWidget("Network interfaces", self)
+            self._network_dock.setWidget(self._network_panel)
+            self.addDockWidget(
+                Qt.DockWidgetArea.RightDockWidgetArea, self._network_dock
+            )
+        self._network_dock.show()
+        self._network_dock.raise_()

@@ -32,6 +32,7 @@ from PyQt6.QtWidgets import (
 )
 
 from ...preflight import CheckResult, CheckStatus, PreflightRunner
+from .interface_picker import InterfacePickerCombo
 
 _STATUS_COLOR = {
     CheckStatus.PASS: QColor("#2E7D32"),
@@ -69,18 +70,22 @@ class _IntroPage(QWizardPage):
         layout.addWidget(QLabel(
             "<b>Interface</b> (leave blank for host-only checks):"
         ))
-        self._iface_edit = QLineEdit()
-        self._iface_edit.setPlaceholderText("eth1 / \\Device\\NPF_...")
+        # Checkpoint 15 — replace the blind QLineEdit with a ranked picker.
+        self._iface_edit = InterfacePickerCombo(show_refresh=True)
         layout.addWidget(self._iface_edit)
 
         layout.addWidget(QLabel(
             "<i>Tip:</i> host-only checks still verify Python, OpenV2G "
             "binary, disk space, Npcap/libpcap, and system clock. "
             "Interface-dependent checks (MTU, carrier, IPv6 link-local, "
-            "multicast) SKIP gracefully when empty."
+            "multicast) SKIP gracefully when the picker is empty. "
+            "Hover over an entry to see MAC / MTU / carrier / score."
         ))
 
-        self.registerField("interface", self._iface_edit)
+        # We don't registerField() here — QWizard's field mechanism wants a
+        # Qt property on the widget, and InterfacePickerCombo exposes the
+        # value via ``current_interface()`` instead. _RunningPage reads it
+        # directly via wizard().page(0).
 
 
 class _RunningPage(QWizardPage):
@@ -121,7 +126,10 @@ class _RunningPage(QWizardPage):
         self._completed = False
         self._progress.setRange(0, 0)
 
-        iface = self.field("interface") or None
+        # The Intro page owns the InterfacePickerCombo directly; read it.
+        intro_page = self.wizard().page(0)
+        picker = getattr(intro_page, "_iface_edit", None)
+        iface = picker.current_interface() if picker is not None else ""
         self._thread = _RunnerThread(interface=iface or None, parent=self)
         self._thread.check_done.connect(self._on_check_done)
         self._thread.finished.connect(self._on_thread_finished)

@@ -47,6 +47,10 @@ TEST_SCRIPTS = [
     "test_config_editor.py",
     "test_live_pcap_viewer.py",
     "test_preflight_wizard.py",
+    # Checkpoint 15 — NIC enumerator + picker + status dock.
+    "test_interface_enumerator.py",
+    "test_interface_picker.py",
+    "test_interface_status_dock.py",
     # Integration tests (open sockets, spawn threads).
     "test_tcp_loopback.py",
     "test_two_process_loopback.py",
