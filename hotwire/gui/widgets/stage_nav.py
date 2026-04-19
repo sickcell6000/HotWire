@@ -75,3 +75,22 @@ class StageNavPanel(QTreeWidget):
         item = self._items.get(stage)
         if item is not None:
             item.setText(2, "●" if has_override else "")
+
+    def set_pause_state(self, stage: str, enabled: bool) -> None:
+        """Public API: set the Pause column's checkbox for ``stage``.
+
+        Replaces the prior ``main_window._items[...]`` direct access so
+        the tree widget stays the owner of its QTreeWidgetItems. Safe
+        to call with a stage that doesn't exist — no-op.
+        """
+        item = self._items.get(stage)
+        if item is None:
+            return
+        state = Qt.CheckState.Checked if enabled else Qt.CheckState.Unchecked
+        # setCheckState fires itemChanged → pause_toggled signal. The
+        # caller typically wants the signal to fire (so PauseController
+        # stays in sync), so we do NOT block it here.
+        item.setCheckState(1, state)
+
+    def has_stage(self, stage: str) -> bool:
+        return stage in self._items

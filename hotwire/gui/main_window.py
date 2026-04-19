@@ -14,16 +14,21 @@ fires while the FSM is blocked.
 """
 from __future__ import annotations
 
+import time
 from typing import Any
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
+    QDockWidget,
     QHBoxLayout,
+    QLabel,
     QMainWindow,
     QMessageBox,
     QPushButton,
     QScrollArea,
     QSplitter,
+    QStatusBar,
     QVBoxLayout,
     QWidget,
 )
@@ -33,8 +38,10 @@ from ..fsm import PauseController
 from .signals import Signals
 from .stage_schema import schema_for, stage_order
 from .widgets import (
+    AttackLauncherDialog,
     PauseInterceptDialog,
     ReqResTreeView,
+    SessionReplayPanel,
     StageConfigPanel,
     StageNavPanel,
     StatusPanel,
@@ -68,8 +75,23 @@ class HotWireMainWindow(QMainWindow):
         self.pause_controller = PauseController()
         self._worker_thread: QtWorkerThread | None = None
 
+        # Checkpoint 13 — msg-rate tracking for the status bar.
+        self._msg_count = 0
+        self._msg_count_last_sample = 0
+        self._last_sample_time = time.monotonic()
+        self._replay_dock: QDockWidget | None = None
+        self._replay_panel: SessionReplayPanel | None = None
+
         self._build_layout()
+        self._build_menu_bar()
+        self._build_status_bar()
         self._wire_signals()
+
+        # Sample msg count → rate every 500 ms.
+        self._rate_timer = QTimer(self)
+        self._rate_timer.setInterval(500)
+        self._rate_timer.timeout.connect(self._update_rate_display)
+        self._rate_timer.start()
 
     # ---- layout -----------------------------------------------------
 
@@ -138,13 +160,66 @@ class HotWireMainWindow(QMainWindow):
         if order:
             self.stage_config.set_stage(order[0])
 
+    def _build_menu_bar(self) -> None:
+        """File / Attacks / Help menus. Pure UI surface — no new state."""
+        mb = self.menuBar()
+
+        file_menu = mb.addMenu("&File")
+        self._open_session_action = QAction("&Open session for replay…", self)
+        self._save_log_action = QAction("&Save trace log…", self)
+        self._quit_action = QAction("&Quit", self)
+        self._quit_action.setShortcut("Ctrl+Q")
+        file_menu.addAction(self._open_session_action)
+        file_menu.addAction(self._save_log_action)
+        file_menu.addSeparator()
+        file_menu.addAction(self._quit_action)
+
+        attacks_menu = mb.addMenu("&Attacks")
+        self._launch_attack_action = QAction("&Launch attack…", self)
+        self._clear_attacks_action = QAction("&Clear all overrides", self)
+        attacks_menu.addAction(self._launch_attack_action)
+        attacks_menu.addAction(self._clear_attacks_action)
+
+        help_menu = mb.addMenu("&Help")
+        self._about_action = QAction("&About HotWire…", self)
+        help_menu.addAction(self._about_action)
+
+    def _build_status_bar(self) -> None:
+        bar = QStatusBar(self)
+        self._msg_count_label = QLabel("0 msgs")
+        self._rate_label = QLabel("0.0 Hz")
+        self._fsm_state_label = QLabel("idle")
+        # Small fixed-width font for numeric readout.
+        for lbl in (self._msg_count_label, self._rate_label,
+                    self._fsm_state_label):
+            lbl.setStyleSheet("padding: 0 10px; font-family: monospace;")
+        bar.addPermanentWidget(self._fsm_state_label)
+        bar.addPermanentWidget(self._msg_count_label)
+        bar.addPermanentWidget(self._rate_label)
+        self.setStatusBar(bar)
+
     def _wire_signals(self) -> None:
         self.signals.trace_emitted.connect(self.trace_log.on_trace)
         self.signals.status_changed.connect(self.status_panel.on_status)
+        self.signals.status_changed.connect(self._on_status_for_bar)
         self.signals.pause_hit.connect(self._on_pause_hit)
         self.signals.msg_decoded.connect(self.tree_view.on_message)
+        self.signals.msg_decoded.connect(self._on_msg_for_counter)
         self.signals.worker_started.connect(self._on_worker_started)
         self.signals.worker_stopped.connect(self._on_worker_stopped)
+        self.signals.replay_event_selected.connect(self.tree_view.on_message)
+
+        # Menu actions.
+        self._open_session_action.triggered.connect(self._on_open_replay)
+        self._save_log_action.triggered.connect(
+            lambda: self.trace_log.save_to_file(self)
+        )
+        self._quit_action.triggered.connect(self.close)
+        self._launch_attack_action.triggered.connect(self._on_launch_attack)
+        self._clear_attacks_action.triggered.connect(
+            self._clear_all_overrides
+        )
+        self._about_action.triggered.connect(self._on_about)
 
         self.stage_nav.stage_selected.connect(self.stage_config.set_stage)
         self.stage_nav.pause_toggled.connect(self._on_pause_toggled)
@@ -223,17 +298,16 @@ class HotWireMainWindow(QMainWindow):
         stages = list(schema_for(self._mode).keys())
         for s in stages:
             self.pause_controller.set_pause_enabled(s, True)
-        # Reflect in the nav checkboxes.
-        for s in stages:
-            self.stage_nav._items[s].setCheckState(1, Qt.CheckState.Checked)
+            # Reflect in the nav checkbox via its public API — keeps the
+            # tree widget the sole owner of its QTreeWidgetItems.
+            self.stage_nav.set_pause_state(s, True)
         self.signals.trace_emitted.emit("INFO", "[GUI] Paused ALL stages")
 
     def _resume_all(self) -> None:
         stages = list(schema_for(self._mode).keys())
         for s in stages:
             self.pause_controller.set_pause_enabled(s, False)
-        for s in stages:
-            self.stage_nav._items[s].setCheckState(1, Qt.CheckState.Unchecked)
+            self.stage_nav.set_pause_state(s, False)
         # Also release any in-flight pause so the FSM isn't stuck.
         if self.pause_controller.is_currently_paused():
             self.pause_controller.abort()
@@ -285,3 +359,73 @@ class HotWireMainWindow(QMainWindow):
             self.signals.trace_emitted.emit(
                 "WARNING", f"[GUI] Aborted pause for {stage}; used defaults"
             )
+
+    # ---- Checkpoint 13: menu bar + status bar handlers ------------
+
+    def _on_msg_for_counter(self, _direction: str, _msg: str, _params: dict) -> None:
+        self._msg_count += 1
+
+    def _on_status_for_bar(self, key: str, value: str) -> None:
+        """Bubble FSM state into the status bar's leftmost cell."""
+        if key in ("evseState", "pevState", "state"):
+            self._fsm_state_label.setText(str(value)[:40])
+
+    def _update_rate_display(self) -> None:
+        """Compute msg/sec since the last sample; called by QTimer."""
+        now = time.monotonic()
+        dt = now - self._last_sample_time
+        delta = self._msg_count - self._msg_count_last_sample
+        rate = (delta / dt) if dt > 0 else 0.0
+        self._msg_count_label.setText(f"{self._msg_count} msgs")
+        self._rate_label.setText(f"{rate:5.1f} Hz")
+        self._msg_count_last_sample = self._msg_count
+        self._last_sample_time = now
+
+    def _on_launch_attack(self) -> None:
+        dlg = AttackLauncherDialog(
+            mode=self._mode,
+            pause_controller=self.pause_controller,
+            parent=self,
+        )
+        dlg.attack_launched.connect(self._on_attack_installed)
+        dlg.exec()
+
+    def _on_attack_installed(self, attack_name: str) -> None:
+        self.signals.trace_emitted.emit(
+            "SUCCESS", f"[attack] launched: {attack_name}"
+        )
+        # Refresh override markers in the stage-nav.
+        for stage in schema_for(self._mode).keys():
+            self.stage_nav.set_override_indicator(
+                stage, self.pause_controller.has_override(stage)
+            )
+        self.signals.attack_applied.emit(attack_name)
+
+    def _on_open_replay(self) -> None:
+        if self._replay_dock is None:
+            self._replay_panel = SessionReplayPanel(self)
+            self._replay_panel.event_selected.connect(
+                self.signals.replay_event_selected
+            )
+            self._replay_dock = QDockWidget("Session replay", self)
+            self._replay_dock.setWidget(self._replay_panel)
+            self.addDockWidget(
+                Qt.DockWidgetArea.BottomDockWidgetArea, self._replay_dock
+            )
+        self._replay_dock.show()
+        self._replay_dock.raise_()
+        # Fire the open dialog immediately for one-click access.
+        self._replay_panel._on_open_clicked()                    # noqa: SLF001
+
+    def _on_about(self) -> None:
+        QMessageBox.about(
+            self,
+            "About HotWire",
+            "<h3>HotWire</h3>"
+            "<p>DIN 70121 / ISO 15118-2 charging-security testbed.</p>"
+            "<p><b>Mode:</b> "
+            f"{MODE_LABEL.get(self._mode, '?')}"
+            f"{' (simulation)' if self._is_simulation else ' (hardware)'}</p>"
+            "<p>Security research use only. "
+            "See <b>SAFETY.md</b> before any real-hardware test.</p>",
+        )

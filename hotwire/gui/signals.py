@@ -37,3 +37,11 @@ class Signals(QObject):
     # Worker lifecycle.
     worker_started = pyqtSignal()
     worker_stopped = pyqtSignal()
+
+    # Checkpoint 13 — attack launcher + session replay.
+    # Emitted when an Attack playbook has been installed. (attack_name)
+    attack_applied = pyqtSignal(str)
+    # Emitted when the operator clicks an event in the replay panel.
+    # Main window routes this to the existing ReqResTreeView slot.
+    # Payload: (direction, msg_name, decoded_params_dict)
+    replay_event_selected = pyqtSignal(str, str, dict)

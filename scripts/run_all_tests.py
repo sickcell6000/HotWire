@@ -32,6 +32,11 @@ TEST_SCRIPTS = [
     "test_sdp.py",
     "test_din_conformance.py",
     "test_random_schema_fuzz.py",
+    # Checkpoint 13 — new unit tests (fast).
+    "test_stage_nav_api.py",
+    "test_pcap_export_module.py",
+    "test_attack_launcher.py",
+    "test_session_replay.py",
     # Integration tests (open sockets, spawn threads).
     "test_tcp_loopback.py",
     "test_two_process_loopback.py",

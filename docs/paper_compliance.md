@@ -4,7 +4,9 @@
 
 **狀態符號：** 🟢 完成 / 🟡 部分 / 🔴 不符 / ⚪ Out of scope
 
-**最後更新：** 2026-04-18（**Checkpoint 7 完成後** — 修復所有 DIN TS 70121:2024-11 合規性 gap：Failed_NoNegotiation、MaxLimits 必要欄位、Table 76/78 timing、DC_EVSEStatus 明確欄位、config 命名）
+**最後更新：** 2026-04-19（**Checkpoint 13 完成後** — 補完 Checkpoints 8-12 對應章節：SDP live protocol、SLAC attenuation、hw_check 四階段、codec reproducibility、19 個測試模組；Checkpoint 13 加上 GUI attack launcher、session replay、完整 reviewer 文件）
+
+**歷史版本：** 2026-04-18（Checkpoint 7 — 修復所有 DIN TS 70121:2024-11 合規性 gap）
 
 ---
 
@@ -198,3 +200,155 @@
 | **B2** — Real HomePlug driver 骨架 | pcap-based `RealHomePlug` + `build_homeplug` factory + 自動 fallback | `hotwire/plc/homeplug.py` |
 | **B3** — Wireshark pcap exporter | JSONL → pcap (IPv6 + TCP + V2GTP) | `scripts/export_pcap.py` |
 | Observer raw hex | FSM observer 現在把 `_raw_exi_hex` 塞進 params | `fsm_evse._decode_rx`、`fsm_pev._decode` |
+
+---
+
+## Checkpoint 8 — SDP live protocol（2026-04-18）
+
+論文 §4 Methodology 步驟 A 要求 PEV 在 SLAC 完成後向 ff02::1 多播 SECC Discovery Request，HotWire 原本僅在 simulation 模式模擬此步驟。Checkpoint 8 引入真實 UDP/IPv6 封包收發：
+
+| 項目 | 交付 | 位置 |
+|------|------|-----|
+| SDP wire-format codec | V2GTP header 0x9000/0x9001、8+2 / 8+20 byte payload、parse/build | `hotwire/sdp/protocol.py` |
+| SDP client (PEV) | 多播 REQ 至 ff02::1、等 RSP、timeout 可設 | `hotwire/sdp/client.py::SdpClient.discover()` |
+| SDP server (EVSE) | 綁 ff02::1:15118、回 RSP 含自己的 link-local + TCP port | `hotwire/sdp/server.py::SdpServer` |
+| IPv6 scope 處理 | 讀 `/proc/net/if_inet6` 自動取 scope_id；fallback 手動 `--scope-id` | `hotwire/sdp/client.py`、`phase3_sdp.py::_pick_link_local` |
+| 測試覆蓋 | 7 tests（3 wire format + 2 loopback + 1 garbage reject + 1 bad version） | `tests/test_sdp.py` |
+
+論文 §6 真實硬體評估時 PEV 端要在 ~200ms 內收到 SECC 回覆 — `test_sdp.py::test_sdp_loopback_discovery` 實測 ::1 loopback 下 <50ms。
+
+---
+
+## Checkpoint 9 — Codec reproducibility（2026-04-18）
+
+論文 §15 Open Policy 要求 OpenV2Gx codec 可從 source 重建並產生與預先封入的 binary 相同 bytes。Checkpoint 9 兌現：
+
+| 項目 | 交付 | 位置 |
+|------|------|-----|
+| Vendor source 樹 | `vendor/OpenV2Gx/` git submodule + `vendor/patches/01-hotwire-custom-params.patch` | `vendor/` |
+| 重建腳本 | `python vendor/build_openv2g.py` 一鍵 clone → patch → make → install | `vendor/build_openv2g.py` |
+| Golden test vectors | 22 個 byte-for-byte encoder fixture（每個 stage 代表性 command string → hex 輸出）| `tests/_golden_openv2g.json` |
+| 驗證測試 | 重建後用 `compareGolden.py` 比對；任何 codec 修改立刻 red | 參見 `vendor/build_openv2g.py` 底層 `verify_mode` |
+| License compliance | OpenV2Gx LGPL-3.0、patch 條款、ATTRIBUTION.md 完整交代 | `ATTRIBUTION.md` |
+
+---
+
+## Checkpoint 10 — DIN conformance test suite（2026-04-18）
+
+| 項目 | 交付 | 位置 |
+|------|------|-----|
+| DIN §8.7.3 V2GTP header 3 tests | byte[0]=0x01、byte[1]=0xFE、payload 0x8001、BE length | `test_din_conformance.py:58-81` |
+| DIN §8.7.2 TCP port 1 test | `_resolve_tcp_port()` 落在 49152-65535 | `test_din_conformance.py:88-93` |
+| §9.2 Failed_NoNegotiation 3 tests | enum=2 / encoder omits SchemaID / FSM 進 STOPPED | `test_din_conformance.py:101-191` |
+| §9.4 Mandatory fields 6 tests | EVTargetCurrent、三個 MaxLimit、NotificationMaxDelay、EVSENotification | `test_din_conformance.py:199-274` |
+| §9.6 Table 76/78 timing 4 tests | 2s / 0.5s / 60s / 5s / 20s / 10s / 38s / 7s 常數 pin | `test_din_conformance.py:282-350` |
+| §9.1 ResponseCode enum 2+9 tests | 23 個 enum value、9 個典型名稱拼寫 parametrize | `test_din_conformance.py:358-382` |
+| 合計 | **20 個 DIN clause tests + 9 個 parametrize = 29 斷言** | — |
+
+每個測試 docstring 引用 V2G-DC-XXX requirement ID，reviewer 可 `grep V2G-DC-226 tests/` 直接定位。
+
+---
+
+## Checkpoint 11 — SLAC attenuation + hw_check 骨架（2026-04-18）
+
+論文 §4 方法學要求 PEV/EVSE 完成 ISO 15118-3 §A.7.1 的 attenuation round（10 個 MNBC_SOUND + CM_ATTEN_CHAR 來回）。Checkpoint 8 之前的 SLAC 只到 PARAM/MATCH；Checkpoint 11 補齊：
+
+| 項目 | 交付 | 位置 |
+|------|------|-----|
+| SLAC 6-state FSM | IDLE→PARAM→WAIT_SOUNDS→ATTEN_CHAR→MATCH→PAIRED | `hotwire/plc/slac.py` |
+| MNBC_SOUND + CM_ATTEN_CHAR | PEV 送 10 soundings、EVSE 回 attenuation profile | `SlacStateMachine._handle_sound_ind`、`_build_atten_char` |
+| PipeL2Transport mock | 兩個 SlacStateMachine 對打、3 秒內 pair | `tests/test_slac_attenuation.py::test_attenuation_round_in_pipe_mock` |
+| 真實 pcap replay | IONIQ6 + Tesla Model Y 的 `.pcapng` 注入 EVSE FSM 並 pair | `tests/test_slac_attenuation.py::test_full_slac_with_attenuation_replay`（parametrize 2 caps）|
+| hw_check scaffolding | PacketCapture（tcpdump/dumpcap）、EventLog JSONL、MarkdownReport、RunContext | `scripts/hw_check/_runner.py` |
+
+---
+
+## Checkpoint 12 — hw_check 四階段驗證套件（2026-04-18）
+
+論文 §5 真實硬體架設最常卡關於「問題出在 link / SLAC / SDP / V2G 哪一層」。Checkpoint 12 提供 4 個 phase 逐層分離：
+
+| Phase | 工作 | 硬體需求 | 證據 |
+|-------|------|---------|-----|
+| phase0_env | OpenV2G binary / tcpdump / Npcap / interface UP / CAP_NET_RAW | 無 | `scripts/hw_check/phase0_env.py` |
+| phase1_link | 15s 被動 sniff 0x88E1 frames、統計 MMTYPE 分佈 | 1 個 modem | `phase1_link.py` |
+| phase2_slac | 跑 `SlacStateMachine` over `PcapL2Transport` 實際 pair | 2 個 modem（或 charger）| `phase2_slac.py` |
+| phase3_sdp | PEV 送 SDP REQ 或 EVSE 開 SDP responder | 2 個 modem paired | `phase3_sdp.py` |
+| phase4_v2g | 跑完整 `HotWireWorker(isSimulationMode=0)` 到 CurrentDemand | 完整 stack | `phase4_v2g.py` |
+
+每個 run 自動寫出：
+- `runs/<ts>/REPORT.md` — 人看的 PASS/FAIL 表 + metrics + artifact link
+- `runs/<ts>/session.jsonl` — 結構化事件（每行 flush，中途 crash 也有 trail）
+- `runs/<ts>/phaseN_capture.pcap` — Wireshark 可開的 bytes-on-wire 證據
+- `runs/<ts>/config.json` — host context + CLI args snapshot
+
+Orchestrator `run_all.py` 支援 `--only 2,3`、`--skip 4`、`--halt-on-fail`。Dry-run（無 interface）phase0 PASS、phase1-4 SKIP。
+
+---
+
+## Checkpoint 13 — Paper 合規補完 + GUI 體驗升級（2026-04-19）
+
+論文 §15 Open Policy + 使用者操作體驗兩條線一起跑：
+
+**Docs 補完（Phase A）：**
+
+| 文件 | 作用 |
+|-----|------|
+| `docs/full_compliance_audit.md` | 306 行靜態稽核，逐項 DIN/ISO clause + 論文 claim → file:line + test name |
+| `docs/REPRODUCING.md` | Reviewer 一頁路徑（git clone → build → tests → hw_check → GUI → attack） |
+| `docs/dataset.md` | `EVSEtestinglog/EV_Testing/` corpus 說明 + SHA256 manifest + redaction 流程 |
+| `hardware/schematics/wiring_diagram.md` | ASCII block 圖：RPi 4 + QCA7005 + CCS + 1.25 kW load + Arduino sense |
+
+**GUI 升級（Phase B）：**
+
+| 功能 | 交付 |
+|------|-----|
+| AttackLauncherDialog | `Attacks → Launch…` 選單，自動發現 playbook、dataclass 欄位 introspection 建表單、mode filter |
+| SessionReplayPanel | `File → Open session…` dockable、時間軸 QListWidget、點選 populate ReqResTreeView、Export pcap 按鈕 |
+| Menu bar | File / Attacks / Help 三個選單取代以往的純 button row |
+| Status bar | 即時 msg count + Hz（QTimer 500ms sample）|
+| `StageNavPanel.set_pause_state()` | 公開 API 取代 main_window 直讀 `_items[s]` 私有屬性 |
+| `hotwire/io/pcap_export.py` | 從 `scripts/export_pcap.py` 抽出純函數，CLI + GUI 共用 |
+
+**測試擴充（Phase C）：**
+
+| 新 test | 覆蓋 |
+|---------|-----|
+| `test_stage_nav_api.py` | `set_pause_state` 單元 |
+| `test_pcap_export_module.py` | refactored module byte-level 驗證 |
+| `test_attack_launcher.py` | pytest-qt widget smoke + apply → override 生效 |
+| `test_session_replay.py` | pytest-qt widget smoke + event selection signal |
+
+---
+
+## 總計測試矩陣（Checkpoint 13 後）
+
+| 測試模組 | Cases | 覆蓋 |
+|---------|-------|-----|
+| `test_pause_override.py` | 10 | intercept + merge + override 行為 |
+| `test_message_observer.py` | 3 | FSM → observer hook |
+| `test_attacks.py` | 14 | Autocharge + ForcedDischarge playbook |
+| `test_session_log.py` | 6 | JSONL writer |
+| `test_session_redactor.py` | 9 | EVCCID/EVSEID/SessionID/IP redaction |
+| `test_session_compare.py` | 8 | JSONL diff |
+| `test_pcap_export.py` | 7 | JSONL → pcap (CLI) |
+| `test_pcap_export_module.py` | ~5 | refactored 模組 |
+| `test_iso15118_negotiation.py` | 4 | schema 選擇矩陣 |
+| `test_homeplug_factory.py` | 3 | sim / real fallback |
+| `test_homeplug_slac_mock.py` | 4 | SLAC PARAM/MATCH mock |
+| `test_homeplug_slac_replay.py` | 3 | IONIQ6/Tesla replay |
+| `test_slac_attenuation.py` | 3 | ISO 15118-3 §A.7.1 full round |
+| `test_sdp.py` | 7 | wire format + loopback |
+| `test_din_conformance.py` | 29 | DIN clauses pinned |
+| `test_random_schema_fuzz.py` | ~24 | 每 stage 20 隨機 trials |
+| `test_tcp_loopback.py` | 1 | IPv6 ::1 |
+| `test_two_process_loopback.py` | 1 | 完整 DIN handshake |
+| `test_gui_smoke.py` | 11 | window 構造 + signal wiring |
+| `test_gui_integration.py` | 1 | Qt signal + worker + override → wire |
+| `test_gui_dual_scenarios.py` | 4 | baseline / EVSE override / pause-edit / PEV attack |
+| `test_attack_integration.py` | 1 | attack + JSONL + 2-worker session |
+| `test_forced_discharge_integration.py` | 1 | A2 CurrentDemandRes override 到 wire |
+| `test_stage_nav_api.py` | ~3 | set_pause_state |
+| `test_attack_launcher.py` | ~4 | 選 attack → apply → override |
+| `test_session_replay.py` | ~3 | load → select → signal |
+
+**合計：23 個測試模組，~170 cases**。`python scripts/run_all_tests.py` 預期 23/23 PASS。
