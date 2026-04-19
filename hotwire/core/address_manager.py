@@ -127,7 +127,12 @@ class addressManager:
         print(f"[addressManager] Local IPv6 = {self.localIpv6Address}")
 
     def findLocalMacAddress(self) -> None:
-        """On Windows use a static fallback; on Linux MAC is set by findLinkLocalIpv6Address()."""
+        """On Windows use a static fallback; on Linux MAC is set by
+        findLinkLocalIpv6Address(). Simulation mode on Linux never
+        goes through that path, so we seed a static fallback here too
+        — otherwise ``self.localMac`` is missing when callers ask for
+        the EVCCID (happens in Docker CI, where no real eth interface
+        exists)."""
         if os.name == "nt":
             self.localMac = MAC_LAPTOP
             print(
@@ -136,8 +141,9 @@ class addressManager:
                 + " (static Windows fallback)"
             )
         else:
-            # On Linux MAC is discovered together with IPv6 via `ip addr`.
-            pass
+            # Pre-seed on Linux so simulation mode has something. Real
+            # hardware runs will overwrite this in findLinkLocalIpv6Address.
+            self.localMac = MAC_LAPTOP
 
     # ---- setters for remote peer addresses ----
 

@@ -20,6 +20,26 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 
+@pytest.fixture(autouse=True)
+def _restore_real_config():
+    """Every test in this module replaces the real ``hotwire.core.config``
+    cache with a handcrafted 2-line fixture. If other tests run after
+    us in the same pytest process (as happens in Docker CI where we
+    invoke ``pytest tests/`` as one command rather than per-module
+    subprocesses), they'd hit ``NoOptionError`` when looking up
+    ``tcp_port_use_well_known`` etc.
+
+    Reload the module after each test so the default ini is restored.
+    """
+    yield
+    import importlib
+    import hotwire.core.config as config_mod
+    # Unconditional reset — tests may have overwritten HOTWIRE_CONFIG.
+    os.environ["HOTWIRE_CONFIG"] = str(ROOT / "config" / "hotwire.ini")
+    importlib.reload(config_mod)
+    config_mod.load()
+
+
 def _prep_fixture_ini(tmp_path: Path, contents: str) -> Path:
     ini = tmp_path / "test_hotwire.ini"
     ini.write_text(contents, encoding="utf-8")

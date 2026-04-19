@@ -67,7 +67,7 @@ def getConfigValue(key: str) -> str:
     cfg = load()
     try:
         return cfg["general"][key]
-    except KeyError:
+    except (KeyError, configparser.NoSectionError, configparser.NoOptionError):
         print(f"ERROR: config key '{key}' missing from [general] section of {_config_path}")
         sys.exit(1)
 
@@ -77,7 +77,8 @@ def getConfigValueBool(key: str) -> bool:
     cfg = load()
     try:
         return cfg.getboolean("general", key)
-    except (KeyError, ValueError):
+    except (KeyError, ValueError,
+            configparser.NoSectionError, configparser.NoOptionError):
         print(f"ERROR: boolean config key '{key}' missing or invalid in {_config_path}")
         sys.exit(1)
 

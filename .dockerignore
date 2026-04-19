@@ -1,0 +1,50 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+.gitmodules
+
+# Python build detritus
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Local artifacts (Docker regenerates them in-container)
+runs/
+sessions/
+reports/
+vendor/_build_openv2g/
+hotwire/exi/codec/OpenV2G
+hotwire/exi/codec/OpenV2G.exe
+
+# Test captures that live outside the repo
+../EVSEtestinglog/
+
+# Docker itself
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Prebuilt Windows codec — the Linux container rebuilds from source
+# (keep commented so "docker run" on Windows dev hosts still works if
+# someone wants to pass the binary in; entrypoint rebuilds anyway)

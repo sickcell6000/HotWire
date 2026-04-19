@@ -14,6 +14,24 @@ sys.path.insert(0, str(ROOT))
 pytest.importorskip("PyQt6")
 
 
+@pytest.fixture(autouse=True)
+def _restore_real_config():
+    """Restore the default hotwire.ini after each test so siblings in
+    the same pytest process don't inherit our fixture's tiny config.
+
+    The tests in this module also replace ``HOTWIRE_CONFIG`` via
+    ``os.environ[...] = ...``; we have to unconditionally reset the
+    env var (setdefault won't touch it) before reload so the default
+    ini is picked up again.
+    """
+    yield
+    import importlib
+    import hotwire.core.config as config_mod
+    os.environ["HOTWIRE_CONFIG"] = str(ROOT / "config" / "hotwire.ini")
+    importlib.reload(config_mod)
+    config_mod.load()
+
+
 def _reload_config_with(tmp_path, contents):
     ini = tmp_path / "hotwire.ini"
     ini.write_text(contents, encoding="utf-8")

@@ -64,3 +64,6 @@ vendor/_build_openv2g/
 # Hardware-check artefacts
 runs/
 
+# Docker CI artefacts (bind-mounted from container)
+reports/
+
