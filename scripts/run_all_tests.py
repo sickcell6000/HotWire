@@ -37,6 +37,16 @@ TEST_SCRIPTS = [
     "test_pcap_export_module.py",
     "test_attack_launcher.py",
     "test_session_replay.py",
+    # Checkpoint 14 — preflight + GUI tool panels.
+    "test_preflight_checks.py",
+    "test_config_save.py",
+    "test_csv_export.py",
+    "test_hw_runner_panel.py",
+    "test_session_compare_panel.py",
+    "test_session_tools_panel.py",
+    "test_config_editor.py",
+    "test_live_pcap_viewer.py",
+    "test_preflight_wizard.py",
     # Integration tests (open sockets, spawn threads).
     "test_tcp_loopback.py",
     "test_two_process_loopback.py",

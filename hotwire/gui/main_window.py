@@ -39,9 +39,15 @@ from .signals import Signals
 from .stage_schema import schema_for, stage_order
 from .widgets import (
     AttackLauncherDialog,
+    ConfigEditor,
+    HwRunnerPanel,
+    LivePcapViewer,
     PauseInterceptDialog,
+    PreflightWizard,
     ReqResTreeView,
+    SessionComparePanel,
     SessionReplayPanel,
+    SessionToolsPanel,
     StageConfigPanel,
     StageNavPanel,
     StatusPanel,
@@ -81,6 +87,18 @@ class HotWireMainWindow(QMainWindow):
         self._last_sample_time = time.monotonic()
         self._replay_dock: QDockWidget | None = None
         self._replay_panel: SessionReplayPanel | None = None
+
+        # Checkpoint 14 — lazy-created dock widgets.
+        self._compare_dock: QDockWidget | None = None
+        self._compare_panel: SessionComparePanel | None = None
+        self._session_tools_dock: QDockWidget | None = None
+        self._session_tools_panel: SessionToolsPanel | None = None
+        self._hw_runner_dock: QDockWidget | None = None
+        self._hw_runner_panel: HwRunnerPanel | None = None
+        self._live_pcap_dock: QDockWidget | None = None
+        self._live_pcap_panel: LivePcapViewer | None = None
+        self._config_editor_dock: QDockWidget | None = None
+        self._config_editor_panel: ConfigEditor | None = None
 
         self._build_layout()
         self._build_menu_bar()
@@ -161,7 +179,7 @@ class HotWireMainWindow(QMainWindow):
             self.stage_config.set_stage(order[0])
 
     def _build_menu_bar(self) -> None:
-        """File / Attacks / Help menus. Pure UI surface — no new state."""
+        """File / Edit / Attacks / Tools / Hardware / Help menus."""
         mb = self.menuBar()
 
         file_menu = mb.addMenu("&File")
@@ -174,11 +192,35 @@ class HotWireMainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(self._quit_action)
 
+        # Checkpoint 14: Edit → Preferences
+        edit_menu = mb.addMenu("&Edit")
+        self._preferences_action = QAction("&Preferences… (hotwire.ini)", self)
+        self._preferences_action.setShortcut("Ctrl+,")
+        edit_menu.addAction(self._preferences_action)
+
         attacks_menu = mb.addMenu("&Attacks")
         self._launch_attack_action = QAction("&Launch attack…", self)
         self._clear_attacks_action = QAction("&Clear all overrides", self)
         attacks_menu.addAction(self._launch_attack_action)
         attacks_menu.addAction(self._clear_attacks_action)
+
+        # Checkpoint 14: Tools → compare / redact / export.
+        tools_menu = mb.addMenu("&Tools")
+        self._compare_action = QAction("&Compare sessions…", self)
+        self._session_tools_action = QAction(
+            "Redact / Export &pcap / Export &CSV…", self
+        )
+        tools_menu.addAction(self._compare_action)
+        tools_menu.addAction(self._session_tools_action)
+
+        # Checkpoint 14: Hardware → preflight / runner / live.
+        hw_menu = mb.addMenu("&Hardware")
+        self._preflight_wizard_action = QAction("Run preflight &wizard…", self)
+        self._hw_runner_action = QAction("Run hw_check &phase…", self)
+        self._live_pcap_action = QAction("Live pcap &viewer…", self)
+        hw_menu.addAction(self._preflight_wizard_action)
+        hw_menu.addAction(self._hw_runner_action)
+        hw_menu.addAction(self._live_pcap_action)
 
         help_menu = mb.addMenu("&Help")
         self._about_action = QAction("&About HotWire…", self)
@@ -220,6 +262,18 @@ class HotWireMainWindow(QMainWindow):
             self._clear_all_overrides
         )
         self._about_action.triggered.connect(self._on_about)
+
+        # Checkpoint 14 menu actions.
+        self._preferences_action.triggered.connect(self._on_open_preferences)
+        self._compare_action.triggered.connect(self._on_open_compare)
+        self._session_tools_action.triggered.connect(
+            self._on_open_session_tools
+        )
+        self._preflight_wizard_action.triggered.connect(
+            self._on_preflight_wizard
+        )
+        self._hw_runner_action.triggered.connect(self._on_open_hw_runner)
+        self._live_pcap_action.triggered.connect(self._on_open_live_pcap)
 
         self.stage_nav.stage_selected.connect(self.stage_config.set_stage)
         self.stage_nav.pause_toggled.connect(self._on_pause_toggled)
@@ -428,4 +482,94 @@ class HotWireMainWindow(QMainWindow):
             f"{' (simulation)' if self._is_simulation else ' (hardware)'}</p>"
             "<p>Security research use only. "
             "See <b>SAFETY.md</b> before any real-hardware test.</p>",
+        )
+
+    # ---- Checkpoint 14: Tools / Hardware / Edit menu handlers -----
+
+    def _on_preflight_wizard(self) -> None:
+        """Run the 20-item hardware preflight wizard as a modal."""
+        wizard = PreflightWizard(self)
+        wizard.exec()
+        # After the wizard closes, surface a summary in the trace log.
+        results = wizard.results()
+        if not results:
+            return
+        fails = sum(1 for r in results if r.status.value == "FAIL")
+        warns = sum(1 for r in results if r.status.value == "WARN")
+        level = "ERROR" if fails else "WARNING" if warns else "SUCCESS"
+        self.signals.trace_emitted.emit(
+            level,
+            f"[preflight] {len(results)} checks: "
+            f"{fails} fail, {warns} warn",
+        )
+
+    def _on_open_hw_runner(self) -> None:
+        if self._hw_runner_dock is None:
+            self._hw_runner_panel = HwRunnerPanel(self)
+            self._hw_runner_panel.phase_finished.connect(
+                self.signals.hw_phase_done
+            )
+            self._hw_runner_dock = QDockWidget("Hardware runner", self)
+            self._hw_runner_dock.setWidget(self._hw_runner_panel)
+            self.addDockWidget(
+                Qt.DockWidgetArea.BottomDockWidgetArea, self._hw_runner_dock
+            )
+        self._hw_runner_dock.show()
+        self._hw_runner_dock.raise_()
+
+    def _on_open_live_pcap(self) -> None:
+        if self._live_pcap_dock is None:
+            self._live_pcap_panel = LivePcapViewer(self)
+            self._live_pcap_dock = QDockWidget("Live pcap viewer", self)
+            self._live_pcap_dock.setWidget(self._live_pcap_panel)
+            self.addDockWidget(
+                Qt.DockWidgetArea.BottomDockWidgetArea, self._live_pcap_dock
+            )
+        self._live_pcap_dock.show()
+        self._live_pcap_dock.raise_()
+
+    def _on_open_compare(self) -> None:
+        if self._compare_dock is None:
+            self._compare_panel = SessionComparePanel(self)
+            self._compare_dock = QDockWidget("Compare sessions", self)
+            self._compare_dock.setWidget(self._compare_panel)
+            self.addDockWidget(
+                Qt.DockWidgetArea.BottomDockWidgetArea, self._compare_dock
+            )
+        self._compare_dock.show()
+        self._compare_dock.raise_()
+
+    def _on_open_session_tools(self) -> None:
+        if self._session_tools_dock is None:
+            self._session_tools_panel = SessionToolsPanel(self)
+            self._session_tools_panel.tool_finished.connect(
+                self._on_session_tool_finished
+            )
+            self._session_tools_dock = QDockWidget("Session tools", self)
+            self._session_tools_dock.setWidget(self._session_tools_panel)
+            self.addDockWidget(
+                Qt.DockWidgetArea.BottomDockWidgetArea,
+                self._session_tools_dock,
+            )
+        self._session_tools_dock.show()
+        self._session_tools_dock.raise_()
+
+    def _on_open_preferences(self) -> None:
+        if self._config_editor_dock is None:
+            self._config_editor_panel = ConfigEditor(self)
+            self._config_editor_panel.config_saved.connect(
+                self.signals.config_saved
+            )
+            self._config_editor_dock = QDockWidget("Preferences (hotwire.ini)", self)
+            self._config_editor_dock.setWidget(self._config_editor_panel)
+            self.addDockWidget(
+                Qt.DockWidgetArea.RightDockWidgetArea,
+                self._config_editor_dock,
+            )
+        self._config_editor_dock.show()
+        self._config_editor_dock.raise_()
+
+    def _on_session_tool_finished(self, tool_name: str, msg: str) -> None:
+        self.signals.trace_emitted.emit(
+            "SUCCESS", f"[{tool_name}] {msg}"
         )

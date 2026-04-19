@@ -45,3 +45,11 @@ class Signals(QObject):
     # Main window routes this to the existing ReqResTreeView slot.
     # Payload: (direction, msg_name, decoded_params_dict)
     replay_event_selected = pyqtSignal(str, str, dict)
+
+    # Checkpoint 14 — tools / hardware panels.
+    # Preflight wizard: emitted per-check as runs proceed. (index, CheckResult)
+    preflight_progress = pyqtSignal(int, object)
+    # Hardware runner subprocess: emitted when a phase finishes. (phase, exit_code)
+    hw_phase_done = pyqtSignal(str, int)
+    # Config editor: emitted on successful save. (written_path)
+    config_saved = pyqtSignal(str)

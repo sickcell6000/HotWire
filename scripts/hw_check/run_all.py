@@ -37,15 +37,21 @@ from _runner import (  # noqa: E402
     run_phase,
 )
 from phase0_env import phase0_env  # noqa: E402
+from phase0_hw import phase0_hw  # noqa: E402
 from phase1_link import phase1_link  # noqa: E402
 from phase2_slac import phase2_slac  # noqa: E402
 from phase3_sdp import phase3_sdp  # noqa: E402
 from phase4_v2g import phase4_v2g  # noqa: E402
 
 
+# Phase numbering stays backwards-compatible with Checkpoint 12 docs
+# (phase 1 = link, phase 2 = slac, etc.). The new extended hardware
+# preflight gets the synthetic number ``0.5`` so it can be selected
+# independently via ``--only 0.5`` without renumbering anything else.
 PHASE_BUILDERS = [
     # (number, name, build_kwargs_callable)
     (0, "phase0_env", lambda args: {}),
+    (0.5, "phase0_hw", lambda args: {}),
     (1, "phase1_link", lambda args: dict(
         duration_s=args.link_duration,
         min_frames=args.link_min_frames,
@@ -66,6 +72,7 @@ PHASE_BUILDERS = [
 
 PHASE_FUNC = {
     "phase0_env": phase0_env,
+    "phase0_hw": phase0_hw,
     "phase1_link": phase1_link,
     "phase2_slac": phase2_slac,
     "phase3_sdp": phase3_sdp,
@@ -168,10 +175,22 @@ def _parse_args(argv):
     return p.parse_args(argv)
 
 
-def _intlist(text: str) -> list[int]:
+def _intlist(text: str) -> list[float]:
+    """Parse a comma-separated list of phase numbers. Returns float so
+    the synthetic ``0.5`` for phase0_hw can be selected alongside
+    integer phases (e.g. ``--only 0,0.5,1``)."""
     if not text:
         return []
-    return [int(x) for x in text.split(",") if x.strip()]
+    out: list[float] = []
+    for x in text.split(","):
+        x = x.strip()
+        if not x:
+            continue
+        try:
+            out.append(float(x) if "." in x else int(x))
+        except ValueError:
+            raise argparse.ArgumentTypeError(f"invalid phase number: {x!r}")
+    return out
 
 
 if __name__ == "__main__":

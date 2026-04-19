@@ -4,7 +4,9 @@
 
 **狀態符號：** 🟢 完成 / 🟡 部分 / 🔴 不符 / ⚪ Out of scope
 
-**最後更新：** 2026-04-19（**Checkpoint 13 完成後** — 補完 Checkpoints 8-12 對應章節：SDP live protocol、SLAC attenuation、hw_check 四階段、codec reproducibility、19 個測試模組；Checkpoint 13 加上 GUI attack launcher、session replay、完整 reviewer 文件）
+**最後更新：** 2026-04-19（**Checkpoint 14 完成後** — 加入 20 項硬體 preflight (CLI + PyQt6 wizard)、hw_check GUI runner、session compare/redact/export CSV GUI、config editor、live pcap viewer；32 個測試模組全綠）
+
+**先前：** 2026-04-19（Checkpoint 13 — 補完 Checkpoints 8-12 對應章節 + GUI attack launcher + session replay）
 
 **歷史版本：** 2026-04-18（Checkpoint 7 — 修復所有 DIN TS 70121:2024-11 合規性 gap）
 
@@ -351,4 +353,54 @@ Orchestrator `run_all.py` 支援 `--only 2,3`、`--skip 4`、`--halt-on-fail`。
 | `test_attack_launcher.py` | ~4 | 選 attack → apply → override |
 | `test_session_replay.py` | ~3 | load → select → signal |
 
-**合計：23 個測試模組，~170 cases**。`python scripts/run_all_tests.py` 預期 23/23 PASS。
+**合計：32 個測試模組，~210 cases**。`python scripts/run_all_tests.py` 預期 32/32 PASS。
+
+---
+
+## Checkpoint 14 — Hardware preflight + GUI 全功能整合（2026-04-19）
+
+論文 §5 要求「reviewer 能在下週真實硬體到位時一鍵檢查」；§15 Open Policy 要求所有功能 UI 可見。Checkpoint 14 一次補到位：
+
+**硬體 preflight（CLI + wizard）：**
+
+| 類別 | 項目 |
+|-----|-----|
+| 通用 (6) | Python 版本、OpenV2G binary、tcpdump/dumpcap、psutil、hotwire import、disk 空間 |
+| Linux (9) | root/CAP_NET_RAW、interface 存在、UP、MTU、carrier、link speed、fe80::、ff02::1 ping、kernel |
+| Windows (4) | Npcap 安裝、Win 版本、ipconfig 可見、pypcap import |
+| 系統 (2) | 時鐘合理、CPU+RAM |
+
+`hotwire/preflight/` pure-function registry；共 21 項檢查 (Wave 1 寫了 20 + 1 額外 cpu/memory)。`PreflightWizard` 3 頁 QWizard 帶 remediation copy 按鈕。
+
+**GUI 全功能整合：**
+
+| 選單 | 項目 | Widget |
+|-----|-----|-------|
+| Edit | Preferences… | `ConfigEditor` — hotwire.ini 可視化表單（enum→combo, bool→checkbox, int→spinbox）|
+| Tools | Compare sessions… | `SessionComparePanel` — 雙 JSONL diff 顯示 |
+| Tools | Redact / Export pcap / Export CSV | `SessionToolsPanel` — 三合一 |
+| Hardware | Run preflight wizard | `PreflightWizard` modal |
+| Hardware | Run hw_check phase… | `HwRunnerPanel` — subprocess 背景跑、輸出串流 |
+| Hardware | Live pcap viewer | `LivePcapViewer` — 每秒更新 MMTYPE + MAC 表 |
+
+**測試擴充（9 新 modules）：**
+
+| 測試 | 覆蓋 |
+|-----|-----|
+| `test_preflight_checks.py` | 10 cases — registry 完整性 + runner 行為 + 格式化 |
+| `test_config_save.py` | 4 cases — setValue/save round-trip |
+| `test_csv_export.py` | 6 cases — 平坦化 + raw_hex 處理 + 空 cell |
+| `test_hw_runner_panel.py` | 3 cases — phase 列表 + 初始狀態 |
+| `test_session_compare_panel.py` | 5 cases — sequence/name alignment + diff |
+| `test_session_tools_panel.py` | 4 cases — 三個 pipeline 的 end-to-end |
+| `test_config_editor.py` | 3 cases — 欄位偵測 + round-trip |
+| `test_live_pcap_viewer.py` | 3 cases — update_from_counts + clear |
+| `test_preflight_wizard.py` | 4 cases — 3 頁構造 + remediation card 樣式 |
+
+**新模組：**
+- `hotwire/preflight/` — checks / runner / rendering
+- `hotwire/io/csv_export.py`、`hotwire/io/session_diff.py`
+- `hotwire/core/config.py::setConfigValue + save()`
+- 6 個新 GUI widgets + 5 個 menu entries + 3 個 signals
+
+**依賴：** `requirements.txt` 加 `psutil>=5.9.0`。

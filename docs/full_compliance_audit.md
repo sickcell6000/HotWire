@@ -292,15 +292,15 @@ GUI smoke tests (`test_gui_smoke.py`, `test_gui_integration.py`, `test_gui_dual_
 
 ## Verdict
 
-**HotWire fully supports every testable claim in the paper as of Checkpoint 13.** The 🟡 items reflect honest hardware-dependent observations that cannot be bit-reproduced in software; the 🔴 item (anonymized dataset) is explicitly an embargo-gated release per paper §11 — but the new [`docs/dataset.md`](./dataset.md) manifest + SHA256 table + redaction procedure close the reviewer's verifiability gap.
+**HotWire fully supports every testable claim in the paper as of Checkpoint 14.** The 🟡 items reflect honest hardware-dependent observations that cannot be bit-reproduced in software; the 🔴 item (anonymized dataset) is explicitly an embargo-gated release per paper §11 — but the new [`docs/dataset.md`](./dataset.md) manifest + SHA256 table + redaction procedure close the reviewer's verifiability gap.
 
-The **23 committed test modules** (19 through Checkpoint 12, plus 4 added at Checkpoint 13 — `test_stage_nav_api.py`, `test_pcap_export_module.py`, `test_attack_launcher.py`, `test_session_replay.py`) cover every DIN/ISO clause HotWire touches. The hw_check suite covers the path from software to hardware with four phase-specific validators that produce REPORT.md + pcap + JSONL for each run. Checkpoint 13 also adds a GUI attack launcher, session replay panel, and wiring-diagram schematic for paper §5.
+The **32 committed test modules** (19 through Checkpoint 12, plus 4 at Checkpoint 13 and 9 at Checkpoint 14 covering preflight / config save / CSV export / hw_runner / session compare / session tools / config editor / live pcap / preflight wizard) cover every DIN/ISO clause HotWire touches. The hw_check suite covers the path from software to hardware with four phase-specific validators that produce REPORT.md + pcap + JSONL for each run. Checkpoint 13 also adds a GUI attack launcher, session replay panel, and wiring-diagram schematic for paper §5.
 
 **Reviewer path for verification:**
 
 1. Read `vendor/patches/README.md` to see which codec modifications matter
 2. Run `python vendor/build_openv2g.py` — codec rebuilds byte-for-byte vs `tests/_golden_openv2g.json`
-3. Run `python scripts/run_all_tests.py` — 23/23 modules green
+3. Run `python scripts/run_all_tests.py` — 32/32 modules green
 4. Run `python -m pytest tests/test_din_conformance.py -v` — per-clause pin
 5. Run `python scripts/hw_check/run_all.py` — phase 0 PASS; 1-4 SKIP (no hardware)
 6. Launch the GUI: `python scripts/run_gui.py --mode evse --sim` → File / Attacks / Help menus visible, status bar shows msgs + Hz
