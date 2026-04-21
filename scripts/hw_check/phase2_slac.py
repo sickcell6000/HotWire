@@ -26,6 +26,7 @@ import argparse
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 _THIS = Path(__file__).resolve()
 sys.path.insert(0, str(_THIS.parent))
@@ -197,19 +198,74 @@ def _resolve_local_mac(iface: str) -> bytes | None:
                 return bytes(int(p, 16) for p in parts)
         except OSError:
             pass
-    # Windows: fall back to getmac command
+    # Windows: ``iface`` may be either a friendly NIC name
+    # (``"Ethernet 14"``) or a libpcap/Npcap device path
+    # (``\Device\NPF_{GUID}``). Resolve via psutil + PowerShell's
+    # InterfaceGuid property to translate NPF GUID -> friendly name -> MAC.
     if sys.platform == "win32":
         import subprocess
+        # Extract GUID if the caller passed an NPF path.
+        iface_lower = iface.lower()
+        npf_guid = ""
+        if "\\device\\npf_" in iface_lower:
+            start = iface_lower.find("{")
+            end = iface_lower.find("}", start)
+            if start != -1 and end != -1:
+                npf_guid = iface_lower[start:end + 1]
+
+        # If we have an NPF GUID, translate it to the friendly NIC name
+        # via Get-NetAdapter.
+        friendly_name: Optional[str] = None
+        if npf_guid:
+            try:
+                ps_cmd = (
+                    f"(Get-NetAdapter | Where-Object "
+                    f"{{ $_.InterfaceGuid -eq '{npf_guid.upper()}' }})."
+                    f"Name"
+                )
+                out = subprocess.run(
+                    ["powershell.exe", "-NoProfile", "-Command", ps_cmd],
+                    capture_output=True, text=True, timeout=5,
+                )
+                name = (out.stdout or "").strip()
+                if name:
+                    friendly_name = name
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+        else:
+            friendly_name = iface
+
+        # psutil is the most robust MAC source (AF_LINK family).
+        try:
+            import psutil
+            import socket
+            af_link = getattr(psutil, "AF_LINK", -1)
+            if friendly_name and friendly_name in psutil.net_if_addrs():
+                for addr in psutil.net_if_addrs()[friendly_name]:
+                    fam = getattr(addr, "family", None)
+                    if fam == af_link and addr.address:
+                        mac_txt = addr.address.replace("-", ":")
+                        parts = mac_txt.split(":")
+                        if len(parts) == 6:
+                            try:
+                                return bytes(int(p, 16) for p in parts)
+                            except ValueError:
+                                pass
+        except ImportError:
+            pass
+
+        # Fallback: getmac /v (friendly name match only — `Transport Name`
+        # field is "N/A" on many NICs, so we can't rely on NPF GUID there).
         try:
             out = subprocess.run(
                 ["getmac.exe", "/fo", "csv", "/nh", "/v"],
                 capture_output=True, text=True, timeout=5,
                 encoding="ansi",
             )
+            target_name = (friendly_name or iface).lower()
             for line in (out.stdout or "").splitlines():
-                # CSV: "Name","Adapter","Physical Address","Transport Name"
                 cols = [c.strip('"') for c in line.split(",")]
-                if len(cols) >= 3 and iface.lower() in cols[0].lower():
+                if len(cols) >= 3 and target_name in cols[0].lower():
                     mac_txt = cols[2].replace("-", ":")
                     parts = mac_txt.split(":")
                     if len(parts) == 6:

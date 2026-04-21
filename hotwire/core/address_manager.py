@@ -48,18 +48,69 @@ class addressManager:
         ba = bytearray(6)
         foundAddresses: list[str] = []
         if os.name == "nt":
-            # Windows: parse `ipconfig` output
-            result = subprocess.run(
-                ["ipconfig.exe"], capture_output=True, text=True, encoding="ansi"
-            )
-            if len(result.stderr) > 0:
-                print(result.stderr)
-            else:
-                for line in result.stdout.split("\n"):
-                    if line.find("IPv6") > 0:
-                        k = line.find(" fe80::")
-                        if k > 0:
-                            foundAddresses.append(line[k + 1 :])
+            # Windows: resolve the configured interface to its link-local
+            # IPv6 explicitly instead of scraping every fe80:: in
+            # ipconfig. Grabbing the first fe80:: on the machine was
+            # what forced operators to disable all other NICs — now we
+            # ask Get-NetAdapter for the NIC whose InterfaceGuid matches
+            # the NPF GUID in eth_windows_interface_name, then pull the
+            # matching link-local via Get-NetIPAddress.
+            target_npf = ""
+            try:
+                target_npf = getConfigValue("eth_windows_interface_name")
+            except Exception:                                     # noqa: BLE001
+                pass
+
+            # Extract GUID between {...} in the NPF path
+            guid = ""
+            if target_npf:
+                i = target_npf.find("{")
+                j = target_npf.find("}", i)
+                if i != -1 and j != -1:
+                    guid = target_npf[i:j + 1]
+
+            ps_cmd = ""
+            if guid:
+                ps_cmd = (
+                    "$g='" + guid + "';"
+                    "$n=(Get-NetAdapter|?{$_.InterfaceGuid -eq $g}).Name;"
+                    "if($n){"
+                    " (Get-NetIPAddress -InterfaceAlias $n -AddressFamily IPv6"
+                    " -ErrorAction SilentlyContinue|"
+                    "  ?{$_.IPAddress -like 'fe80::*'}|"
+                    "  Select -ExpandProperty IPAddress)"
+                    "}"
+                )
+            if ps_cmd:
+                try:
+                    result = subprocess.run(
+                        ["powershell.exe", "-NoProfile", "-Command", ps_cmd],
+                        capture_output=True, text=True, timeout=5,
+                    )
+                    for line in (result.stdout or "").splitlines():
+                        line = line.strip()
+                        if line.lower().startswith("fe80::"):
+                            # Drop %iface suffix if powershell ever adds it
+                            foundAddresses.append(line.split("%", 1)[0])
+                except (OSError, subprocess.TimeoutExpired):
+                    pass
+
+            # Fallback for hosts where PowerShell/NetAdapter is not
+            # cooperative — scan ipconfig but accept any fe80::. We
+            # still warn about multi-adapter ambiguity below.
+            if not foundAddresses:
+                result = subprocess.run(
+                    ["ipconfig.exe"],
+                    capture_output=True, text=True, encoding="ansi",
+                )
+                if len(result.stderr) > 0:
+                    print(result.stderr)
+                else:
+                    for line in result.stdout.split("\n"):
+                        if line.find("IPv6") > 0:
+                            k = line.find(" fe80::")
+                            if k > 0:
+                                foundAddresses.append(line[k + 1 :])
         else:
             # Linux: parse `ip addr` output for the configured interface
             result = subprocess.run(["ip", "addr"], capture_output=True, text=True)
