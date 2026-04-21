@@ -108,7 +108,15 @@ class SdpServer:
         except OSError:
             pass
 
-        sock.bind(("::", SDP_PORT, 0, self.scope_id))
+        # Windows rejects bind(("::", port, 0, scope)) with WinError
+        # 10049. The scope is only needed for outbound routing of
+        # link-local unicast; for receiving ff02::1 multicast it's
+        # enough to bind unscoped "::" and rely on IPV6_JOIN_GROUP below
+        # to subscribe on the requested scope. This also matches Linux
+        # behaviour (a scoped bind on "::" is a no-op there). On Linux
+        # the original path still works, but we use the unscoped form
+        # uniformly to simplify cross-platform reasoning.
+        sock.bind(("::", SDP_PORT))
 
         # Join ff02::1 on the requested scope. ``ff02::1`` is the
         # all-nodes link-local group, so technically we don't need to
