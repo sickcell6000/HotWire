@@ -225,8 +225,17 @@ class PacketCapture:
     def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
         if self._proc is None:
             return
+        # tcpdump / dumpcap flush on SIGINT on POSIX. Windows subprocess
+        # doesn't allow SIGINT to a different process from another
+        # process; attempting send_signal(SIGINT) raises "Unsupported
+        # signal: 2". Use CTRL_BREAK_EVENT if the child was started with
+        # CREATE_NEW_PROCESS_GROUP, or fall back to terminate() which
+        # dumpcap handles cleanly (it closes the pcap file on exit).
         try:
-            self._proc.send_signal(signal.SIGINT)
+            if sys.platform == "win32":
+                self._proc.terminate()
+            else:
+                self._proc.send_signal(signal.SIGINT)
             self._proc.wait(timeout=5)
         except subprocess.TimeoutExpired:
             self._proc.kill()
