@@ -150,7 +150,20 @@ class HotWireWorker:
         is only created on the first call."""
         if self.sdp_server is not None or self.isSimulationMode:
             return
-        secc_ip = self.addressManager.getSeccIp() or "::"
+        # When we are the EVSE, ``getSeccIp()`` is empty (that field is
+        # for the PEV to learn the charger address via SDP). Advertise
+        # our own link-local address instead so the PEV can actually
+        # reach us.
+        secc_ip = self.addressManager.getSeccIp()
+        if not secc_ip:
+            try:
+                secc_ip = self.addressManager.getLinkLocalIpv6Address(
+                    resulttype="string"
+                )
+            except Exception:                                       # noqa: BLE001
+                secc_ip = ""
+        if not secc_ip:
+            secc_ip = "::"
         secc_port = self.addressManager.SeccTcpPort
         try:
             self.sdp_server = SdpServer(
