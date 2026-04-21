@@ -118,6 +118,18 @@ class PcapL2Transport:
             )
             # Filter: only HomePlug AV ethertype.
             self._sock.setfilter("ether proto 0x88E1")
+            # On Linux, libpcap's read timeout is only honored when the
+            # capture type supports it (memory-mapped ring). Force
+            # non-blocking mode so ``dispatch(1, ...)`` returns immediately
+            # with 0 when no packet is waiting, instead of ppolling
+            # forever. Without this, the SLAC tick loop blocks in the
+            # kernel and the global budget check never fires.
+            try:
+                self._sock.setnonblock(True)
+            except Exception:                                   # noqa: BLE001
+                # Older libpcap builds may not expose setnonblock; the
+                # tick loop will still function, just with more latency.
+                pass
         except Exception as e:                                  # noqa: BLE001
             raise RuntimeError(
                 f"pcap.open({interface!r}) failed: {e}"
