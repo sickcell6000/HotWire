@@ -12,6 +12,7 @@ import ipaddress
 import os
 import subprocess
 import sys
+from typing import Optional
 
 from ..helpers import prettyMac, twoCharHex
 from .config import getConfigValue, getConfigValueBool
@@ -71,6 +72,11 @@ class addressManager:
 
             ps_cmd = ""
             if guid:
+                # PowerShell's ``Get-NetIPAddress.IPAddress`` already
+                # emits the ``%<ifIndex>`` suffix for link-local
+                # addresses, so we just pass that through verbatim.
+                # ``getScopeId()`` / ``getLinkLocalAddressWithoutScope()``
+                # both handle the suffix correctly.
                 ps_cmd = (
                     "$g='" + guid + "';"
                     "$n=(Get-NetAdapter|?{$_.InterfaceGuid -eq $g}).Name;"
@@ -90,8 +96,10 @@ class addressManager:
                     for line in (result.stdout or "").splitlines():
                         line = line.strip()
                         if line.lower().startswith("fe80::"):
-                            # Drop %iface suffix if powershell ever adds it
-                            foundAddresses.append(line.split("%", 1)[0])
+                            # Keep "%<index>" suffix so getScopeId() can
+                            # parse it. SdpServer / SdpClient know how
+                            # to strip it when binding.
+                            foundAddresses.append(line)
                 except (OSError, subprocess.TimeoutExpired):
                     pass
 
@@ -178,23 +186,98 @@ class addressManager:
         print(f"[addressManager] Local IPv6 = {self.localIpv6Address}")
 
     def findLocalMacAddress(self) -> None:
-        """On Windows use a static fallback; on Linux MAC is set by
-        findLinkLocalIpv6Address(). Simulation mode on Linux never
-        goes through that path, so we seed a static fallback here too
-        — otherwise ``self.localMac`` is missing when callers ask for
-        the EVCCID (happens in Docker CI, where no real eth interface
-        exists)."""
-        if os.name == "nt":
-            self.localMac = MAC_LAPTOP
+        """On Windows, look up the MAC of ``eth_windows_interface_name``
+        via psutil; on Linux, the MAC is set by
+        ``findLinkLocalIpv6Address()``. In both cases we pre-seed a
+        static fallback so sim-only paths (Docker CI, no real eth)
+        still have *something* to return for the EVCCID.
+        """
+        self.localMac = MAC_LAPTOP  # conservative pre-seed
+
+        if os.name != "nt":
+            return  # Linux path owns the real lookup later
+
+        # Windows: resolve the NPF GUID in config → friendly adapter
+        # name → psutil AF_LINK MAC. Same dance phase2_slac uses so the
+        # two code paths can't disagree about which NIC is 'the' PLC.
+        try:
+            npf = getConfigValue("eth_windows_interface_name")
+        except SystemExit:
+            npf = ""
+        if not npf:
             print(
                 "[addressManager] local MAC = "
                 + prettyMac(self.localMac)
-                + " (static Windows fallback)"
+                + " (static Windows fallback, no eth_windows_interface_name)"
             )
-        else:
-            # Pre-seed on Linux so simulation mode has something. Real
-            # hardware runs will overwrite this in findLinkLocalIpv6Address.
-            self.localMac = MAC_LAPTOP
+            return
+
+        npf_lower = npf.lower()
+        guid = ""
+        start = npf_lower.find("{")
+        end = npf_lower.find("}", start)
+        if start != -1 and end != -1:
+            guid = npf_lower[start:end + 1]
+
+        friendly_name: Optional[str] = None
+        if guid:
+            try:
+                ps_cmd = (
+                    "(Get-NetAdapter | Where-Object "
+                    f"{{ $_.InterfaceGuid -eq '{guid.upper()}' }})"
+                    ".Name"
+                )
+                out = subprocess.run(
+                    ["powershell.exe", "-NoProfile", "-Command", ps_cmd],
+                    capture_output=True, text=True, timeout=6,
+                )
+                name = (out.stdout or "").strip()
+                if name:
+                    friendly_name = name
+            except Exception:  # noqa: BLE001
+                friendly_name = None
+
+        if friendly_name is None:
+            print(
+                "[addressManager] local MAC = "
+                + prettyMac(self.localMac)
+                + f" (static Windows fallback, GUID→name lookup failed for {npf})"
+            )
+            return
+
+        try:
+            import psutil  # type: ignore
+            import socket as _socket
+            addrs = psutil.net_if_addrs().get(friendly_name, [])
+            af_link = getattr(psutil, "AF_LINK", getattr(_socket, "AF_LINK", -1))
+            for addr in addrs:
+                fam = getattr(addr, "family", None)
+                if fam == af_link and addr.address:
+                    parts = addr.address.replace("-", ":").split(":")
+                    if len(parts) == 6:
+                        try:
+                            ba = bytearray(
+                                int(p, 16) for p in parts
+                            )
+                            self.localMac = ba
+                            print(
+                                "[addressManager] local MAC = "
+                                + prettyMac(self.localMac)
+                                + f" (from {friendly_name})"
+                            )
+                            return
+                        except ValueError:
+                            pass
+        except ImportError:
+            pass
+        except Exception:  # noqa: BLE001
+            pass
+
+        print(
+            "[addressManager] local MAC = "
+            + prettyMac(self.localMac)
+            + f" (static Windows fallback, psutil lookup failed for {friendly_name})"
+        )
 
     # ---- setters for remote peer addresses ----
 

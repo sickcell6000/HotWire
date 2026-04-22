@@ -108,6 +108,14 @@ class RealHomePlug:
         self.nmk = bytes(16)
         self.nid = bytes(7)
 
+        # Real SLAC state machine — instantiated lazily in ``mainfunction``
+        # once the interface is quiet and we know our local MAC. Until
+        # then the CONNMGR sees us at level 5 (eth link present).
+        self._slac: Any = None
+        self._slac_started: bool = False
+        self._slac_reported_modems: bool = False
+        self._slac_reported_ok: bool = False
+
         self.addToTrace("[RealHomePlug] pcap driver initialised")
 
     # ---- logging ---------------------------------------------------
@@ -118,15 +126,6 @@ class RealHomePlug:
     # ---- pcap setup ------------------------------------------------
 
     def _setup_pcap(self) -> None:
-        try:
-            import pcap                                        # type: ignore
-        except ImportError as e:
-            raise RuntimeError(
-                "pypcap is not importable. pip install pcap-ct (note: the "
-                "'pcap-ct' package, NOT 'pypcap' or 'libpcap')."
-            ) from e
-        self._pcap = pcap
-
         # The interface name comes from hotwire.ini: `eth_interface` on
         # Linux/macOS or `eth_windows_interface_name` on Windows.
         try:
@@ -138,16 +137,16 @@ class RealHomePlug:
         except (SystemExit, Exception) as e:
             raise RuntimeError(f"missing PLC interface config: {e}") from e
 
+        # Use PcapL2Transport — same wrapper phase2_slac uses — so the
+        # SLAC state machine can plug in without any special case. The
+        # wrapper already applies ``setfilter("ether proto 0x88E1")`` and
+        # ``setnonblock(True)`` so SLAC tick loops respect their budget.
+        from .l2_transport import PcapL2Transport
         try:
-            self._sock = pcap.pcap(
-                name=iface,
-                promisc=True,
-                immediate=True,
-                timeout_ms=50,
-            )
-        except Exception as e:                                  # noqa: BLE001
+            self._transport = PcapL2Transport(iface)
+        except RuntimeError as e:
             raise RuntimeError(
-                f"could not open pcap on {iface!r}: {e}"
+                f"could not open pcap L2 transport on {iface!r}: {e}"
             ) from e
 
         self.addToTrace(f"[RealHomePlug] opened interface {iface!r}")
@@ -158,26 +157,87 @@ class RealHomePlug:
     def mainfunction(self) -> None:
         """Called by :class:`HotWireWorker` every ~30 ms.
 
-        TODO — port the legacy SLAC state machine here. The sketch:
-
-        1. Read one (at most) raw frame from ``self._sock`` via a short
-           non-blocking poll.
-        2. If we're the PEV and we see CM_SLAC_PARAM.CNF, progress the
-           SLAC state. Drive CM_START_ATTEN_CHAR, CM_MNBC_SOUND,
-           CM_ATTEN_CHAR.IND, CM_VALIDATE.REQ, CM_SLAC_MATCH.REQ in
-           sequence.
-        3. If we're the EVSE, respond to CM_SLAC_PARAM.REQ and sound.
-        4. On SLAC completion, program the modem NMK via CM_SET_KEY.REQ
-           and report connMgr.ModemFinderOk(2) + connMgr.SlacOk().
-        5. Kick off SDP (UDP multicast) once SLAC is done, report
-           SdpOk() when the EVSE is reachable.
-
-        Until that's done, this driver is a **scaffold**: it opens the
-        pcap interface but doesn't drive the state machine. Use the
-        simulation driver (``isSimulationMode=1``) for anything other
-        than bench-top hardware experiments.
+        Drives the SLAC state machine against the real pcap interface
+        and, on pairing success, reports progress to the
+        :class:`ConnectionManager` so the rest of the worker (SDP
+        client, TCP dialler, V2G FSM) unblocks.
         """
-        pass  # see TODO above
+        self._ensure_slac_started()
+        if self._slac is None:
+            return
+
+        self._slac.tick()
+
+        # Promote CONNMGR whenever SLAC crosses a milestone. The first
+        # promotion (ModemFinderOk(2)) tells the connection manager two
+        # modems are present; the second (SlacOk) unblocks SDP. We hold
+        # the booleans so we don't re-report every tick.
+        if self._slac.is_paired() and not self._slac_reported_ok:
+            self.nmk = self._slac.nmk
+            self.nid = self._slac.nid
+            if not self._slac_reported_modems:
+                self.connMgr.ModemFinderOk(2)
+                self._slac_reported_modems = True
+            self.connMgr.SlacOk()
+            self._slac_reported_ok = True
+            self.addToTrace(
+                "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) "
+                "+ SlacOk() to connection manager"
+            )
+        elif self._slac.has_failed() and not self._slac_reported_ok:
+            # Surface the failure once so the operator sees it in the
+            # trace, but don't keep blasting the log.
+            self.addToTrace(
+                f"[RealHomePlug] SLAC failed in role={self.mode}; "
+                "CONNMGR will remain at eth-link level"
+            )
+            # Flip the flag to avoid re-log spam; keep _slac_reported_modems
+            # false so a later retry can still promote.
+            self._slac_reported_ok = True
+
+    def _ensure_slac_started(self) -> None:
+        """Instantiate and start the SLAC state machine once we have
+        all the prerequisites (local MAC known, role is not listener).
+        Idempotent — subsequent calls are no-ops.
+        """
+        if self._slac_started:
+            return
+
+        if self.mode == C_LISTEN_MODE:
+            # Listen mode sniffs but does not participate — leave SLAC
+            # unstarted so the state machine doesn't emit any frames.
+            self._slac_started = True
+            return
+
+        # Resolve our local MAC from addressManager (already filled in
+        # at worker startup for both platforms).
+        try:
+            raw = self.addressManager.getLocalMacAddress()
+        except Exception as e:                                  # noqa: BLE001
+            self.addToTrace(
+                f"[RealHomePlug] address manager has no local MAC yet: {e}"
+            )
+            return
+        mac_bytes = bytes(raw) if raw is not None else b""
+        if len(mac_bytes) != 6:
+            return  # not ready yet
+
+        from .slac import SlacStateMachine, ROLE_EVSE, ROLE_PEV
+        role = ROLE_PEV if self.mode == C_PEV_MODE else ROLE_EVSE
+        self._slac = SlacStateMachine(
+            role=role,
+            transport=self._transport,
+            local_mac=mac_bytes,
+            callback_add_to_trace=self.addToTrace,
+        )
+        # Worker ticks at roughly 30 ms — give SLAC a budget that
+        # comfortably covers the 10 sounds + MATCH handshake + SET_KEY.
+        self._slac._total_timeout_s = 30.0                      # noqa: SLF001
+        self._slac_started = True
+        self.addToTrace(
+            f"[RealHomePlug] SLAC started (role={role}, "
+            f"local_mac={':'.join(f'{b:02x}' for b in mac_bytes)})"
+        )
 
     # ---- mode transitions (match SimulatedHomePlug interface) -----
 

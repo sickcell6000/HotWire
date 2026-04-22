@@ -60,8 +60,16 @@ SLAC_WAIT_SOUNDS = 6            # EVSE: got PARAM_REQ, collecting sounds
 SLAC_WAIT_ATTEN_CHAR = 7        # PEV: sent sounds, waiting for ATTEN_CHAR.IND
 SLAC_WAIT_MATCH_REQ = 3         # EVSE: saw ATTEN_CHAR.RSP, waiting for MATCH
 SLAC_WAIT_MATCH_CNF = 4         # PEV: sent MATCH_REQ, waiting for CNF
+SLAC_WAIT_SET_KEY_CNF = 8       # both sides: sent CM_SET_KEY.REQ to own modem
 SLAC_PAIRED = 5                 # both sides: SLAC_MATCH exchanged, NMK known
 SLAC_FAILED = 9
+
+# Budget for the local modem to acknowledge our CM_SET_KEY.REQ. If it
+# expires we still declare ``SLAC_PAIRED`` — the protocol exchange with
+# the peer is already complete. The only reason to hold up pairing on
+# the modem's ACK would be to guarantee AVLN membership, and upstream
+# pyPLC operates the same way (sends SET_KEY, continues regardless).
+_SET_KEY_CNF_TIMEOUT_S = 0.8
 
 
 # Per-spec (ISO 15118-3 §A.7.1) PEV sends 10 sound frames.
@@ -126,6 +134,13 @@ class SlacStateMachine:
         self._start_atten_sent = False
         self._last_sound_time: Optional[float] = None
 
+        # SET_KEY.REQ → local modem deadline (set once we move into
+        # SLAC_WAIT_SET_KEY_CNF). None while the earlier SLAC phases run.
+        self._set_key_deadline: Optional[float] = None
+
+        # PEV-side PARAM.REQ retry bookkeeping (see tick()).
+        self._last_param_req_time: Optional[float] = None
+
         # Coarse state.
         if role == ROLE_EVSE:
             self.state = SLAC_WAIT_PARAM_REQ
@@ -145,18 +160,37 @@ class SlacStateMachine:
         Checks for received frames, processes them, may send new frames
         in response.
         """
-        # Global timeout.
-        if self.state not in (SLAC_PAIRED, SLAC_FAILED):
+        # Global timeout. SLAC_WAIT_SET_KEY_CNF has its own short budget
+        # handled below — treat it as "already done" here so the full
+        # budget timer doesn't kill a session that's literally one
+        # modem-ACK away from PASSing.
+        if self.state not in (
+            SLAC_PAIRED, SLAC_FAILED, SLAC_WAIT_SET_KEY_CNF
+        ):
             if time.monotonic() - self._start_time > self._total_timeout_s:
                 self.trace(f"[SLAC {self.role}] total timeout; failing")
                 self.state = SLAC_FAILED
                 return
 
-        # PEV: kick things off exactly once.
+        # PEV: kick things off and periodically retry until we see a
+        # PARAM_CNF. ``phase2_slac`` used to pass because the operator
+        # happened to start the two sides in the right order, but
+        # ``phase4_v2g`` spins up a full worker on each side and the
+        # EVSE's pcap listener isn't ready for the first few hundred ms
+        # — so a single kick-off frame is easily missed. One REQ every
+        # 2 s matches pyPLC's retry cadence.
         if self.role == ROLE_PEV and self.state == SLAC_IDLE:
             self._send_slac_param_req()
+            self._last_param_req_time = time.monotonic()
             self.state = SLAC_WAIT_PARAM_CNF
             return
+        if (self.role == ROLE_PEV
+                and self.state == SLAC_WAIT_PARAM_CNF):
+            now = time.monotonic()
+            if (self._last_param_req_time is not None
+                    and now - self._last_param_req_time >= 2.0):
+                self._send_slac_param_req()
+                self._last_param_req_time = now
 
         # PEV: after PARAM_CNF, drip-send sound frames at ~20 ms intervals
         # so the EVSE has time to accumulate them in its rx queue. We don't
@@ -177,6 +211,18 @@ class SlacStateMachine:
             if frame is not None:
                 self._handle(frame)
 
+        # SET_KEY.CNF budget: if the local modem never replies, declare
+        # paired anyway. The peer protocol handshake already succeeded,
+        # and downstream SDP/V2G traffic will either work (modem joined
+        # AVLN silently) or surface its own timeout.
+        if (self.state == SLAC_WAIT_SET_KEY_CNF
+                and self._set_key_deadline is not None
+                and time.monotonic() >= self._set_key_deadline):
+            self._mark_paired_and_notify(
+                "no SET_KEY.CNF from local modem before budget; "
+                "continuing on peer-handshake success"
+            )
+
     def is_paired(self) -> bool:
         return self.state == SLAC_PAIRED
 
@@ -188,6 +234,18 @@ class SlacStateMachine:
     def _handle(self, frame: HomePlugFrame) -> None:
         # Ignore our own frames if a transport loopback echoes them.
         if frame.src_mac == self.local_mac:
+            return
+
+        # Local modem's reply to our CM_SET_KEY.REQ is role-independent
+        # (both PEV and EVSE side do the same programming step), so
+        # handle it here before the role dispatch.
+        if (self.state == SLAC_WAIT_SET_KEY_CNF
+                and frame.is_set_key_cnf()):
+            self.trace(
+                f"[SLAC {self.role}] got CM_SET_KEY.CNF from "
+                f"{self._mac_str(frame.src_mac)}"
+            )
+            self._mark_paired_and_notify("local modem ACKed SET_KEY")
             return
 
         if self.role == ROLE_EVSE:
@@ -291,6 +349,10 @@ class SlacStateMachine:
     def _send_slac_param_req(self) -> None:
         frame = build_slac_param_req(self.local_mac, self.run_id)
         self.transport.send(frame.to_bytes())
+        self.trace(
+            f"[SLAC {self.role}] sent CM_SLAC_PARAM.REQ "
+            f"(run_id={self.run_id.hex()})"
+        )
 
     def _send_slac_param_cnf(self) -> None:
         assert self.peer_mac is not None
@@ -370,9 +432,27 @@ class SlacStateMachine:
     # ---- pairing finish ------------------------------------------
 
     def _finish_paired(self) -> None:
+        """Protocol exchange with the peer is complete — now program
+        the local modem with the negotiated NMK so it actually joins
+        the AVLN. We enter ``SLAC_WAIT_SET_KEY_CNF`` and only move to
+        ``SLAC_PAIRED`` once the modem ACKs (or the short budget expires;
+        see below)."""
+        self.trace(
+            f"[SLAC {self.role}] peer handshake done; "
+            f"programming local modem with NID={self.nid.hex()} "
+            f"NMK={self.nmk[:4].hex()}..."
+        )
+        self._send_set_key_req_raw()
+        self.state = SLAC_WAIT_SET_KEY_CNF
+        self._set_key_deadline = time.monotonic() + _SET_KEY_CNF_TIMEOUT_S
+
+    def _mark_paired_and_notify(self, reason: str) -> None:
+        """Final state transition. Called once either the modem ACKed
+        our SET_KEY (ideal path) or the short budget expired (degraded
+        path — protocol still OK, modem just didn't reply)."""
         self.state = SLAC_PAIRED
         self.trace(
-            f"[SLAC {self.role}] PAIRED; "
+            f"[SLAC {self.role}] PAIRED ({reason}); "
             f"nid={self.nid.hex()} nmk={self.nmk[:4].hex()}... "
             f"peer={self._mac_str(self.peer_mac)}"
         )
@@ -381,6 +461,58 @@ class SlacStateMachine:
                 self.on_slac_ok(self.nmk, self.nid, self.peer_mac)
             except Exception as e:                              # noqa: BLE001
                 self.trace(f"[SLAC {self.role}] on_slac_ok callback raised: {e}")
+
+    def _send_set_key_req_raw(self) -> None:
+        """Emit a CM_SET_KEY.REQ whose wire layout exactly matches
+        pyPLC's ``composeSetKey`` (60 bytes, FMI at offsets 17–18,
+        key_info_type at 19, my_nonce at 20–23, PID at 28, NID at 33–39,
+        peks at 40, NMK at 41–56).
+
+        We intentionally don't route through ``build_set_key_req`` /
+        ``HomePlugFrame.to_bytes`` here because that helper treats the
+        FMI bytes as part of ``payload``, and QCA7420 / TP-Link modems
+        reject SET_KEY frames whose payload doesn't start at offset 19.
+        pyPLC's field-proven layout is the source of truth.
+        """
+        # Broadcast DA makes the local modem pick it up without us
+        # needing to know its MAC (it only recognises SET_KEY addressed
+        # to itself or broadcast — pyPLC comment verifies this).
+        buf = bytearray(60)
+        # Dst MAC = broadcast
+        for i in range(6):
+            buf[i] = 0xFF
+        # Src MAC = host
+        buf[6:12] = self.local_mac
+        # Ethertype
+        buf[12] = 0x88
+        buf[13] = 0xE1
+        buf[14] = 0x01                 # MMV
+        buf[15] = 0x08                 # MMTYPE LSB (CM_SET_KEY.REQ = 0x6008)
+        buf[16] = 0x60                 # MMTYPE MSB
+        buf[17] = 0x00                 # FMI frag_index
+        buf[18] = 0x00                 # FMI frag_seqnum
+        buf[19] = 0x01                 # key_info_type = 1 (NMK)
+        # my_nonce (4B) — any non-zero 32-bit value; pyPLC uses 0xAAAAAAAA.
+        buf[20] = 0xAA
+        buf[21] = 0xAA
+        buf[22] = 0xAA
+        buf[23] = 0xAA
+        # your_nonce (4B) — zero for a first-time SET_KEY.
+        # offset 28 = PID = 0x04 (HLE, per ISO 15118-3 §A.7.2)
+        buf[28] = 0x04
+        # PRN, PMN, CCo cap — zero
+        # NID (7B) at offset 33
+        for i in range(7):
+            buf[33 + i] = self.nid[i]
+        # peks (payload encryption key select) = 0x01 (NMK)
+        buf[40] = 0x01
+        # NMK (16B) at offset 41
+        for i in range(16):
+            buf[41 + i] = self.nmk[i]
+        try:
+            self.transport.send(bytes(buf))
+        except Exception as e:                                  # noqa: BLE001
+            self.trace(f"[SLAC {self.role}] SET_KEY.REQ send failed: {e}")
 
     # ---- helpers --------------------------------------------------
 

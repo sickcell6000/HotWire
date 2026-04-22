@@ -150,6 +150,20 @@ class HotWireWorker:
         is only created on the first call."""
         if self.sdp_server is not None or self.isSimulationMode:
             return
+
+        # Wait until the EVSE TCP server has bound — the SDP response
+        # advertises that port, so starting SDP before the TCP listener
+        # exists leaves the PEV chasing a dead port (port mismatch was
+        # the root cause of the first real-hardware V2G bring-up
+        # failure).
+        tcp_port: Optional[int] = None
+        if (self.evse is not None
+                and getattr(self.evse, "Tcp", None) is not None
+                and getattr(self.evse.Tcp, "isListening", True)):
+            tcp_port = getattr(self.evse.Tcp, "tcpPort", None)
+        if tcp_port is None:
+            return
+
         # When we are the EVSE, ``getSeccIp()`` is empty (that field is
         # for the PEV to learn the charger address via SDP). Advertise
         # our own link-local address instead so the PEV can actually
@@ -164,7 +178,10 @@ class HotWireWorker:
                 secc_ip = ""
         if not secc_ip:
             secc_ip = "::"
-        secc_port = self.addressManager.SeccTcpPort
+        secc_port = tcp_port
+        # Keep SeccTcpPort in sync so any code that queries address
+        # manager directly sees the live value too.
+        self.addressManager.SeccTcpPort = tcp_port
         try:
             self.sdp_server = SdpServer(
                 secc_ip=secc_ip,
