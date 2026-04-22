@@ -85,6 +85,32 @@ git apply path\to\hotwire\patches\pyplc\transmit_swallow_oserror.patch
 
 Or edit by hand — each patch touches exactly one location.
 
+### Convenience launcher
+
+`run_pyplc_windows.ps1` wraps `python -u pyplc.py <mode>` with
+`PYTHONIOENCODING=utf-8` and a timestamped log in `logs/`. Drop it
+next to `pyplc.py` in your pyPLC checkout and run:
+
+```powershell
+.\run_pyplc_windows.ps1 E   # EVSE
+.\run_pyplc_windows.ps1 P   # PEV
+.\run_pyplc_windows.ps1 L   # Listener
+```
+
+If the script misbehaves (PowerShell execution policy), either:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\run_pyplc_windows.ps1 E
+```
+
+or run the three lines inline:
+
+```powershell
+$env:PYTHONIOENCODING = 'utf-8'
+python -u pyplc.py E 2>&1 | Tee-Object -FilePath pyplc_E.log
+```
+
 ## Relationship to HotWire
 
 HotWire replaces pyPLC entirely; it does not import from it. These patches
