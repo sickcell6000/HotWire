@@ -1,0 +1,25 @@
+--- a/pyPlcHomeplug.py
++++ b/pyPlcHomeplug.py
+@@ -602,7 +602,20 @@ class pyPlcHomeplug():
+
+
+     def transmit(self, pkt):
+-        self.sniffer.sendpacket(bytes(pkt))
++        # HOTWIRE-PATCH: swallow sendpacket errors so a misbehaving NIC
++        # driver / modem (common on Windows when the local modem is
++        # stuck in bootloader mode or Npcap has a link-layer problem)
++        # doesn't crash the whole state machine. The SLAC / HomePlug
++        # layer retries anyway; a dropped single frame is recoverable,
++        # an uncaught OSError tears down Python mid-tick.
++        try:
++            self.sniffer.sendpacket(bytes(pkt))
++        except OSError as e:
++            if not getattr(self, "_tx_error_logged", False):
++                self.addToTrace(
++                    "[transmit] sendpacket failed (%s). "
++                    "Further failures suppressed." % e
++                )
++                self._tx_error_logged = True
+
+     def evaluateGetKeyCnf(self):
+         self.addToTrace("received GET_KEY.CNF")
