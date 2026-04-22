@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import sys
 import time
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 from ..core.modes import C_EVSE_MODE, C_LISTEN_MODE, C_PEV_MODE
 from .tcp_socket import _resolve_tcp_port
@@ -224,11 +224,41 @@ class RealHomePlug:
 
         from .slac import SlacStateMachine, ROLE_EVSE, ROLE_PEV
         role = ROLE_PEV if self.mode == C_PEV_MODE else ROLE_EVSE
+
+        # Pull a stable NMK/NID from config when available so the
+        # modem doesn't need to re-pair its AVLN every time the worker
+        # restarts. If the operator didn't set them we fall through to
+        # per-session randoms. The EVSE-side value is authoritative
+        # (MATCH.CNF delivers it to the PEV), but PEV is also given
+        # the same values as a hint in case a future revision honours
+        # client-proposed keys.
+        from ..core.config import getConfigValue
+        nmk_bytes: Optional[bytes] = None
+        nid_bytes: Optional[bytes] = None
+        try:
+            nmk_hex = getConfigValue("plc_nmk_hex")
+            if nmk_hex and len(nmk_hex) == 32:
+                nmk_bytes = bytes.fromhex(nmk_hex)
+        except SystemExit:
+            pass
+        except (ValueError, TypeError):
+            pass
+        try:
+            nid_hex = getConfigValue("plc_nid_hex")
+            if nid_hex and len(nid_hex) == 14:
+                nid_bytes = bytes.fromhex(nid_hex)
+        except SystemExit:
+            pass
+        except (ValueError, TypeError):
+            pass
+
         self._slac = SlacStateMachine(
             role=role,
             transport=self._transport,
             local_mac=mac_bytes,
             callback_add_to_trace=self.addToTrace,
+            nmk=nmk_bytes,
+            nid=nid_bytes,
         )
         # Worker ticks at roughly 30 ms — give SLAC a budget that
         # comfortably covers the 10 sounds + MATCH handshake + SET_KEY.

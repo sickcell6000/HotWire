@@ -110,6 +110,19 @@ def phase4_v2g(
         if cap.available and cap.pcap_path:
             artifacts.append(cap.pcap_path)
 
+        # Pre-pair the local modem with the stable NMK/NID from config
+        # *before* standing up the full worker. Rationale: a previous
+        # phase4 session may have left the modems in a random AVLN
+        # (or, worse, with no AVLN at all if something reset them).
+        # Without this bootstrap, worker-level SLAC has to race against
+        # a modem that isn't forwarding the peer's HPAV frames, which
+        # usually looks like "PARAM.REQ sent 15x, EVSE saw 0".
+        # A one-shot SLAC using the config NMK brings both modems back
+        # into the expected AVLN; the worker-level SLAC that follows
+        # then succeeds on the first try. Best-effort — if pre-pair
+        # fails we still let the worker run and report its own error.
+        _prepair_modem(ctx, role, _trace)
+
         try:
             worker = HotWireWorker(
                 callbackAddToTrace=_trace,
@@ -180,6 +193,117 @@ def phase4_v2g(
 
 
 # --- helpers ----------------------------------------------------------
+
+
+def _prepair_modem(ctx: RunContext, role: str, trace) -> None:
+    """Run a short SLAC exchange with the config-pinned NMK/NID so the
+    modems land in a known AVLN before the full worker starts.
+
+    This is a no-op when ``plc_nmk_hex`` / ``plc_nid_hex`` are absent
+    from hotwire.ini — the worker's own SLAC round will still try on
+    its own. We swallow every error; this step is best-effort.
+
+    Budget is deliberately short (8 s) so a dead modem doesn't block
+    the real phase that follows. If pre-pair times out we still log
+    that fact and let the worker take another crack at it.
+    """
+    try:
+        from hotwire.core.config import getConfigValue
+        try:
+            nmk_hex = getConfigValue("plc_nmk_hex")
+            nid_hex = getConfigValue("plc_nid_hex")
+        except SystemExit:
+            return
+        if not nmk_hex or not nid_hex:
+            return
+        if len(nmk_hex) != 32 or len(nid_hex) != 14:
+            trace(
+                "[phase4/prepair] plc_nmk_hex/plc_nid_hex wrong length; "
+                "skipping"
+            )
+            return
+        nmk_bytes = bytes.fromhex(nmk_hex)
+        nid_bytes = bytes.fromhex(nid_hex)
+    except (ValueError, ImportError) as e:
+        trace(f"[phase4/prepair] config read failed: {e}")
+        return
+
+    # Resolve local MAC via the address manager — same path the worker
+    # uses, so we can't disagree about which NIC is "the" PLC. Using
+    # ``_resolve_local_mac`` from phase2_slac has historically returned
+    # ``None`` when imported through a different sys.path than the one
+    # phase2 was designed for.
+    try:
+        from hotwire.core.address_manager import addressManager
+    except ImportError as e:
+        trace(f"[phase4/prepair] addressManager import failed: {e}")
+        return
+    am = addressManager(isSimulationMode=0)
+    try:
+        am.findLocalMacAddress()
+        am.findLinkLocalIpv6Address()
+    except Exception as e:                                      # noqa: BLE001
+        trace(f"[phase4/prepair] addressManager bring-up failed: {e}")
+        return
+    raw_mac = am.getLocalMacAddress()
+    try:
+        local_mac = bytes(raw_mac) if raw_mac is not None else b""
+    except (TypeError, ValueError):
+        local_mac = b""
+    if len(local_mac) != 6:
+        trace(
+            "[phase4/prepair] addressManager has no usable MAC for "
+            f"{ctx.interface}; skipping"
+        )
+        return
+
+    try:
+        from hotwire.plc.l2_transport import PcapL2Transport
+        from hotwire.plc.slac import (
+            SlacStateMachine, ROLE_EVSE, ROLE_PEV,
+        )
+    except ImportError as e:
+        trace(f"[phase4/prepair] import failed: {e}")
+        return
+
+    try:
+        transport = PcapL2Transport(ctx.interface)
+    except Exception as e:                                      # noqa: BLE001
+        trace(f"[phase4/prepair] pcap open failed: {e}")
+        return
+
+    sm_role = ROLE_PEV if role == "pev" else ROLE_EVSE
+    sm = SlacStateMachine(
+        role=sm_role,
+        transport=transport,
+        local_mac=local_mac,
+        callback_add_to_trace=lambda s: trace(f"[phase4/prepair] {s}"),
+        nmk=nmk_bytes,
+        nid=nid_bytes,
+    )
+    sm._total_timeout_s = 8.0                                   # noqa: SLF001
+
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < 9.0:
+        sm.tick()
+        if sm.is_paired() or sm.has_failed():
+            break
+        time.sleep(0.02)
+
+    try:
+        transport.close()
+    except Exception:                                           # noqa: BLE001
+        pass
+
+    status = (
+        "paired" if sm.is_paired()
+        else "failed" if sm.has_failed()
+        else "timeout"
+    )
+    trace(
+        f"[phase4/prepair] done ({status}) in "
+        f"{time.monotonic() - t0:.1f}s"
+    )
 
 
 def worker_stop(worker) -> None:

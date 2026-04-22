@@ -111,6 +111,8 @@ class SlacStateMachine:
         callback_add_to_trace: Callable[[str], None],
         callback_slac_ok: Callable[[bytes, bytes, bytes], None] = None,
         run_id: Optional[bytes] = None,
+        nmk: Optional[bytes] = None,
+        nid: Optional[bytes] = None,
     ) -> None:
         if role not in (ROLE_EVSE, ROLE_PEV):
             raise ValueError(f"role must be evse|pev; got {role}")
@@ -124,8 +126,22 @@ class SlacStateMachine:
 
         # Negotiated after CM_SLAC_MATCH.CNF lands.
         self.peer_mac: Optional[bytes] = None
-        self.nmk = os.urandom(16)           # new-key for this session
-        self.nid = os.urandom(7)            # network ID
+        # Caller may pin NMK/NID so repeated SLAC sessions program the
+        # modem with the same key — otherwise the modems silently leave
+        # the AVLN after each session and the next PEV kick-off frame
+        # is unreachable over the powerline. When left unset we fall
+        # back to per-session randoms (matches original pyPLC behaviour
+        # for the very first pairing).
+        if nmk is not None:
+            assert len(nmk) == 16
+            self.nmk = bytes(nmk)
+        else:
+            self.nmk = os.urandom(16)
+        if nid is not None:
+            assert len(nid) == 7
+            self.nid = bytes(nid)
+        else:
+            self.nid = os.urandom(7)
 
         # Attenuation-phase bookkeeping. The PEV counts down the 10 sounds
         # it has sent; the EVSE counts up the ones it received.
