@@ -52,7 +52,7 @@ IRB approval and responsible-disclosure evidence see
 
 **How to verify**:
 
-1. Open the Zenodo record at `<DOI URL, filled in final version>`.
+1. Open the Zenodo record at <https://doi.org/10.5281/zenodo.19754105>.
 2. The record contains:
    - `HotWire-<git-sha>.zip` — complete source tarball.
    - `hotwire-ci.tar.gz` — pre-built Docker image (optional, saves ~20 min build time).
