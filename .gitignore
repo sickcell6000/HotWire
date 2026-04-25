@@ -72,3 +72,19 @@ runs/
 # Docker CI artefacts (bind-mounted from container)
 reports/
 
+# Paper sources are kept out of the public repository — only PDFs are
+# distributed (as part of the artifact bundle). LaTeX sources live in
+# a separate writing repo, not here.
+paper/
+*.tex
+*.aux
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.out
+
