@@ -20,6 +20,34 @@ Charging Systems"* and supports the two attacks documented there:
 > from both the vehicle owner and the charging infrastructure operator before
 > running HotWire against real hardware. See [SAFETY.md](SAFETY.md).
 
+## Lineage and attribution
+
+HotWire builds on the foundational work of
+[pyPLC](https://github.com/uhi22/pyPLC) by Uwe Hinrichs (uhi22), which
+provides the original DIN 70121 / SLAC / HomePlug AV reference
+implementation. We extend pyPLC with:
+
+- complete attack playbooks (A1 EVCCID impersonation, A2 forced discharge);
+- a Docker-based CI test harness running 240 unit + integration tests;
+- a parametric simulation matrix covering DIN, ISO 15118-2, and Tesla
+  protocol variants;
+- a PyQt6 GUI with per-stage Pause / Override controls;
+- Windows compatibility patches for pyPLC itself (see
+  [`patches/pyplc/`](patches/pyplc/));
+- a 537-line hardware design and recovery guide
+  ([`docs/hardware_design_guide.md`](docs/hardware_design_guide.md));
+- an Artifact Evaluation Committee (AEC) entry-point
+  ([`ARTIFACT.md`](ARTIFACT.md)) and a one-command Functional-badge
+  verification script (`./verify_artifact.sh`).
+
+EXI encoding/decoding is delegated to
+[OpenV2Gx](https://github.com/uhi22/OpenV2Gx) (LGPL-3.0, Siemens AG
+2007–2022). Both pyPLC and OpenV2Gx are GPL-/LGPL-licensed; HotWire
+distributes under GPL-3.0 to honour these obligations.
+
+See [ATTRIBUTION.md](ATTRIBUTION.md) for the full per-file lineage and
+license map.
+
 ---
 
 ## Features
