@@ -3,6 +3,13 @@
 > Entry-point for the **USENIX WOOT '26 Artifact Evaluation Committee (AEC)**.
 > Start here. This file is written specifically to support the two badges
 > we request: **Artifacts Available** and **Artifacts Functional**.
+>
+> The companion document [`docs/artifact_abstract.pdf`](docs/artifact_abstract.pdf)
+> is the formal Artifact Appendix, structured per the official USENIX
+> template (sections A.1–A.6) at
+> <https://secartifacts.github.io/usenixsec2026/instructions>. Evaluators
+> who want the structured roadmap (Major Claims → Experiments) should
+> read the PDF; this README is a friendlier task-by-task reference.
 
 ---
 
