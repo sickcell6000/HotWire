@@ -28,6 +28,11 @@ ENV/
 
 # Logs (generated at runtime)
 EVSE_LOG/
+# Exception: preserve the historical Luxgen N7 forced-discharge bench
+# logs imported from the original repository main branch. These are
+# the raw Attack A2 evidence captures referenced in the paper.
+!EVSE/EVSE_LOG/
+!EVSE/EVSE_LOG/*.txt
 sessions/
 *.log
 *.jsonl
