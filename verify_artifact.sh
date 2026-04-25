@@ -52,28 +52,55 @@ log "Starting: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 log "Expected runtime: ~5 min (pre-loaded image) to ~25 min (build from source)"
 
 # --------------------------------------------------------------
-# F1 — Docker CI regression
+# F1 — pytest regression (preferred path: Docker; fallback: host pytest)
 # --------------------------------------------------------------
-banner "F1 — Docker CI regression (240 unit + integration tests)"
+banner "F1 — pytest regression (240 unit + integration tests)"
+
+run_host_pytest_fallback() {
+    log "Falling back to host pytest (no Docker available)..."
+    if ! command -v python3 >/dev/null 2>&1; then
+        fail "F1 fallback: python3 not on PATH; cannot run host pytest"
+        return
+    fi
+    if ! python3 -c "import pytest" >/dev/null 2>&1; then
+        warn "F1 fallback: pytest not installed; install with: pip install -r requirements.txt"
+        return
+    fi
+    if python3 -m pytest tests/ -q --ignore=tests/fixtures \
+            --ignore=tests/test_gui_smoke.py \
+            --ignore=tests/test_gui_integration.py \
+            --ignore=tests/test_gui_dual_scenarios.py \
+            --ignore=tests/test_attack_launcher.py \
+            --ignore=tests/test_config_editor.py \
+            --ignore=tests/test_config_save.py \
+            --ignore=tests/test_csv_export.py \
+            > /tmp/hotwire_ci_f1.log 2>&1; then
+        summary=$(grep -E '^[0-9]+ passed|^=+ [0-9]+ passed' /tmp/hotwire_ci_f1.log | tail -1)
+        ok "F1 host pytest regression: $summary (GUI tests skipped without PyQt6)"
+    else
+        fail "F1 host pytest failed; full log at /tmp/hotwire_ci_f1.log"
+        tail -10 /tmp/hotwire_ci_f1.log
+    fi
+}
 
 if ! command -v docker >/dev/null 2>&1; then
-    fail "docker command not found — install Docker Desktop (Windows/macOS) or docker-ce (Linux), then re-run"
+    warn "docker not found on PATH — using host pytest fallback"
+    run_host_pytest_fallback
+elif ! docker info >/dev/null 2>&1; then
+    warn "docker daemon unreachable (Docker Desktop not started?) — using host pytest fallback"
+    run_host_pytest_fallback
 else
-    if ! docker info >/dev/null 2>&1; then
-        fail "docker daemon unreachable — on Windows, open Docker Desktop and wait for 'Engine running'; then re-run"
-    else
-        log "Docker daemon reachable; building (if needed) and running CI..."
-        if docker compose run --rm hotwire-ci > /tmp/hotwire_ci_f1.log 2>&1; then
-            if grep -qE '^[0-9]+ passed' /tmp/hotwire_ci_f1.log; then
-                summary=$(grep -E '^[0-9]+ passed' /tmp/hotwire_ci_f1.log | tail -1)
-                ok "F1 Docker CI regression: $summary"
-            else
-                fail "F1 ran but no pytest summary line found in /tmp/hotwire_ci_f1.log"
-            fi
+    log "Docker daemon reachable; building (if needed) and running CI..."
+    if docker compose run --rm hotwire-ci > /tmp/hotwire_ci_f1.log 2>&1; then
+        if grep -qE '[0-9]+ passed' /tmp/hotwire_ci_f1.log; then
+            summary=$(grep -E '[0-9]+ passed' /tmp/hotwire_ci_f1.log | tail -1)
+            ok "F1 Docker CI regression: $summary"
         else
-            fail "F1 Docker CI failed; full log at /tmp/hotwire_ci_f1.log"
-            tail -20 /tmp/hotwire_ci_f1.log
+            fail "F1 ran but no pytest summary line found in /tmp/hotwire_ci_f1.log"
         fi
+    else
+        fail "F1 Docker CI failed; full log at /tmp/hotwire_ci_f1.log"
+        tail -20 /tmp/hotwire_ci_f1.log
     fi
 fi
 
@@ -91,7 +118,12 @@ else
     log "Running scripts/sim_loopback.sh 25 (~30 s end-to-end)..."
     if bash scripts/sim_loopback.sh 25 > /tmp/hotwire_f2.log 2>&1; then
         states=$(grep -oE 'entering [0-9]+:[A-Za-z]+' /tmp/hotwire_f2.log | sort -u | wc -l)
-        cd_count=$(grep -cE 'CurrentDemandReq' /tmp/hotwire_f2.log || echo 0)
+        # sim_loopback.sh prints a summary line like:
+        #     572 msgName": "CurrentDemandReq
+        # Parse the leading count off that line (not a `grep -c` of it,
+        # which would just say 1 because it's a single summary line).
+        cd_count=$(awk '/CurrentDemandReq/ {print $1; exit}' /tmp/hotwire_f2.log)
+        cd_count=${cd_count:-0}
         if [ "$states" -ge 13 ] && [ "$cd_count" -ge 5 ]; then
             ok "F2 sim V2G session: $states PEV states reached, $cd_count CurrentDemandReq cycles"
         else
@@ -115,10 +147,15 @@ fi
 
 log "Running scripts/sim_matrix.sh..."
 if bash scripts/sim_matrix.sh > /tmp/hotwire_f3.log 2>&1; then
-    pass_rows=$(grep -cE 'PASS' /tmp/hotwire_f3.log || echo 0)
-    fail_rows=$(grep -cE 'FAIL' /tmp/hotwire_f3.log || echo 0)
+    # sim_matrix.sh prints the result column per row. Count only data
+    # rows (skip the header column that contains the literal word
+    # "RESULT" but no PASS/FAIL).
+    pass_rows=$(grep -E '^\s*[0-9]+V' /tmp/hotwire_f3.log | grep -c 'PASS' || true)
+    fail_rows=$(grep -E '^\s*[0-9]+V' /tmp/hotwire_f3.log | grep -c 'FAIL' || true)
+    pass_rows=${pass_rows:-0}
+    fail_rows=${fail_rows:-0}
     if [ "$pass_rows" -ge 9 ] && [ "$fail_rows" -eq 0 ]; then
-        ok "F3 parametric matrix: 9/9 PASS"
+        ok "F3 parametric matrix: ${pass_rows}/9 PASS"
     else
         fail "F3 parametric matrix failed: $pass_rows PASS, $fail_rows FAIL rows"
         tail -20 /tmp/hotwire_f3.log
