@@ -5,11 +5,11 @@
 > we request: **Artifacts Available** and **Artifacts Functional**.
 >
 > The companion document [`docs/artifact_abstract.pdf`](docs/artifact_abstract.pdf)
-> is the formal Artifact Appendix, structured per the official USENIX
-> template (sections A.1–A.6) at
-> <https://secartifacts.github.io/usenixsec2026/instructions>. Evaluators
-> who want the structured roadmap (Major Claims → Experiments) should
-> read the PDF; this README is a friendlier task-by-task reference.
+> is the one-page Artifact Appendix submitted alongside the paper, in
+> the style of the published WOOT '25 examples
+> (<https://secartifacts.github.io/woot2025/results>). It summarises
+> Availability and Functionality only; this README is the operational
+> companion with the full task-by-task verification path.
 
 ---
 
