@@ -110,8 +110,14 @@ class RealHardwareInterface:
 
         # Internal battery / charger state. Getters return these values
         # directly; the serial main-loop updates them from inbound lines.
+        # accuVoltage seeds PEV.EVTargetVoltage in PreChargeReq — leaving
+        # it at 0 makes the EVSE answer with its 350V fallback every tick
+        # and the PEV never satisfies its precharge-end condition. Default
+        # to ``charge_target_voltage`` so the synthetic battery presents a
+        # voltage matching what the EVSE will report back, closing the
+        # PreCharge → CurrentDemand transition on the first response.
         self.inletVoltage: float = 0.0
-        self.accuVoltage: float = 0.0
+        self.accuVoltage: float = float(_cfg("charge_target_voltage", "400"))
         self.accuMaxCurrent: float = 9.0
         self.accuMaxVoltage: float = float(_cfg("charge_target_voltage", "400"))
         self.chargerVoltage: float = 0.0

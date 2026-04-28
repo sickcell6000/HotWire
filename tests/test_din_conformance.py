@@ -2,13 +2,9 @@
 DIN TS 70121:2024-11 conformance checks.
 
 Each test here pins down a specific statement in the standard and fails
-if the HotWire implementation drifts away. The list mirrors the external
-alignment review done in docs/paper_compliance.md — so when a reviewer
-says "clause X is wrong", you can grep straight to the corresponding
-test.
-
-Citations below use the §/table number + the V2G-DC- requirement ID
-(e.g. V2G-DC-226) as printed in the 2024-11 English revision.
+if the HotWire implementation drifts away. Citations below use the §/
+table number + the V2G-DC- requirement ID (e.g. V2G-DC-226) as printed
+in the 2024-11 English revision.
 """
 from __future__ import annotations
 

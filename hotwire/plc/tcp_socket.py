@@ -32,17 +32,21 @@ def _resolve_tcp_port() -> int:
     via SDP. The common convention is port 15118 (matching the ISO name)
     but it is purely an operator choice.
 
-    Config keys (tried in order, for backwards compatibility):
-
-      * ``tcp_port_use_well_known`` (bool, preferred) — force port 15118
-        if True, else fall back to ``tcp_port_alternative``.
-      * ``tcp_port_15118_compliant`` (deprecated) — same semantics,
-        misleading name; kept as alias.
-      * ``tcp_port_alternative`` (int) — explicit port number. Default
-        57122 (chosen to sit in the dynamic range and avoid clashing
-        with any real DIN 70121 charging station a tester might have
-        running in the same LAN).
+    Resolution order:
+      1. ``HOTWIRE_TCP_PORT_OVERRIDE`` env var (per-process override —
+         used by the test harness to give each test its own port).
+      2. ``tcp_port_use_well_known`` config key — force port 15118.
+      3. ``tcp_port_15118_compliant`` config key — deprecated alias.
+      4. ``tcp_port_alternative`` config key — explicit port.
+      5. Default 57122 (in dynamic range, away from real chargers).
     """
+    # Test-harness escape hatch.
+    env_port = os.environ.get("HOTWIRE_TCP_PORT_OVERRIDE", "")
+    if env_port.strip().isdigit():
+        try:
+            return int(env_port)
+        except ValueError:
+            pass
     for key in ("tcp_port_use_well_known", "tcp_port_15118_compliant"):
         try:
             if getConfigValueBool(key):
@@ -269,6 +273,39 @@ class pyPlcTcpServerSocket:
                 self.read_list.remove(client_sock)
         self.client_sockets.clear()
         self.setup_socket()
+
+    def shutdown(self) -> None:
+        """Close every socket this server owns.
+
+        Called when the owning worker tears down so the next worker
+        in the same Python process can bind the same port without
+        racing the OS-level socket cleanup. Without this the
+        listening socket stays in TIME_WAIT (or worse, in the kernel's
+        accept queue) and new connections route to the dead socket.
+
+        Idempotent — safe to call multiple times.
+        """
+        for client_sock in list(self.client_sockets.keys()):
+            try:
+                client_sock.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
+            try:
+                client_sock.close()
+            except OSError:
+                pass
+        self.client_sockets.clear()
+        self.read_list = []
+        if self.ourSocket is not None:
+            try:
+                self.ourSocket.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                pass
+            try:
+                self.ourSocket.close()
+            except OSError:
+                pass
+            self.ourSocket = None
 
     def isRxDataAvailable(self) -> bool:
         return len(self.rxData) > 0

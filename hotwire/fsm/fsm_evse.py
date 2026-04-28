@@ -593,11 +593,24 @@ class fsmEvse:
             target_v = 350
             try:
                 d = json.loads(decoded)
-                ev_tv = d.get("EVTargetVoltage", {})
-                if isinstance(ev_tv, dict):
-                    v = int(ev_tv.get("Value", 350))
-                    m = int(ev_tv.get("Multiplier", 0))
+                # OpenV2G's PreChargeReq decoder emits flat dotted keys
+                # ("EVTargetVoltage.Value": "220"), not the nested
+                # {"EVTargetVoltage": {"Value": ...}} shape that earlier
+                # versions of this parser assumed. Try the flat form
+                # first; fall back to the nested form for compatibility
+                # with older codec builds.
+                v_raw = d.get("EVTargetVoltage.Value")
+                m_raw = d.get("EVTargetVoltage.Multiplier", "0")
+                if v_raw is not None:
+                    v = int(v_raw)
+                    m = int(m_raw)
                     target_v = max(1, int(v * (10 ** m)))
+                else:
+                    ev_tv = d.get("EVTargetVoltage", {})
+                    if isinstance(ev_tv, dict):
+                        v = int(ev_tv.get("Value", 350))
+                        m = int(ev_tv.get("Multiplier", 0))
+                        target_v = max(1, int(v * (10 ** m)))
             except (json.JSONDecodeError, TypeError, ValueError):
                 pass
 

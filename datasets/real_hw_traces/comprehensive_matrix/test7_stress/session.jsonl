@@ -1,0 +1,857 @@
+{"ts": "2026-04-27T15:26:08.750538+00:00", "kind": "run.start", "run_dir": "/home/pi/project/HotWire/runs/20260427-232608", "interface": "eth0", "host_os": "posix", "platform": "linux", "python": "3.11.2", "cwd": "/home/pi/project/HotWire"}
+{"ts": "2026-04-27T15:26:08.790883+00:00", "kind": "pcap.start", "phase": "phase7", "tool": "tcpdump", "argv": ["tcpdump", "-i", "eth0", "-w", "/home/pi/project/HotWire/runs/20260427-232608/phase7_capture.pcap", "-U", "ether proto 0x88E1 or ip6"], "output": "/home/pi/project/HotWire/runs/20260427-232608/phase7_capture.pcap"}
+{"ts": "2026-04-27T15:26:09.092118+00:00", "kind": "phase7.start", "role": "pev", "iterations": 10, "per_iter_budget": 20.0}
+{"ts": "2026-04-27T15:26:09.199832+00:00", "kind": "phase7.iter001.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:26:09.200039+00:00", "kind": "phase7.iter001.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:26:09.213995+00:00", "kind": "phase7.iter001.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:26:09.221652+00:00", "kind": "phase7.iter001.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:26:09.221782+00:00", "kind": "phase7.iter001.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:26:09.221839+00:00", "kind": "phase7.iter001.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:26:09.221908+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:26:09.222232+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:26:09.222300+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:09.225743+00:00", "kind": "phase7.iter001.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:26:09.226086+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=9ef9b02919ab560f)"}
+{"ts": "2026-04-27T15:26:10.220946+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:11.215391+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:11.245831+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=9ef9b02919ab560f)"}
+{"ts": "2026-04-27T15:26:12.212976+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:13.212349+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:13.273609+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=9ef9b02919ab560f)"}
+{"ts": "2026-04-27T15:26:14.212431+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:15.213395+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:15.274597+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=9ef9b02919ab560f)"}
+{"ts": "2026-04-27T15:26:16.213447+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:17.214497+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:17.275525+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=9ef9b02919ab560f)"}
+{"ts": "2026-04-27T15:26:17.336650+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:26:18.212432+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:18.453944+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:26:18.725633+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:26:18.725739+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:26:18.756090+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:26:18.756180+00:00", "kind": "phase7.iter001.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:26:18.756241+00:00", "kind": "phase7.iter001.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:26:18.786426+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:26:18.786495+00:00", "kind": "phase7.iter001.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:26:18.791992+00:00", "kind": "phase7.iter001.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:26:18.822419+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:26:18.822523+00:00", "kind": "phase7.iter001.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:26:18.822581+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:26:18.822732+00:00", "kind": "phase7.iter001.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:26:18.822786+00:00", "kind": "phase7.iter001.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:26:18.822908+00:00", "kind": "phase7.iter001.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:26:19.214792+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 150 315 645 151 0 0 --> 50"}
+{"ts": "2026-04-27T15:26:19.696987+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:26:19.697118+00:00", "kind": "phase7.iter001.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:26:19.700478+00:00", "kind": "phase7.iter001.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:26:19.704331+00:00", "kind": "phase7.iter001.trace", "message": "TCP connected to fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:26:19.704424+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] connected"}
+{"ts": "2026-04-27T15:26:19.704486+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 1:Connecting entering 2:Connected"}
+{"ts": "2026-04-27T15:26:19.734872+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] Checkpoint400: Sending supportedAppProtocolReq (8000dbab9371d3234b71d1b981899189...)"}
+{"ts": "2026-04-27T15:26:19.736994+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 2:Connected entering 3:WaitForAppProtocolRes"}
+{"ts": "2026-04-27T15:26:19.828510+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] WaitAppRes received (12bytes) = 01 FE 80 01 00 00 00 04 80 40 00 40 "}
+{"ts": "2026-04-27T15:26:19.830405+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"supportedAppProtocolRes\",\n\"info\": \"4 bytes to convert\", \n\"error\": \"\",\n\"result\": \"ResponseCode 0, SchemaID_isUsed 1, SchemaID 1\",\n\"schema\": \"appHandshake\",\n\"debug\": \"\"\n}"}
+{"ts": "2026-04-27T15:26:19.830556+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] SessionSetupReq: encoding command EDA_D83ADD22F182"}
+{"ts": "2026-04-27T15:26:19.832473+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] SessionSetupReq: sending (29bytes) = 01 FE 80 01 00 00 00 15 80 9A 02 00 00 00 00 00 00 00 00 11 D0 1B 60 EB 74 8B C6 08 00 "}
+{"ts": "2026-04-27T15:26:19.834428+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 3:WaitForAppProtocolRes entering 4:WaitForSessionSetupRes"}
+{"ts": "2026-04-27T15:26:19.864648+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 100"}
+{"ts": "2026-04-27T15:26:19.897039+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"SessionSetupRes\",\n\"info\": \"23 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK_NewSessionEstablished\",\n\"EVSEID.bytesLen\": \"7\",\n\"EVSEID\": \"5a5a4445464c54\",\n\"debug\": \"Line538\"\n}"}
+{"ts": "2026-04-27T15:26:19.897219+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] Checkpoint506: SessionId = 0102030405060708"}
+{"ts": "2026-04-27T15:26:19.897289+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] ServiceDiscoveryReq: encoding command EDB_0102030405060708"}
+{"ts": "2026-04-27T15:26:19.899140+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] ServiceDiscoveryReq: sending (21bytes) = 01 FE 80 01 00 00 00 0D 80 9A 02 00 40 80 C1 01 41 81 C2 11 98 "}
+{"ts": "2026-04-27T15:26:19.901091+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 4:WaitForSessionSetupRes entering 5:WaitForServiceDiscoveryRes"}
+{"ts": "2026-04-27T15:26:19.993692+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"ServiceDiscoveryRes\",\n\"info\": \"20 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"debug\": \"Line514\"\n}"}
+{"ts": "2026-04-27T15:26:19.993867+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] ServicePaymentSelectionReq: encoding command EDC_0102030405060708"}
+{"ts": "2026-04-27T15:26:19.995700+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] ServicePaymentSelectionReq: sending (24bytes) = 01 FE 80 01 00 00 00 10 80 9A 02 00 40 80 C1 01 41 81 C2 11 B2 00 12 80 "}
+{"ts": "2026-04-27T15:26:19.997599+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 5:WaitForServiceDiscoveryRes entering 6:WaitForServicePaymentRes"}
+{"ts": "2026-04-27T15:26:20.060077+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"ServicePaymentSelectionRes\",\n\"info\": \"14 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"debug\": \"Line526\"\n}"}
+{"ts": "2026-04-27T15:26:20.060252+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] ContractAuthenticationReq: encoding command EDL_0102030405060708"}
+{"ts": "2026-04-27T15:26:20.062034+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] ContractAuthenticationReq: sending (21bytes) = 01 FE 80 01 00 00 00 0D 80 9A 02 00 40 80 C1 01 41 81 C2 10 B8 "}
+{"ts": "2026-04-27T15:26:20.063938+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 6:WaitForServicePaymentRes entering 7:WaitForContractAuthRes"}
+{"ts": "2026-04-27T15:26:20.245125+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 117 282 612 118 0 324 --> 100"}
+{"ts": "2026-04-27T15:26:20.971393+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"ContractAuthenticationRes\",\n\"info\": \"15 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"EVSEProcessing\": \"Finished\",\n\"debug\": \"Line430\"\n}"}
+{"ts": "2026-04-27T15:26:20.971618+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] ChargeParameterDiscoveryReq: encoding command EDE_0102030405060708_30"}
+{"ts": "2026-04-27T15:26:20.973489+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] ChargeParameterDiscoveryReq: sending (52bytes) = 01 FE 80 01 00 00 00 2C 80 9A 02 00 40 80 C1 01 41 81 C2 10 71 90 40 07 80 C0 C1 90 08 0E 19 09 80 60 A1 1C 06 01 84 87 06 D0 08 06 12 14 13 80 20 C8 14 00 "}
+{"ts": "2026-04-27T15:26:20.975542+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 7:WaitForContractAuthRes entering 8:WaitForChargeParamRes"}
+{"ts": "2026-04-27T15:26:21.247132+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 84 249 579 85 0 321 --> 100"}
+{"ts": "2026-04-27T15:26:21.882269+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"ChargeParameterDiscoveryRes\",\n\"info\": \"50 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"EVSEProcessing\": \"Finished\",\n\"SAScheduleList_isUsed\": \"1\",\n\"SAScheduleList.SAScheduleTuple.arrayLen\": \"1\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.arrayLen\": \"1\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].TimeInterval_isUsed\": \"0\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval_isUsed\": \"1\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval.start\": \"0\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval.duration_isUsed\": \"0\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].PMax\": \"50\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"EVSEMaximumCurrentLimit.Multiplier\": \"0\",\n\"EVSEMaximumCurrentLimit.Value\": \"200\",\n\"EVSEMaximumCurrentLimit.Unit\": \"A\",\n\"EVSEMaximumPowerLimit_isUsed\": \"1\",\n\"EVSEMaximumPowerLimit.Multiplier\": \"3\",\n\"EVSEMaximumPowerLimit.Value\": \"10\",\n\"EVSEMaximumPowerLimit.Unit\": \"W\",\n\"EVSEMaximumVoltageLimit.Multiplier\": \"0\",\n\"EVSEMaximumVoltageLimit.Value\": \"450\",\n\"EVSEMaximumVoltageLimit.Unit\": \"V\",\n\"EVSEMinimumCurrentLimit.Multiplier\": \"0\",\n\"EVSEMinimumCurrentLimit.Value\": \"1\",\n\"EVSEMinimumCurrentLimit.Unit\": \"A\",\n\"EVSEMinimumVoltageLimit.Multiplier\": \"0\",\n\"EVSEMinimumVoltageLimit.Value\": \"200\",\n\"EVSEMinimumVoltageLimit.Unit\": \"V\",\n\"debug\": \"Line406\"\n}"}
+{"ts": "2026-04-27T15:26:21.882507+00:00", "kind": "phase7.iter001.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State C (charging)"}
+{"ts": "2026-04-27T15:26:21.882706+00:00", "kind": "phase7.iter001.trace", "message": "[HARDWAREINTERFACE-REAL] Connector lock"}
+{"ts": "2026-04-27T15:26:21.882803+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 8:WaitForChargeParamRes entering 9:WaitForConnectorLock"}
+{"ts": "2026-04-27T15:26:21.913189+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CableCheckReq: encoding command EDF_0102030405060708_30"}
+{"ts": "2026-04-27T15:26:21.915077+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CableCheckReq: sending (24bytes) = 01 FE 80 01 00 00 00 10 80 9A 02 00 40 80 C1 01 41 81 C2 10 11 40 07 80 "}
+{"ts": "2026-04-27T15:26:21.917005+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 9:WaitForConnectorLock entering 10:WaitForCableCheckRes"}
+{"ts": "2026-04-27T15:26:22.249856+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 51 216 546 52 0 1012 --> 100"}
+{"ts": "2026-04-27T15:26:22.830344+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"CableCheckRes\",\n\"info\": \"19 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_text\": \"Valid\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"DC_EVSEStatus.EVSENotification_text\": \"None\",\n\"EVSEProcessing\": \"Finished\",\n\"debug\": \"Line370\"\n}"}
+{"ts": "2026-04-27T15:26:22.830900+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] PreChargeReq: encoding command EDG_0102030405060708_30_220_1"}
+{"ts": "2026-04-27T15:26:22.835098+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] PreChargeReq: sending (32bytes) = 01 FE 80 01 00 00 00 18 80 9A 02 00 40 80 C1 01 41 81 C2 11 51 40 07 80 C1 43 70 04 0C 0C 00 40 "}
+{"ts": "2026-04-27T15:26:22.839345+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 10:WaitForCableCheckRes entering 11:WaitForPreChargeRes"}
+{"ts": "2026-04-27T15:26:22.904086+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"PreChargeRes\",\n\"info\": \"23 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"EVSEPresentVoltage.Multiplier\": \"0\",\n\"EVSEPresentVoltage.Value\": \"220\",\n\"EVSEPresentVoltage.Unit\": \"V\",\n\"debug\": \"Line490\"\n}"}
+{"ts": "2026-04-27T15:26:22.904675+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 11:WaitForPreChargeRes entering 12:WaitForContactorsClosed"}
+{"ts": "2026-04-27T15:26:23.238609+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] PowerDeliveryReq: encoding command EDH_0102030405060708_30_1"}
+{"ts": "2026-04-27T15:26:23.242836+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] PowerDeliveryReq: sending (28bytes) = 01 FE 80 01 00 00 00 14 80 9A 02 00 40 80 C1 01 41 81 C2 11 32 22 00 00 07 80 00 00 "}
+{"ts": "2026-04-27T15:26:23.247189+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 12:WaitForContactorsClosed entering 13:WaitForPowerDeliveryRes"}
+{"ts": "2026-04-27T15:26:23.277614+00:00", "kind": "phase7.iter001.trace", "message": "[CONNMGR] 9 18 183 513 19 0 318 --> 100"}
+{"ts": "2026-04-27T15:26:23.312097+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"PowerDeliveryRes\",\n\"info\": \"18 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"debug\": \"Line478\"\n}"}
+{"ts": "2026-04-27T15:26:23.312531+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CurrentDemandReq: encoding command EDI_0102030405060708_30_9_220"}
+{"ts": "2026-04-27T15:26:23.316168+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CurrentDemandReq: sending (43bytes) = 01 FE 80 01 00 00 00 23 80 9A 02 00 40 80 C1 01 41 81 C2 10 D1 40 07 80 C0 C0 24 60 01 81 05 80 48 0C 08 36 01 00 C1 43 70 04 00 "}
+{"ts": "2026-04-27T15:26:23.319952+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 13:WaitForPowerDeliveryRes entering 14:WaitForCurrentDemandRes"}
+{"ts": "2026-04-27T15:26:23.384784+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"CurrentDemandRes\",\n\"info\": \"41 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"EVSEPresentVoltage.Multiplier\": \"0\",\n\"EVSEPresentVoltage.Value\": \"400\",\n\"EVSEPresentVoltage.Unit\": \"V\",\n\"EVSEPresentCurrent.Multiplier\": \"0\",\n\"EVSEPresentCurrent.Value\": \"50\",\n\"EVSEPresentCurrent.Unit\": \"A\",\n\"EVSECurrentLimitAchieved\": \"0\",\n\"EVSEVoltageLimitAchieved\": \"0\",\n\"EVSEPowerLimitAchieved\": \"0\",\n\"EVSEMaximumVoltageLimit.Multiplier\": \"0\",\n\"EVSEMaximumVoltageLimit.Value\": \"450\",\n\"EVSEMaximumVoltageLimit.Unit\": \"V\",\n\"EVSEMaximumCurrentLimit.Multiplier\": \"0\",\n\"EVSEMaximumCurrentLimit.Value\": \"200\",\n\"EVSEMaximumCurrentLimit.Unit\": \"A\",\n\"EVSEMaximumPowerLimit.Multiplier\": \"3\",\n\"EVSEMaximumPowerLimit.Value\": \"60\",\n\"EVSEMaximumPowerLimit.Unit\": \"W\",\n\"debug\": \"Line442\"\n}"}
+{"ts": "2026-04-27T15:26:23.385329+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CurrentDemandReq: encoding command EDI_0102030405060708_30_9_220"}
+{"ts": "2026-04-27T15:26:23.388987+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CurrentDemandReq: sending (43bytes) = 01 FE 80 01 00 00 00 23 80 9A 02 00 40 80 C1 01 41 81 C2 10 D1 40 07 80 C0 C0 24 60 01 81 05 80 48 0C 08 36 01 00 C1 43 70 04 00 "}
+{"ts": "2026-04-27T15:26:23.392781+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 14:WaitForCurrentDemandRes entering 14:WaitForCurrentDemandRes"}
+{"ts": "2026-04-27T15:26:23.457576+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"CurrentDemandRes\",\n\"info\": \"41 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"EVSEPresentVoltage.Multiplier\": \"0\",\n\"EVSEPresentVoltage.Value\": \"400\",\n\"EVSEPresentVoltage.Unit\": \"V\",\n\"EVSEPresentCurrent.Multiplier\": \"0\",\n\"EVSEPresentCurrent.Value\": \"50\",\n\"EVSEPresentCurrent.Unit\": \"A\",\n\"EVSECurrentLimitAchieved\": \"0\",\n\"EVSEVoltageLimitAchieved\": \"0\",\n\"EVSEPowerLimitAchieved\": \"0\",\n\"EVSEMaximumVoltageLimit.Multiplier\": \"0\",\n\"EVSEMaximumVoltageLimit.Value\": \"450\",\n\"EVSEMaximumVoltageLimit.Unit\": \"V\",\n\"EVSEMaximumCurrentLimit.Multiplier\": \"0\",\n\"EVSEMaximumCurrentLimit.Value\": \"200\",\n\"EVSEMaximumCurrentLimit.Unit\": \"A\",\n\"EVSEMaximumPowerLimit.Multiplier\": \"3\",\n\"EVSEMaximumPowerLimit.Value\": \"60\",\n\"EVSEMaximumPowerLimit.Unit\": \"W\",\n\"debug\": \"Line442\"\n}"}
+{"ts": "2026-04-27T15:26:23.458120+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CurrentDemandReq: encoding command EDI_0102030405060708_30_9_220"}
+{"ts": "2026-04-27T15:26:23.461747+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CurrentDemandReq: sending (43bytes) = 01 FE 80 01 00 00 00 23 80 9A 02 00 40 80 C1 01 41 81 C2 10 D1 40 07 80 C0 C0 24 60 01 81 05 80 48 0C 08 36 01 00 C1 43 70 04 00 "}
+{"ts": "2026-04-27T15:26:23.465532+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 14:WaitForCurrentDemandRes entering 14:WaitForCurrentDemandRes"}
+{"ts": "2026-04-27T15:26:23.530339+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] {\n\"msgName\": \"CurrentDemandRes\",\n\"info\": \"41 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"EVSEPresentVoltage.Multiplier\": \"0\",\n\"EVSEPresentVoltage.Value\": \"400\",\n\"EVSEPresentVoltage.Unit\": \"V\",\n\"EVSEPresentCurrent.Multiplier\": \"0\",\n\"EVSEPresentCurrent.Value\": \"50\",\n\"EVSEPresentCurrent.Unit\": \"A\",\n\"EVSECurrentLimitAchieved\": \"0\",\n\"EVSEVoltageLimitAchieved\": \"0\",\n\"EVSEPowerLimitAchieved\": \"0\",\n\"EVSEMaximumVoltageLimit.Multiplier\": \"0\",\n\"EVSEMaximumVoltageLimit.Value\": \"450\",\n\"EVSEMaximumVoltageLimit.Unit\": \"V\",\n\"EVSEMaximumCurrentLimit.Multiplier\": \"0\",\n\"EVSEMaximumCurrentLimit.Value\": \"200\",\n\"EVSEMaximumCurrentLimit.Unit\": \"A\",\n\"EVSEMaximumPowerLimit.Multiplier\": \"3\",\n\"EVSEMaximumPowerLimit.Value\": \"60\",\n\"EVSEMaximumPowerLimit.Unit\": \"W\",\n\"debug\": \"Line442\"\n}"}
+{"ts": "2026-04-27T15:26:23.530889+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CurrentDemandReq: encoding command EDI_0102030405060708_30_9_220"}
+{"ts": "2026-04-27T15:26:23.534621+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] CurrentDemandReq: sending (43bytes) = 01 FE 80 01 00 00 00 23 80 9A 02 00 40 80 C1 01 41 81 C2 10 D1 40 07 80 C0 C0 24 60 01 81 05 80 48 0C 08 36 01 00 C1 43 70 04 00 "}
+{"ts": "2026-04-27T15:26:23.538317+00:00", "kind": "phase7.iter001.trace", "message": "[PEV] from 14:WaitForCurrentDemandRes entering 14:WaitForCurrentDemandRes"}
+{"ts": "2026-04-27T15:26:23.538725+00:00", "kind": "phase7.iter", "iter": 1, "status": "OK", "elapsed_s": 14.446, "slac_delay_s": 0.133, "first_msg_delay_s": 10.645, "cd_seen": 3, "stages_seen_count": 20}
+{"ts": "2026-04-27T15:26:25.588799+00:00", "kind": "phase7.iter002.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:26:25.589149+00:00", "kind": "phase7.iter002.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:26:25.601045+00:00", "kind": "phase7.iter002.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:26:25.605562+00:00", "kind": "phase7.iter002.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:26:25.605769+00:00", "kind": "phase7.iter002.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:26:25.605914+00:00", "kind": "phase7.iter002.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:26:25.606082+00:00", "kind": "phase7.iter002.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:26:25.606687+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:26:25.606849+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:25.607382+00:00", "kind": "phase7.iter002.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:26:25.607845+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=91bafbf7511fafe6)"}
+{"ts": "2026-04-27T15:26:26.608038+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:27.609231+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:27.609769+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=91bafbf7511fafe6)"}
+{"ts": "2026-04-27T15:26:28.606996+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:29.601842+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:29.632257+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=91bafbf7511fafe6)"}
+{"ts": "2026-04-27T15:26:30.596496+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:31.590847+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:31.651390+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=91bafbf7511fafe6)"}
+{"ts": "2026-04-27T15:26:32.585922+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:33.585026+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:33.676446+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=91bafbf7511fafe6)"}
+{"ts": "2026-04-27T15:26:33.707300+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:26:34.587649+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:34.709268+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:26:34.982788+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:26:34.983111+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:26:35.013918+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:26:35.014151+00:00", "kind": "phase7.iter002.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:26:35.014310+00:00", "kind": "phase7.iter002.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:26:35.044707+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:26:35.044870+00:00", "kind": "phase7.iter002.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:26:35.050790+00:00", "kind": "phase7.iter002.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:26:35.081690+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:26:35.081897+00:00", "kind": "phase7.iter002.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:26:35.082049+00:00", "kind": "phase7.iter002.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:26:35.082379+00:00", "kind": "phase7.iter002.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:26:35.082526+00:00", "kind": "phase7.iter002.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:26:35.082799+00:00", "kind": "phase7.iter002.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:26:35.598054+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 146 311 641 147 0 0 --> 50"}
+{"ts": "2026-04-27T15:26:35.962908+00:00", "kind": "phase7.iter002.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:26:35.963262+00:00", "kind": "phase7.iter002.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:26:35.963748+00:00", "kind": "phase7.iter002.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:26:35.967706+00:00", "kind": "phase7.iter002.trace", "message": "TCP connected to fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:26:35.967892+00:00", "kind": "phase7.iter002.trace", "message": "[PEV] connected"}
+{"ts": "2026-04-27T15:26:35.968041+00:00", "kind": "phase7.iter002.trace", "message": "[PEV] from 1:Connecting entering 2:Connected"}
+{"ts": "2026-04-27T15:26:35.998699+00:00", "kind": "phase7.iter002.trace", "message": "[PEV] Checkpoint400: Sending supportedAppProtocolReq (8000dbab9371d3234b71d1b981899189...)"}
+{"ts": "2026-04-27T15:26:36.003096+00:00", "kind": "phase7.iter002.trace", "message": "[PEV] from 2:Connected entering 3:WaitForAppProtocolRes"}
+{"ts": "2026-04-27T15:26:36.610933+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 113 278 608 114 0 0 --> 50"}
+{"ts": "2026-04-27T15:26:37.613406+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 80 245 575 81 0 0 --> 50"}
+{"ts": "2026-04-27T15:26:38.621164+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 47 212 542 48 0 0 --> 50"}
+{"ts": "2026-04-27T15:26:39.618210+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 14 179 509 15 0 0 --> 50"}
+{"ts": "2026-04-27T15:26:40.070754+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:26:40.613732+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 146 476 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:26:41.609013+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 113 443 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:26:42.604992+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 80 410 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:26:43.603229+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 47 377 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:26:44.605703+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] 9 0 14 344 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:26:45.031062+00:00", "kind": "phase7.iter002.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 15"}
+{"ts": "2026-04-27T15:26:45.547524+00:00", "kind": "phase7.iter", "iter": 2, "status": "FAIL", "elapsed_s": 20.008, "slac_delay_s": 0.068, "first_msg_delay_s": 10.464, "cd_seen": 0, "stages_seen_count": 1}
+{"ts": "2026-04-27T15:26:47.588728+00:00", "kind": "phase7.iter003.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:26:47.589081+00:00", "kind": "phase7.iter003.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:26:47.600784+00:00", "kind": "phase7.iter003.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:26:47.606190+00:00", "kind": "phase7.iter003.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:26:47.606407+00:00", "kind": "phase7.iter003.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:26:47.606566+00:00", "kind": "phase7.iter003.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:26:47.606746+00:00", "kind": "phase7.iter003.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:26:47.608396+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:26:47.608619+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:47.609079+00:00", "kind": "phase7.iter003.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:26:47.609554+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=983be723ecbafb63)"}
+{"ts": "2026-04-27T15:26:48.609834+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:49.608277+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:49.638701+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=983be723ecbafb63)"}
+{"ts": "2026-04-27T15:26:50.603239+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:51.597986+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:51.658525+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=983be723ecbafb63)"}
+{"ts": "2026-04-27T15:26:52.592808+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:53.587358+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:53.683662+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=983be723ecbafb63)"}
+{"ts": "2026-04-27T15:26:54.593400+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:55.592771+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:55.684204+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=983be723ecbafb63)"}
+{"ts": "2026-04-27T15:26:55.745304+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:26:56.535409+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:26:56.596734+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:26:56.809174+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:26:56.809460+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:26:56.840274+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:26:56.840505+00:00", "kind": "phase7.iter003.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:26:56.840675+00:00", "kind": "phase7.iter003.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:26:56.871102+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:26:56.871289+00:00", "kind": "phase7.iter003.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:26:56.876814+00:00", "kind": "phase7.iter003.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:26:56.907673+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:26:56.907879+00:00", "kind": "phase7.iter003.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:26:56.908041+00:00", "kind": "phase7.iter003.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:26:56.908381+00:00", "kind": "phase7.iter003.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:26:56.908540+00:00", "kind": "phase7.iter003.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:26:56.908821+00:00", "kind": "phase7.iter003.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:26:57.606878+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 140 305 635 141 0 0 --> 50"}
+{"ts": "2026-04-27T15:26:57.789255+00:00", "kind": "phase7.iter003.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:26:57.789533+00:00", "kind": "phase7.iter003.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:26:57.790028+00:00", "kind": "phase7.iter003.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:26:57.795655+00:00", "kind": "phase7.iter003.trace", "message": "TCP connected to fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:26:57.795843+00:00", "kind": "phase7.iter003.trace", "message": "[PEV] connected"}
+{"ts": "2026-04-27T15:26:57.796005+00:00", "kind": "phase7.iter003.trace", "message": "[PEV] from 1:Connecting entering 2:Connected"}
+{"ts": "2026-04-27T15:26:57.826666+00:00", "kind": "phase7.iter003.trace", "message": "[PEV] Checkpoint400: Sending supportedAppProtocolReq (8000dbab9371d3234b71d1b981899189...)"}
+{"ts": "2026-04-27T15:26:57.831078+00:00", "kind": "phase7.iter003.trace", "message": "[PEV] from 2:Connected entering 3:WaitForAppProtocolRes"}
+{"ts": "2026-04-27T15:26:58.621001+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 107 272 602 108 0 0 --> 50"}
+{"ts": "2026-04-27T15:26:59.624426+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 74 239 569 75 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:00.620084+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 41 206 536 42 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:01.615819+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 8 173 503 9 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:01.887441+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:27:02.611677+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 140 470 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:03.607382+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 107 437 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:04.606340+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 74 404 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:05.608686+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 41 371 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:06.612027+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] 9 0 8 338 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:06.857732+00:00", "kind": "phase7.iter003.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 15"}
+{"ts": "2026-04-27T15:27:07.556648+00:00", "kind": "phase7.iter", "iter": 3, "status": "FAIL", "elapsed_s": 20.009, "slac_delay_s": 0.061, "first_msg_delay_s": 10.283, "cd_seen": 0, "stages_seen_count": 1}
+{"ts": "2026-04-27T15:27:09.612105+00:00", "kind": "phase7.iter004.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:27:09.612352+00:00", "kind": "phase7.iter004.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:27:09.619119+00:00", "kind": "phase7.iter004.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:27:09.624777+00:00", "kind": "phase7.iter004.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:27:09.624974+00:00", "kind": "phase7.iter004.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:27:09.625064+00:00", "kind": "phase7.iter004.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:27:09.625170+00:00", "kind": "phase7.iter004.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:27:09.625565+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:27:09.625703+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:09.625963+00:00", "kind": "phase7.iter004.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:27:09.626232+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=814e0ab31d301d90)"}
+{"ts": "2026-04-27T15:27:10.622930+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:11.617331+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:11.647705+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=814e0ab31d301d90)"}
+{"ts": "2026-04-27T15:27:12.611864+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:13.606807+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:13.667371+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=814e0ab31d301d90)"}
+{"ts": "2026-04-27T15:27:14.601654+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:15.600651+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:15.692073+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=814e0ab31d301d90)"}
+{"ts": "2026-04-27T15:27:16.601626+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:17.601153+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:17.692540+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=814e0ab31d301d90)"}
+{"ts": "2026-04-27T15:27:17.723310+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:27:18.422201+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:27:18.604994+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:18.696351+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:27:18.696575+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:27:18.727296+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:27:18.727498+00:00", "kind": "phase7.iter004.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:27:18.727645+00:00", "kind": "phase7.iter004.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:27:18.758028+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:27:18.758208+00:00", "kind": "phase7.iter004.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:27:20.767859+00:00", "kind": "phase7.iter004.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:27:20.798387+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:27:20.798482+00:00", "kind": "phase7.iter004.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:27:20.798543+00:00", "kind": "phase7.iter004.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:27:20.798730+00:00", "kind": "phase7.iter004.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:27:20.798785+00:00", "kind": "phase7.iter004.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:27:20.798893+00:00", "kind": "phase7.iter004.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:27:21.613034+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 136 301 631 137 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:21.673506+00:00", "kind": "phase7.iter004.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:27:21.673581+00:00", "kind": "phase7.iter004.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:27:21.673795+00:00", "kind": "phase7.iter004.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:27:21.721545+00:00", "kind": "phase7.iter004.trace", "message": "TCP connected to fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:27:21.721633+00:00", "kind": "phase7.iter004.trace", "message": "[PEV] connected"}
+{"ts": "2026-04-27T15:27:21.721688+00:00", "kind": "phase7.iter004.trace", "message": "[PEV] from 1:Connecting entering 2:Connected"}
+{"ts": "2026-04-27T15:27:21.752027+00:00", "kind": "phase7.iter004.trace", "message": "[PEV] Checkpoint400: Sending supportedAppProtocolReq (8000dbab9371d3234b71d1b981899189...)"}
+{"ts": "2026-04-27T15:27:21.753982+00:00", "kind": "phase7.iter004.trace", "message": "[PEV] from 2:Connected entering 3:WaitForAppProtocolRes"}
+{"ts": "2026-04-27T15:27:22.659056+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 103 268 598 104 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:23.654375+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 70 235 565 71 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:24.650307+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 37 202 532 38 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:25.650248+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 4 169 499 5 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:25.802361+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:27:26.653299+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 136 466 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:27.655553+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 103 433 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:28.658830+00:00", "kind": "phase7.iter004.trace", "message": "[CONNMGR] 9 0 70 400 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:29.570019+00:00", "kind": "phase7.iter", "iter": 4, "status": "FAIL", "elapsed_s": 20.013, "slac_delay_s": 0.069, "first_msg_delay_s": 12.197, "cd_seen": 0, "stages_seen_count": 1}
+{"ts": "2026-04-27T15:27:31.603786+00:00", "kind": "phase7.iter005.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:27:31.603975+00:00", "kind": "phase7.iter005.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:27:31.608182+00:00", "kind": "phase7.iter005.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:27:31.611348+00:00", "kind": "phase7.iter005.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:27:31.611436+00:00", "kind": "phase7.iter005.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:27:31.611491+00:00", "kind": "phase7.iter005.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:27:31.611556+00:00", "kind": "phase7.iter005.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:27:31.611825+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:27:31.611888+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:31.612089+00:00", "kind": "phase7.iter005.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:27:31.612280+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=2fcf5f84fbcb1b85)"}
+{"ts": "2026-04-27T15:27:32.606914+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:33.601751+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:33.632186+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=2fcf5f84fbcb1b85)"}
+{"ts": "2026-04-27T15:27:34.596350+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:35.590710+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:35.651388+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=2fcf5f84fbcb1b85)"}
+{"ts": "2026-04-27T15:27:36.588309+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:37.588789+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:37.680220+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=2fcf5f84fbcb1b85)"}
+{"ts": "2026-04-27T15:27:38.589215+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:39.588736+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:39.710451+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=2fcf5f84fbcb1b85)"}
+{"ts": "2026-04-27T15:27:40.589950+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:41.591102+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:41.712705+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=2fcf5f84fbcb1b85)"}
+{"ts": "2026-04-27T15:27:41.773350+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:27:42.587890+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:42.889424+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:27:43.191095+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:27:43.191212+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:27:43.221606+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:27:43.221729+00:00", "kind": "phase7.iter005.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:27:43.221790+00:00", "kind": "phase7.iter005.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:27:43.252009+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:27:43.252111+00:00", "kind": "phase7.iter005.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:27:43.257673+00:00", "kind": "phase7.iter005.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:27:43.288081+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:27:43.288192+00:00", "kind": "phase7.iter005.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:27:43.288249+00:00", "kind": "phase7.iter005.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:27:43.288397+00:00", "kind": "phase7.iter005.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:27:43.288449+00:00", "kind": "phase7.iter005.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:27:43.288553+00:00", "kind": "phase7.iter005.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:27:43.590410+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 153 318 648 154 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:44.163044+00:00", "kind": "phase7.iter005.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:27:44.163157+00:00", "kind": "phase7.iter005.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:27:44.163366+00:00", "kind": "phase7.iter005.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:27:44.167141+00:00", "kind": "phase7.iter005.trace", "message": "TCP connected to fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:27:44.167215+00:00", "kind": "phase7.iter005.trace", "message": "[PEV] connected"}
+{"ts": "2026-04-27T15:27:44.167266+00:00", "kind": "phase7.iter005.trace", "message": "[PEV] from 1:Connecting entering 2:Connected"}
+{"ts": "2026-04-27T15:27:44.197571+00:00", "kind": "phase7.iter005.trace", "message": "[PEV] Checkpoint400: Sending supportedAppProtocolReq (8000dbab9371d3234b71d1b981899189...)"}
+{"ts": "2026-04-27T15:27:44.199581+00:00", "kind": "phase7.iter005.trace", "message": "[PEV] from 2:Connected entering 3:WaitForAppProtocolRes"}
+{"ts": "2026-04-27T15:27:44.592327+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 120 285 615 121 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:45.587789+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 87 252 582 88 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:46.585034+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 54 219 549 55 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:47.588726+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 21 186 516 22 0 0 --> 50"}
+{"ts": "2026-04-27T15:27:48.257063+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:27:48.591526+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 153 483 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:49.593728+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 120 450 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:50.597581+00:00", "kind": "phase7.iter005.trace", "message": "[CONNMGR] 9 0 87 417 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:27:51.599888+00:00", "kind": "phase7.iter", "iter": 5, "status": "FAIL", "elapsed_s": 20.029, "slac_delay_s": 0.042, "first_msg_delay_s": 12.629, "cd_seen": 0, "stages_seen_count": 1}
+{"ts": "2026-04-27T15:27:53.627832+00:00", "kind": "phase7.iter006.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:27:53.628032+00:00", "kind": "phase7.iter006.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:27:53.632227+00:00", "kind": "phase7.iter006.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:27:53.633973+00:00", "kind": "phase7.iter006.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:27:53.634051+00:00", "kind": "phase7.iter006.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:27:53.634106+00:00", "kind": "phase7.iter006.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:27:53.634199+00:00", "kind": "phase7.iter006.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:27:53.634463+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:27:53.634522+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:53.634695+00:00", "kind": "phase7.iter006.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:27:53.634886+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=fc1e0eaa1bf1e87d)"}
+{"ts": "2026-04-27T15:27:54.629282+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:55.624079+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:55.654501+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=fc1e0eaa1bf1e87d)"}
+{"ts": "2026-04-27T15:27:56.618767+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:57.617324+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:57.678490+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=fc1e0eaa1bf1e87d)"}
+{"ts": "2026-04-27T15:27:58.617354+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:59.617861+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:27:59.679046+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=fc1e0eaa1bf1e87d)"}
+{"ts": "2026-04-27T15:28:00.618123+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:01.617708+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:01.709127+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=fc1e0eaa1bf1e87d)"}
+{"ts": "2026-04-27T15:28:02.624036+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:03.619081+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:03.709782+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=fc1e0eaa1bf1e87d)"}
+{"ts": "2026-04-27T15:28:03.830536+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:28:04.614732+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:04.946357+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:28:05.217955+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:28:05.218072+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:28:05.248440+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:28:05.248559+00:00", "kind": "phase7.iter006.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:28:05.248621+00:00", "kind": "phase7.iter006.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:28:05.278820+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:28:05.278889+00:00", "kind": "phase7.iter006.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:28:05.285454+00:00", "kind": "phase7.iter006.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:05.315876+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:28:05.315971+00:00", "kind": "phase7.iter006.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:28:05.316027+00:00", "kind": "phase7.iter006.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:05.316173+00:00", "kind": "phase7.iter006.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:05.316225+00:00", "kind": "phase7.iter006.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:05.316328+00:00", "kind": "phase7.iter006.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:05.618304+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 153 318 648 154 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:06.190924+00:00", "kind": "phase7.iter006.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:06.191056+00:00", "kind": "phase7.iter006.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:06.191260+00:00", "kind": "phase7.iter006.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:06.194921+00:00", "kind": "phase7.iter006.trace", "message": "TCP connected to fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:06.195002+00:00", "kind": "phase7.iter006.trace", "message": "[PEV] connected"}
+{"ts": "2026-04-27T15:28:06.195065+00:00", "kind": "phase7.iter006.trace", "message": "[PEV] from 1:Connecting entering 2:Connected"}
+{"ts": "2026-04-27T15:28:06.225370+00:00", "kind": "phase7.iter006.trace", "message": "[PEV] Checkpoint400: Sending supportedAppProtocolReq (8000dbab9371d3234b71d1b981899189...)"}
+{"ts": "2026-04-27T15:28:06.227338+00:00", "kind": "phase7.iter006.trace", "message": "[PEV] from 2:Connected entering 3:WaitForAppProtocolRes"}
+{"ts": "2026-04-27T15:28:06.619737+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 120 285 615 121 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:07.617494+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 87 252 582 88 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:08.622102+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 54 219 549 55 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:09.626293+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 21 186 516 22 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:10.294595+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:28:10.628932+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 153 483 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:28:11.630850+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 120 450 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:28:12.634040+00:00", "kind": "phase7.iter006.trace", "message": "[CONNMGR] 9 0 87 417 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:28:13.613056+00:00", "kind": "phase7.iter", "iter": 6, "status": "FAIL", "elapsed_s": 20.009, "slac_delay_s": 0.031, "first_msg_delay_s": 12.623, "cd_seen": 0, "stages_seen_count": 1}
+{"ts": "2026-04-27T15:28:15.656736+00:00", "kind": "phase7.iter007.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:28:15.657091+00:00", "kind": "phase7.iter007.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:28:15.669192+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:28:15.674714+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:28:15.675033+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:28:15.675201+00:00", "kind": "phase7.iter007.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:28:15.675370+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:28:15.675985+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:28:15.676146+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:15.676580+00:00", "kind": "phase7.iter007.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:28:15.677009+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=7414d2f4cf6781f8)"}
+{"ts": "2026-04-27T15:28:16.676132+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:17.676546+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:17.707395+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=7414d2f4cf6781f8)"}
+{"ts": "2026-04-27T15:28:18.676552+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:19.675963+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:19.737082+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=7414d2f4cf6781f8)"}
+{"ts": "2026-04-27T15:28:20.676181+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:21.676646+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:21.737787+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=7414d2f4cf6781f8)"}
+{"ts": "2026-04-27T15:28:22.676599+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:23.681509+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:23.742630+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=7414d2f4cf6781f8)"}
+{"ts": "2026-04-27T15:28:24.678737+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:25.673149+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:25.763821+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=7414d2f4cf6781f8)"}
+{"ts": "2026-04-27T15:28:25.854439+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:28:26.669056+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:26.970593+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:28:27.272308+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:28:27.272444+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:28:27.302822+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:28:27.302929+00:00", "kind": "phase7.iter007.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:28:27.303046+00:00", "kind": "phase7.iter007.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:28:27.333663+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:28:27.333742+00:00", "kind": "phase7.iter007.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:28:27.339257+00:00", "kind": "phase7.iter007.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:27.369654+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:28:27.369736+00:00", "kind": "phase7.iter007.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:28:27.369791+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:27.369934+00:00", "kind": "phase7.iter007.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:27.369986+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:27.370089+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:27.671507+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 153 318 648 154 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:28.244107+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:28.244235+00:00", "kind": "phase7.iter007.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:28.244438+00:00", "kind": "phase7.iter007.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:28.745133+00:00", "kind": "phase7.iter007.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:28.745254+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:28.745314+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:28.745466+00:00", "kind": "phase7.iter007.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:28.745528+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:28.745680+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:29.169785+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 120 285 615 121 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:29.654611+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:29.654901+00:00", "kind": "phase7.iter007.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:29.655430+00:00", "kind": "phase7.iter007.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:30.156351+00:00", "kind": "phase7.iter007.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:30.156577+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:30.156715+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:30.156989+00:00", "kind": "phase7.iter007.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:30.157129+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:30.157429+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:30.672316+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 87 252 582 88 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:31.066509+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:31.066754+00:00", "kind": "phase7.iter007.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:31.067235+00:00", "kind": "phase7.iter007.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:31.568160+00:00", "kind": "phase7.iter007.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:31.568433+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:31.568572+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:31.568854+00:00", "kind": "phase7.iter007.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:31.568997+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:31.569298+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:32.175953+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 54 219 549 55 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:32.479522+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:32.479832+00:00", "kind": "phase7.iter007.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:32.480272+00:00", "kind": "phase7.iter007.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:32.981177+00:00", "kind": "phase7.iter007.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:32.981396+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:32.981532+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:32.981798+00:00", "kind": "phase7.iter007.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:32.981940+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:32.982230+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:33.678904+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 21 186 516 22 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:33.891333+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:33.891527+00:00", "kind": "phase7.iter007.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:33.891960+00:00", "kind": "phase7.iter007.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:34.394444+00:00", "kind": "phase7.iter007.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:34.394674+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:34.394736+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:34.394877+00:00", "kind": "phase7.iter007.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:34.394939+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:34.395161+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:34.847407+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:28:35.179016+00:00", "kind": "phase7.iter007.trace", "message": "[CONNMGR] 9 0 153 483 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:28:35.299765+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:35.299885+00:00", "kind": "phase7.iter007.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:35.300091+00:00", "kind": "phase7.iter007.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:35.800770+00:00", "kind": "phase7.iter007.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:35.800880+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:35.800928+00:00", "kind": "phase7.iter007.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:35.801043+00:00", "kind": "phase7.iter007.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:35.801095+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:35.801235+00:00", "kind": "phase7.iter007.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:35.831408+00:00", "kind": "phase7.iter", "iter": 7, "status": "FAIL", "elapsed_s": 20.218, "slac_delay_s": 0.063, "first_msg_delay_s": null, "cd_seen": 0, "stages_seen_count": 0}
+{"ts": "2026-04-27T15:28:37.859817+00:00", "kind": "phase7.iter008.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:28:37.860001+00:00", "kind": "phase7.iter008.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:28:37.864204+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:28:37.867264+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:28:37.867353+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:28:37.867404+00:00", "kind": "phase7.iter008.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:28:37.867470+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:28:37.867733+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:28:37.867792+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:37.867966+00:00", "kind": "phase7.iter008.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:28:37.868163+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=b8f88d7b464067af)"}
+{"ts": "2026-04-27T15:28:38.863099+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:39.861374+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:39.892407+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=b8f88d7b464067af)"}
+{"ts": "2026-04-27T15:28:40.861749+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:41.861080+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:41.922205+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=b8f88d7b464067af)"}
+{"ts": "2026-04-27T15:28:42.861899+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:43.861063+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:43.922217+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=b8f88d7b464067af)"}
+{"ts": "2026-04-27T15:28:44.864703+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:45.861385+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:45.952089+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=b8f88d7b464067af)"}
+{"ts": "2026-04-27T15:28:45.982437+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:28:46.827032+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:28:46.857497+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:47.098702+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:28:47.098814+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:28:47.129188+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:28:47.129285+00:00", "kind": "phase7.iter008.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:28:47.129346+00:00", "kind": "phase7.iter008.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:28:47.159534+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:28:47.159593+00:00", "kind": "phase7.iter008.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:28:47.166286+00:00", "kind": "phase7.iter008.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:47.196702+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:28:47.196791+00:00", "kind": "phase7.iter008.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:28:47.196849+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:47.196990+00:00", "kind": "phase7.iter008.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:47.197047+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:47.197155+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:47.860107+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 141 306 636 142 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:48.071193+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:48.071288+00:00", "kind": "phase7.iter008.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:48.071483+00:00", "kind": "phase7.iter008.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:48.572186+00:00", "kind": "phase7.iter008.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:48.572303+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:48.572355+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:48.572515+00:00", "kind": "phase7.iter008.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:48.572568+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:48.572711+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:49.356503+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 108 273 603 109 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:49.477229+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:49.477304+00:00", "kind": "phase7.iter008.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:49.477501+00:00", "kind": "phase7.iter008.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:49.978261+00:00", "kind": "phase7.iter008.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:49.978527+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:49.978681+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:49.979068+00:00", "kind": "phase7.iter008.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:49.979229+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:49.979534+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:50.858053+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 75 240 570 76 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:50.888881+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:50.889059+00:00", "kind": "phase7.iter008.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:50.889509+00:00", "kind": "phase7.iter008.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:51.390453+00:00", "kind": "phase7.iter008.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:51.390734+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:51.390874+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:51.391215+00:00", "kind": "phase7.iter008.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:51.391365+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:51.391668+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:52.300202+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:52.300483+00:00", "kind": "phase7.iter008.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:52.300930+00:00", "kind": "phase7.iter008.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:52.801833+00:00", "kind": "phase7.iter008.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:52.802058+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:52.802198+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:52.802474+00:00", "kind": "phase7.iter008.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:52.802620+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:52.803042+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:52.863812+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 42 207 537 43 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:53.712004+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:53.712312+00:00", "kind": "phase7.iter008.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:53.712769+00:00", "kind": "phase7.iter008.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:54.213691+00:00", "kind": "phase7.iter008.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:54.213926+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:54.214063+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:54.214332+00:00", "kind": "phase7.iter008.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:54.214472+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:54.214765+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:54.366433+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 9 174 504 10 0 0 --> 50"}
+{"ts": "2026-04-27T15:28:54.669384+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:28:55.127316+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:55.127552+00:00", "kind": "phase7.iter008.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:55.127864+00:00", "kind": "phase7.iter008.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:55.628706+00:00", "kind": "phase7.iter008.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:55.628954+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:55.629034+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:55.629234+00:00", "kind": "phase7.iter008.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:55.629319+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:55.629521+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:55.871660+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 141 471 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:28:56.538674+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:28:56.539041+00:00", "kind": "phase7.iter008.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:28:56.539511+00:00", "kind": "phase7.iter008.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:28:57.040440+00:00", "kind": "phase7.iter008.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:28:57.040694+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:28:57.040836+00:00", "kind": "phase7.iter008.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:28:57.041113+00:00", "kind": "phase7.iter008.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:28:57.041304+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:28:57.041607+00:00", "kind": "phase7.iter008.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:28:57.374914+00:00", "kind": "phase7.iter008.trace", "message": "[CONNMGR] 9 0 108 438 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:28:57.859649+00:00", "kind": "phase7.iter", "iter": 8, "status": "FAIL", "elapsed_s": 20.028, "slac_delay_s": 0.036, "first_msg_delay_s": null, "cd_seen": 0, "stages_seen_count": 0}
+{"ts": "2026-04-27T15:28:59.900473+00:00", "kind": "phase7.iter009.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:28:59.900778+00:00", "kind": "phase7.iter009.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:28:59.910876+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:28:59.915963+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:28:59.916138+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:28:59.916260+00:00", "kind": "phase7.iter009.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:28:59.916393+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:28:59.916872+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:28:59.917007+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:28:59.917359+00:00", "kind": "phase7.iter009.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:28:59.917740+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=646ba8c8b672df02)"}
+{"ts": "2026-04-27T15:29:00.917801+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:01.921730+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=646ba8c8b672df02)"}
+{"ts": "2026-04-27T15:29:01.952377+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:02.952508+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:03.921847+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=646ba8c8b672df02)"}
+{"ts": "2026-04-27T15:29:03.952455+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:04.952788+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:05.929595+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=646ba8c8b672df02)"}
+{"ts": "2026-04-27T15:29:05.960044+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:06.955995+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:07.950709+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:07.951020+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=646ba8c8b672df02)"}
+{"ts": "2026-04-27T15:29:08.011491+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:29:08.948206+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:08.948464+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:29:09.220068+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:29:09.220204+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:29:09.250601+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:29:09.250735+00:00", "kind": "phase7.iter009.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:29:09.250790+00:00", "kind": "phase7.iter009.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:29:09.280996+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:29:09.281055+00:00", "kind": "phase7.iter009.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:29:09.286406+00:00", "kind": "phase7.iter009.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:09.316781+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:29:09.316873+00:00", "kind": "phase7.iter009.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:29:09.316927+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:09.317062+00:00", "kind": "phase7.iter009.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:09.317113+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:09.317216+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:09.950119+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 142 307 637 143 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:10.191374+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:10.191475+00:00", "kind": "phase7.iter009.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:10.191665+00:00", "kind": "phase7.iter009.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:10.692387+00:00", "kind": "phase7.iter009.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:10.692518+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:10.692566+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:10.692689+00:00", "kind": "phase7.iter009.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:10.692742+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:10.692913+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:11.449279+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 109 274 604 110 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:11.602302+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:11.602559+00:00", "kind": "phase7.iter009.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:11.603057+00:00", "kind": "phase7.iter009.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:12.104021+00:00", "kind": "phase7.iter009.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:12.104312+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:12.104453+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:12.104738+00:00", "kind": "phase7.iter009.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:12.104883+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:12.105237+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:12.953242+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 76 241 571 77 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:13.014267+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:13.014448+00:00", "kind": "phase7.iter009.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:13.014882+00:00", "kind": "phase7.iter009.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:13.515897+00:00", "kind": "phase7.iter009.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:13.516178+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:13.516318+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:13.516606+00:00", "kind": "phase7.iter009.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:13.516749+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:13.517102+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:14.426028+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:14.426343+00:00", "kind": "phase7.iter009.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:14.426802+00:00", "kind": "phase7.iter009.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:14.927802+00:00", "kind": "phase7.iter009.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:14.928048+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:14.928187+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:14.928464+00:00", "kind": "phase7.iter009.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:14.928607+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:14.928950+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:14.959317+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 43 208 538 44 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:15.837979+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:15.838269+00:00", "kind": "phase7.iter009.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:15.838704+00:00", "kind": "phase7.iter009.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:16.339722+00:00", "kind": "phase7.iter009.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:16.340004+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:16.340132+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:16.340347+00:00", "kind": "phase7.iter009.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:16.340438+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:16.340694+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:16.462326+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 10 175 505 11 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:16.798197+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:29:17.250809+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:17.250960+00:00", "kind": "phase7.iter009.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:17.251194+00:00", "kind": "phase7.iter009.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:17.751903+00:00", "kind": "phase7.iter009.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:17.752020+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:17.752069+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:17.752189+00:00", "kind": "phase7.iter009.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:17.752241+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:17.752386+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:17.963387+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 142 472 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:29:18.656438+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:18.656574+00:00", "kind": "phase7.iter009.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:18.656763+00:00", "kind": "phase7.iter009.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:19.157454+00:00", "kind": "phase7.iter009.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:19.157555+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:19.157603+00:00", "kind": "phase7.iter009.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:19.157716+00:00", "kind": "phase7.iter009.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:19.157765+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:19.157905+00:00", "kind": "phase7.iter009.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:19.459374+00:00", "kind": "phase7.iter009.trace", "message": "[CONNMGR] 9 0 109 439 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:29:19.881294+00:00", "kind": "phase7.iter", "iter": 9, "status": "FAIL", "elapsed_s": 20.021, "slac_delay_s": 0.057, "first_msg_delay_s": null, "cd_seen": 0, "stages_seen_count": 0}
+{"ts": "2026-04-27T15:29:21.908785+00:00", "kind": "phase7.iter010.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:29:21.909140+00:00", "kind": "phase7.iter010.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:29:21.922097+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:29:21.926609+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:29:21.926814+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:29:21.926957+00:00", "kind": "phase7.iter010.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:29:21.927188+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:29:21.927747+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:29:21.927907+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:21.928314+00:00", "kind": "phase7.iter010.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:29:21.928776+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=a08dcb6c3219500a)"}
+{"ts": "2026-04-27T15:29:22.928017+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:23.928603+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:23.959477+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=a08dcb6c3219500a)"}
+{"ts": "2026-04-27T15:29:24.928514+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:25.928073+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:25.989209+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=a08dcb6c3219500a)"}
+{"ts": "2026-04-27T15:29:26.935847+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:27.932245+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:27.992804+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=a08dcb6c3219500a)"}
+{"ts": "2026-04-27T15:29:28.926844+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:29.921568+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:30.012239+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=a08dcb6c3219500a)"}
+{"ts": "2026-04-27T15:29:30.072734+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:29:30.917290+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:29:30.947664+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:29:31.219173+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:29:31.219312+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:29:31.249704+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:29:31.249830+00:00", "kind": "phase7.iter010.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:29:31.249889+00:00", "kind": "phase7.iter010.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:29:31.280090+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:29:31.280180+00:00", "kind": "phase7.iter010.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:29:31.286819+00:00", "kind": "phase7.iter010.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:31.317266+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:29:31.317360+00:00", "kind": "phase7.iter010.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:29:31.317415+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:31.317554+00:00", "kind": "phase7.iter010.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:31.317607+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:31.317711+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:31.920422+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 143 308 638 144 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:32.193047+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:32.193319+00:00", "kind": "phase7.iter010.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:32.193759+00:00", "kind": "phase7.iter010.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:32.694750+00:00", "kind": "phase7.iter010.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:32.695099+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:32.695242+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:32.695533+00:00", "kind": "phase7.iter010.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:32.695678+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:32.695985+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:33.422873+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 110 275 605 111 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:33.606099+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:33.606363+00:00", "kind": "phase7.iter010.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:33.606804+00:00", "kind": "phase7.iter010.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:34.107781+00:00", "kind": "phase7.iter010.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:34.108018+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:34.108160+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:34.108433+00:00", "kind": "phase7.iter010.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:34.108576+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:34.108876+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:34.926498+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 77 242 572 78 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:35.017815+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:35.018064+00:00", "kind": "phase7.iter010.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:35.018513+00:00", "kind": "phase7.iter010.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:35.519440+00:00", "kind": "phase7.iter010.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:35.519718+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:35.519856+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:35.520141+00:00", "kind": "phase7.iter010.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:35.520285+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:35.520584+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:36.429110+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 44 209 539 45 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:36.429614+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:36.429772+00:00", "kind": "phase7.iter010.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:36.430210+00:00", "kind": "phase7.iter010.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:36.931132+00:00", "kind": "phase7.iter010.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:36.931387+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:36.931525+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:36.931808+00:00", "kind": "phase7.iter010.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:36.931953+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:36.932249+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:37.846472+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:37.846640+00:00", "kind": "phase7.iter010.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:37.846846+00:00", "kind": "phase7.iter010.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:38.347616+00:00", "kind": "phase7.iter010.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:38.347805+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:38.347856+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:38.347999+00:00", "kind": "phase7.iter010.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:38.348053+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:38.348204+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:38.438738+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 11 176 506 12 0 0 --> 50"}
+{"ts": "2026-04-27T15:29:38.800487+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 20"}
+{"ts": "2026-04-27T15:29:39.253090+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:39.253267+00:00", "kind": "phase7.iter010.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:39.253470+00:00", "kind": "phase7.iter010.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:39.754174+00:00", "kind": "phase7.iter010.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:39.754286+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:39.754334+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:39.754453+00:00", "kind": "phase7.iter010.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:39.754505+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:39.754647+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:39.935567+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 143 473 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:29:40.658801+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:29:40.658945+00:00", "kind": "phase7.iter010.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:29:40.659158+00:00", "kind": "phase7.iter010.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:29:41.159864+00:00", "kind": "phase7.iter010.trace", "message": "TCP connection timed out: fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:29:41.159970+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] Connection failed. Retrying."}
+{"ts": "2026-04-27T15:29:41.160019+00:00", "kind": "phase7.iter010.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:29:41.160134+00:00", "kind": "phase7.iter010.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:29:41.160184+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:29:41.160327+00:00", "kind": "phase7.iter010.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:29:41.431591+00:00", "kind": "phase7.iter010.trace", "message": "[CONNMGR] 9 0 110 440 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:29:41.883678+00:00", "kind": "phase7.iter", "iter": 10, "status": "FAIL", "elapsed_s": 20.002, "slac_delay_s": 0.047, "first_msg_delay_s": null, "cd_seen": 0, "stages_seen_count": 0}
+{"ts": "2026-04-27T15:29:43.948165+00:00", "kind": "pcap.stop", "phase": "phase7", "returncode": 0, "stderr_tail": "tcpdump: listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes\n406 packets captured\n406 packets received by filter\n0 packets dropped by kernel\n", "pcap_path": "/home/pi/project/HotWire/runs/20260427-232608/phase7_capture.pcap", "pcap_size": 49100}
+{"ts": "2026-04-27T15:29:43.950367+00:00", "kind": "run.end"}

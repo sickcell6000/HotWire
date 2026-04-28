@@ -1,286 +1,214 @@
 # HotWire — Artifact Evaluation Guide
 
-> Entry-point for the **USENIX WOOT '26 Artifact Evaluation Committee (AEC)**.
-> Start here. This file is written specifically to support the two badges
-> we request: **Artifacts Available** and **Artifacts Functional**.
->
-> The companion document [`docs/artifact_abstract.pdf`](docs/artifact_abstract.pdf)
-> is the one-page Artifact Appendix submitted alongside the paper, in
-> the style of the published WOOT '25 examples
-> (<https://secartifacts.github.io/woot2025/results>). It summarises
-> Availability and Functionality only; this README is the operational
-> companion with the full task-by-task verification path.
+> Entry-point for the **USENIX WOOT '26 Artifact Evaluation Committee**.
+> Two badges requested: **Artifacts Available** + **Artifacts Functional**.
 
 ---
 
-## ⚠️ Malicious-operations notice (required by the AEC call)
+## ⚠️ Malicious-operations notice
 
-HotWire is an **offensive security research framework** for CCS DIN 70121 /
-ISO 15118-2. Two live attacks are packaged:
+HotWire packages two live attacks on CCS DIN 70121 / ISO 15118-2:
 
-1. **A1 — Autocharge EVCCID impersonation** (`hotwire/attacks/autocharge_impersonation.py`)
-   — crafts a CCS `SessionSetupReq` carrying a victim EVCCID such that a
-   production charging station authorizes the session under the victim's
-   billing account. If executed against real public charging infrastructure,
-   this produces **unauthorized financial transactions**.
+1. **A1 — Autocharge EVCCID impersonation** — crafts `SessionSetupReq`
+   with a victim EVCCID; an Autocharge-enabled station bills the
+   victim's account. Code: `hotwire/attacks/autocharge_impersonation.py`.
+2. **A2 — Forced discharge** — crafts `PreChargeRes` /
+   `CurrentDemandRes` with fabricated voltage; a vulnerable BMS closes
+   contactors into the attacker's load. Code:
+   `hotwire/attacks/forced_discharge.py`.
 
-2. **A2 — Forced discharge via fabricated PreChargeRes** (`hotwire/attacks/forced_discharge.py`)
-   — crafts `PreChargeRes` / `CurrentDemandRes` messages containing fabricated
-   voltage readings so that a vulnerable BMS closes its high-voltage
-   contactors against a 0 V external rail. If executed against a real vehicle
-   without a safety load bank and current-limiting interlocks, this can
-   result in **uncontrolled battery discharge**.
+> **Both badges can be evaluated entirely inside Docker + simulation
+> loopback. No charging station, no vehicle, no PLC modem required.**
+> The verification path emits no malicious frame onto any real network.
 
-> **Every item in this artifact can be evaluated for Available + Functional
-> badges entirely inside Docker + simulation loopback — no real charging
-> station, no real vehicle, and no PLC modem are required.** The evaluation
-> paths documented below do not emit any malicious frame onto any real
-> network.
-
-For full safety/authorization notes see [`SAFETY.md`](SAFETY.md). For our
-IRB approval and responsible-disclosure evidence see
-[`docs/ethics_evidence.md`](docs/ethics_evidence.md).
+Operator authorization + electrical safety: see [SAFETY.md](SAFETY.md).
 
 ---
 
-## Requested badges
+## 1. Artifacts Available
 
-| Badge | Status in this submission | Verification path |
-|---|---|---|
-| **Artifacts Available** | ✅ Requested | Repository released under GPL-3.0 at Zenodo DOI (see §1) |
-| **Artifacts Functional** | ✅ Requested | `./verify_artifact.sh` runs the full functional check in ~5 minutes; §2 details |
-| Results Reproduced | ❌ **Not** requested | Paper §6 Real-World Evaluation results depend on production charging infrastructure and specific OEM vehicles under NDA; AEC cannot reproduce these. Framework-level results in §5 are however covered by the Functional badge path. |
+The repository is GPL-3.0 and archived on Zenodo at the DOI printed on
+the artifact appendix PDF (`docs/artifact_abstract.pdf`).
 
----
+The Zenodo record contains:
 
-## 1. Artifacts Available verification
+- `HotWire-<git-sha>.zip` — full source tarball
+- `hotwire-ci.tar.gz` — pre-built Docker image (optional, saves
+  ~20 min build time)
+- `artifact_abstract.pdf` — this evaluation guide's companion appendix
 
-**What the AEC checks**: the artifact is publicly available at a stable URL.
-
-**How to verify**:
-
-1. Open the Zenodo record at <https://doi.org/10.5281/zenodo.19754105>.
-2. The record contains:
-   - `HotWire-<git-sha>.zip` — complete source tarball.
-   - `hotwire-ci.tar.gz` — pre-built Docker image (optional, saves ~20 min build time).
-   - `ARTIFACT.md`, `SAFETY.md`, `README.md` (this guide + safety + user docs).
-   - `paper.pdf`, `artifact_abstract.pdf`.
-   - `expected_outputs/` — reference logs from our own runs for comparison.
-3. The repository is released under **GNU GPL-3.0** (see `LICENSE`).
-
-That's it; Available badge is a one-click confirmation.
+That's it; Available is a one-click confirmation once the DOI resolves.
 
 ---
 
-## 2. Artifacts Functional verification
+## 2. Artifacts Functional
 
-**What the AEC checks**: the core functionality of the artifact can be
-confirmed by the AEC.
-
-We define "core functionality" as the four claims below; the `verify_artifact.sh`
-script automates the check for all four.
-
-### 2.1 One-command verification (recommended)
+### 2.1 One-command verification
 
 ```bash
-# Unix / macOS / WSL
-./verify_artifact.sh
-
-# Windows PowerShell — use the same shell script via WSL or Git Bash
-bash verify_artifact.sh
+./verify_artifact.sh                # macOS / Linux / WSL
+bash verify_artifact.sh             # Windows Git-Bash / PowerShell
 ```
 
-Expected total runtime: **~5 minutes** if the Docker image is pre-loaded
-from `hotwire-ci.tar.gz`; **~25 minutes** if building from source.
+Runtime: **~5 minutes** with `hotwire-ci.tar.gz` pre-loaded;
+**~25 minutes** building from source. Final line on success:
 
-Expected final line: `[verify_artifact] ✓ ALL FUNCTIONAL CHECKS PASSED`.
+```
+[verify_artifact] ✓ ALL FUNCTIONAL CHECKS PASSED
+```
 
-### 2.2 What the script actually verifies
+### 2.2 What the script verifies
 
 | Check | Claim | Expected output |
 |---|---|---|
-| **F1** — Docker CI regression | "240 unit + integration tests pass" | `240 passed, 6 skipped` + `Overall exit code: 0` |
-| **F2** — Simulation-mode full DIN 70121 session | "HotWire walks 13 PEV states from SessionSetup to CurrentDemand on ::1 loopback" | `entering 14:WaitForCurrentDemandRes` observed, ≥5 CurrentDemandReq msgs |
-| **F3** — Parametric matrix (9 runs) | "Voltage × duration matrix all PASS" | All 9 rows marked `PASS` |
-| **F4** — Attack code presence | "A1 + A2 attack logic is in the repo" | `hotwire/attacks/autocharge_impersonation.py` + `hotwire/attacks/forced_discharge.py` exist and are syntactically valid Python |
+| **F0** — Codec presence | OpenV2G binary exists or auto-builds from `vendor/` | `OK: 22/22 golden fixtures match` |
+| **F1** — Docker CI regression | All registered tests pass | `240 passed, 6 skipped, exit 0` (~64 s) |
+| **F2** — Sim full DIN 70121 session | PEV walks all 13 states on `::1` loopback | ≥ 5 `CurrentDemandReq` observed |
+| **F3** — Parametric matrix | Voltage × duration matrix all PASS | 9/9 rows marked `PASS` |
+| **F4** — Attack-code presence | A1 + A2 source compiles | both modules exit `py_compile` clean |
+| **F5** — Sim-mode attack reach | A1 + A2 fabricated values reach the wire | 3/3 sim-attack tests PASS |
+| **F6** — Real-hardware evidence | `datasets/real_hw_traces/` pcap bundles intact | all bundle pcaps validate as pcap v2.4 |
 
-### 2.3 Manual checks (if `verify_artifact.sh` fails)
-
-Each of F1–F4 can also be run individually:
+### 2.3 Manual run of individual checks
 
 ```bash
-# F1 — Docker CI (runs 240-test regression; builds image on first run)
-docker compose run --rm hotwire-ci
-
-# F2 — One-command sim V2G session (takes 25s)
-./scripts/sim_loopback.sh 25
-
-# F3 — Parametric matrix (takes ~5 min; 9 combinations of voltage × duration)
-./scripts/sim_matrix.sh
-
-# F4 — Attack code sanity
-python3 -m py_compile hotwire/attacks/autocharge_impersonation.py
-python3 -m py_compile hotwire/attacks/forced_discharge.py
+docker compose run --rm hotwire-ci                    # F1
+./scripts/sim_loopback.sh 25                          # F2
+./scripts/sim_matrix.sh                               # F3
+python -m pytest tests/test_attack_sim_mode.py -v     # F5
 ```
 
-### 2.4 Reference output
+### 2.4 Test counts (one number, three contexts)
 
-If you need to compare your output against ours, `expected_outputs/` in the
-Zenodo bundle contains:
+| Context | Count | What it means |
+|---|---:|---|
+| Full `pytest tests/` (PyQt6 present) | **283** | Every test the repo ships |
+| Docker CI (this is what F1 reports) | **240** | The Docker image registers 240 tests + 6 skips for live-hardware tests that can't run in a container |
+| Bare Python without PyQt6 | **169** | If reviewer runs `pytest` on a host with no PyQt6, 71 GUI tests skip cleanly |
 
-- `docker_ci_expected.log` — our run of `docker compose run --rm hotwire-ci`
-- `sim_loopback_expected.log` — our run of `sim_loopback.sh 25`
-- `sim_matrix_expected.txt` — our matrix table
-
-Small numeric differences (CurrentDemand message counts, `startup_ms` values)
-are expected — your host's clock resolution, CPU speed, and Python import
-cache behavior all introduce variance. The **shape** of the output —
-states reached, message types exchanged, result column — should match ours
-exactly.
+The Functional badge passes if **F1** reports `240 passed`. The
+non-Docker pathways (283 / 169) are listed only so reviewers don't
+get confused if they grep for test counts manually.
 
 ---
 
-## 3. Dependencies and host requirements
+## 3. Dependencies
 
-### Minimum for Functional badge (recommended)
+### Recommended (covers all of F0–F6)
 
-- **Docker** 24+ with Compose v2 (Docker Desktop or native Linux daemon)
-- ~10 GB disk space (for the Docker image + coverage artifacts)
-- No special kernel features, no network hardware beyond IPv6 loopback
+- Docker 24+ with Compose v2
+- ~10 GB free disk
 
 ### Fallback without Docker
 
-- **Python 3.9 – 3.12** (tested on 3.11 + 3.12)
+- Python 3.9–3.12
 - `pip install -r requirements.txt`
-- A pcap library — `libpcap` on Linux, Npcap on Windows — only needed if you
-  want to run the hardware-level phases (`scripts/hw_check/phase*_*.py`),
-  not for the F1–F4 checks above
-- The Functional-badge path runs fine without any pcap stack on a plain
-  Python install; it uses IPv6 loopback `::1`.
+- `libpcap` / Npcap is **not** required for F1–F6; sim mode uses `::1`
 
-### Not required for this artifact evaluation
+### Not required
 
-- PLC modem hardware (QCA7420, TP-Link PA4010, Codico modules)
+- PLC modem hardware (QCA7420, TP-Link PA4010)
 - Any vehicle or charging station
-- Npcap / pypcap on Windows
-- A CCS cable, coupling transformers, or Arduino boards
+- A CCS cable, transformers, or Arduino board
 
-If you want to explore these for curiosity, see
-[`docs/hardware_design_guide.md`](docs/hardware_design_guide.md) — 537
-lines of BOM, schematics, recovery procedures. But the Functional badge
-path does not use any of it.
+If you want to *understand* the hardware path used to capture the
+bundles in `datasets/real_hw_traces/` see
+[`docs/hardware_design_guide.md`](docs/hardware_design_guide.md). The
+Functional badge does not depend on any of it.
 
 ---
 
-## 4. Repository structure (what to look at)
+## 4. Repository layout
 
 ```
-hotwire/                  Main Python package
-├── fsm/                    DIN 70121 state machines (fsm_pev.py 12 stages,
-│                           fsm_evse.py 12 stages)
-├── plc/                    HomePlug / PCAP / simulation transport
-├── sdp/                    SDP client + server (IPv6 scope-aware)
+hotwire/                  Python package
+├── fsm/                    DIN 70121 state machines
+├── plc/                    HomePlug AV / pcap / sim transport
+├── sdp/                    SECC Discovery Protocol
 ├── core/                   HotWireWorker, address manager, config
-├── attacks/                A1 + A2 attack playbooks        ← security-relevant
-├── exi/                    OpenV2G EXI codec wrapper + fixtures
+├── attacks/                A1 + A2 playbooks   ← security-relevant
+├── exi/                    OpenV2G EXI codec wrapper
 └── gui/                    PyQt6 GUI (not needed for AEC)
 
-scripts/
-├── hw_check/               Phase 0-4 bench scripts (hardware-aware)
-├── run_evse.py  run_pev.py One-process simulation entry points
-├── sim_loopback.sh         Two-process full V2G session         ← F2
-├── sim_matrix.sh           Voltage×duration parametric matrix   ← F3
-├── sim_protocol_matrix.sh  DIN/ISO/Tesla protocol variants
-└── sim_stress_matrix.sh    Back-to-back session leak test
+scripts/hw_check/           phase 0–10 bench runners
+tests/                      283 pytest cases (240 in Docker CI)
+docker-compose.yml          CI orchestration
+Dockerfile                  Multi-stage codec-builder + runtime
+verify_artifact.sh          F0–F6 one-shot AEC harness
 
-tests/                     169 pytest tests (240 inside Docker with PyQt6)
-docker-compose.yml         CI orchestration (hotwire-ci service)   ← F1
-Dockerfile                 Multi-stage: codec-builder + runtime
+datasets/real_hw_traces/    Curated real-hardware evidence (§5)
+docs/hardware_design_guide.md   Operator-grade build guide
 
-docs/
-├── REPRODUCING.md          Fresh-clone to validated install walkthrough
-├── hardware_design_guide.md  Modem modification + recovery (537 lines)
-├── ethics_evidence.md      Paper §10 claim → artifact evidence map
-├── paper_compliance.md     Paper claim-by-claim compliance audit
-└── parametric_test_matrix_2026-04-23.md  32-run test matrix report
-
-patches/pyplc/             Patches required to run upstream pyPLC on Windows
-SAFETY.md                  Authorization + electrical safety (hardware use)
-ARTIFACT.md                ← You are here
-LICENSE                    GPL-3.0
+ARTIFACT.md                 ← you are here
+SAFETY.md                   Authorization + electrical safety
+ATTRIBUTION.md              Per-file lineage / GPL-3 compliance
 ```
 
 ---
 
-## 5. Troubleshooting
+## 5. Real-hardware evidence (optional reading)
 
-### "Docker daemon unreachable"
+Although the badge path is simulation-only, the repo ships **11
+curated bundles** of real-hardware captures from a Raspberry Pi 4 PEV
+↔ Windows EVSE bench (QCA7420 HomePlug AV modems). Reviewers can
+open the pcap files in Wireshark + the
+[dsV2Gshark](https://github.com/SecureV2X/dsV2Gshark) plugin and
+confirm the paper's framework-level claims without owning hardware.
 
-On Windows, open Docker Desktop → wait for `Engine running`. Verify via:
-```bash
-docker info | grep Server:
+Layout:
+
 ```
-If `Server:` is missing, the engine isn't up yet.
-
-### "`.venv` missing" or "pip-installed packages not found"
-
-The AEC path uses Docker, not a host venv. If for some reason you must run
-outside Docker:
-```bash
-python3 -m venv .venv
-source .venv/bin/activate      # Linux / macOS
-.venv\Scripts\activate         # Windows
-pip install -r requirements.txt
+datasets/real_hw_traces/
+├── phase4_clean_pass/       Full DIN 70121 9-stage V2G session
+├── phase4_a2_attack/        ForcedDischarge fabricates 380 V
+├── phase5_pause_send/       Sentinel 777 V observed at peer
+└── comprehensive_matrix/
+    ├── test1_a1_evccid          spoofed EVCCID round-trips
+    ├── test2_a2_voltage         A2 at 220 V, 3 CurrentDemandRes
+    ├── test3_multi_pause        two stages paused simultaneously
+    ├── test4_abort              FSM continues with originals
+    ├── test5_prepair_gate       env-var gate behaves
+    ├── test6_pev_override       PEV-side override symmetric
+    ├── test9_fuzz/round{1..5}   random EVCCID/V/I, 5/5 reach wire
+    ├── test10_stress_postfix    worker reuse 5/5 PASS
+    ├── test11_long_running      180 s, RSS +0.0 %, 1891 CD msgs
+    ├── README.md                per-test PASS criteria + timing
+    └── FINDINGS.md              bugs the matrix surfaced + fixes
 ```
 
-### "`pcap` import error on Linux"
+Each bundle contains a Pi-side pcap and a `session.jsonl` log keyed by
+message stage.
 
-The F2 Functional check doesn't use pcap (sim mode uses `::1` loopback).
-If you're trying to run `scripts/hw_check/phase1_link.py` without pcap,
-that's expected and out of scope for this evaluation.
-
-### "240 passed" becomes "169 passed"
-
-This indicates Python can't import PyQt6 in your environment. The
-PyQt6-backed GUI tests contribute 71 of the 240 tests. They skip cleanly
-if PyQt6 is absent. Only Docker installs PyQt6 automatically; on bare
-Python you'd need `pip install PyQt6 pytest-qt`.
-
-This is not a failure for the Functional badge, as long as the 169
-non-GUI tests pass. The script labels this as `WARN: PyQt6 unavailable`
-and continues.
-
-### Anything else
-
-Contact the authors via the AEC chair. The WOOT '26 rules explicitly
-allow author–AEC communication through the chair to resolve install
-glitches while preserving reviewer anonymity.
+`FINDINGS.md` is worth reading: it documents seven bugs the test
+matrix surfaced during artifact preparation and the patches that
+landed for each — including the worker-shutdown TCP-server-leak that
+took the stress test from 1/10 to 5/5 PASS.
 
 ---
 
-## 6. Known limitations (important context for the AEC)
+## 6. Troubleshooting
 
-- **No real-hardware test in this artifact.** The artifact can be fully
-  evaluated in Docker + simulation loopback. The hardware-mode SLAC /
-  SDP passes reported in the paper (§5) were captured on a specific
-  bench rig; we provide the pcaps and logs for AEC private review on
-  request but do not attempt to have the AEC reproduce them.
+| Symptom | Cause / fix |
+|---|---|
+| `Docker daemon unreachable` | Start Docker Desktop; wait for `Engine running`; verify with `docker info` |
+| F1 says `169 passed` instead of 240 | PyQt6 missing in the Python env; OK — see Test-counts table above; install with `pip install PyQt6 pytest-qt` |
+| F0 reports `Exec format error` | x86_64 codec on aarch64 host; `vendor/build_openv2g.py` rebuilds from source |
+| `pcap import error` | F1–F6 don't use pcap; only `scripts/hw_check/phase1_link.py` does, which is out of badge scope |
 
-- **Paper §6 Real-World Evaluation results are scope-out.** The A1 attack
-  results against "7 commercial charging networks" and A2 results on 4
-  production EVs (Tesla, Luxgen, CMC, Hyundai) depend on infrastructure
-  we cannot package. For the Functional badge we ask the AEC to confirm
-  only the framework capability, not the real-world success rates.
-
-- **Docker image size.** The prebuilt `hotwire-ci.tar.gz` is ~800 MB
-  due to PyQt6 and the OpenV2G codec toolchain. If Zenodo upload size
-  is a concern, the AEC can skip the tarball and build from source; the
-  Dockerfile is reproducible and documented.
+For anything else: contact the AEC chair (`woot26aec@usenix.org`).
+WOOT rules require author–AEC communication through the chair.
 
 ---
 
-## 7. Contacts
+## 7. Known limitations
 
-Per WOOT '26 rules, all author–AEC communication goes through the chair
-(`woot26aec@usenix.org`). Please use that address if `verify_artifact.sh`
-fails or any of the paths in this guide do not behave as documented.
+- **Paper §6 Real-World Evaluation is scope-out.** A1 against
+  7 commercial networks and A2 against 4 production EVs (Tesla,
+  Luxgen, CMC, Hyundai) require infrastructure that cannot be
+  packaged. The Functional badge confirms framework capability only.
+- **Live-hardware AEC re-run is not requested.** Real-hardware results
+  are shipped as pcaps + JSONL under `datasets/real_hw_traces/` so
+  reviewers can inspect without owning hardware.
+- **Docker image size.** Prebuilt `hotwire-ci.tar.gz` is ~800 MB. If
+  Zenodo size is a concern, build from source: the Dockerfile is
+  fully reproducible.

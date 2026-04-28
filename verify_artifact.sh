@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # HotWire — Artifact Functional-badge verification script.
 #
-# Runs four checks that together confirm the core functionality
+# Runs seven checks that together confirm the core functionality
 # claimed in the paper:
 #
-#   F1  Docker CI regression (240 tests)
+#   F0  OpenV2G codec presence (auto-builds from vendor/ on miss)
+#   F1  Docker CI regression (240 tests; falls back to host pytest)
 #   F2  Simulation-mode full DIN 70121 session (13 states, ::1 loopback)
 #   F3  Parametric matrix (9 voltage × duration runs)
 #   F4  Attack-code presence (A1 + A2 syntactically valid)
+#   F5  Sim-mode attack reach (A1 + A2 fabricated values reach wire)
+#   F6  Real-hardware evidence bundles intact (pcap magic check)
 #
 # Total runtime: ~5 minutes with the image pre-loaded from
 # hotwire-ci.tar.gz, ~25 minutes if building from source.
@@ -50,6 +53,69 @@ banner "HotWire artifact verification — WOOT '26 AEC"
 log "Repository root: $REPO_DIR"
 log "Starting: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 log "Expected runtime: ~5 min (pre-loaded image) to ~25 min (build from source)"
+
+# --------------------------------------------------------------
+# F0 — Codec presence (auto-build if missing). Required by F1-F3.
+# --------------------------------------------------------------
+banner "F0 — OpenV2G codec binary check"
+
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*) CODEC_BIN="$REPO_DIR/hotwire/exi/codec/OpenV2G.exe" ;;
+    *)                     CODEC_BIN="$REPO_DIR/hotwire/exi/codec/OpenV2G"     ;;
+esac
+
+codec_works() {
+    # Smoke-test the codec: a binary that exists + has +x but is the
+    # wrong arch (e.g. x86_64 ELF on aarch64 Pi) fails with ENOEXEC
+    # + stderr "Exec format error". We capture stderr and pattern-
+    # match before trusting the binary.
+    [ -x "$1" ] || return 1
+    local stderr_text
+    stderr_text=$("$1" </dev/null 2>&1 1>/dev/null)
+    case "$stderr_text" in
+        *"Exec format error"*|*"exec format error"*|*"cannot execute"*)
+            return 1
+            ;;
+    esac
+    # Anything else (any exit status, any stderr that isn't ENOEXEC
+    # text) means the OS could exec the file. The codec might still
+    # complain about missing args; that's fine.
+    return 0
+}
+
+bootstrap_codec() {
+    log "F0 codec missing or wrong arch — initializing submodule + building from source..."
+    if [ ! -f "$REPO_DIR/vendor/OpenV2Gx/src/test/main_example.c" ]; then
+        log "  Fetching vendor/OpenV2Gx submodule..."
+        if (cd "$REPO_DIR" && git submodule update --init --recursive) > /tmp/hotwire_f0.log 2>&1; then
+            log "  Submodule fetch OK."
+        else
+            fail "F0 git submodule update failed; full log: /tmp/hotwire_f0.log"
+            tail -10 /tmp/hotwire_f0.log
+            return 1
+        fi
+    fi
+    if (cd "$REPO_DIR" && python3 vendor/build_openv2g.py) >> /tmp/hotwire_f0.log 2>&1; then
+        if codec_works "$CODEC_BIN"; then
+            ok "F0 codec built: $CODEC_BIN ($(wc -c < "$CODEC_BIN") bytes)"
+        else
+            fail "F0 build succeeded but executable check failed at $CODEC_BIN"
+        fi
+    else
+        fail "F0 codec build failed; full log: /tmp/hotwire_f0.log"
+        tail -10 /tmp/hotwire_f0.log
+    fi
+}
+
+if codec_works "$CODEC_BIN"; then
+    ok "F0 codec present and executable: $CODEC_BIN ($(wc -c < "$CODEC_BIN") bytes)"
+elif [ -e "$CODEC_BIN" ]; then
+    log "F0 codec exists but cannot execute on this host (likely arch mismatch); rebuilding from source..."
+    rm -f "$CODEC_BIN"
+    bootstrap_codec
+else
+    bootstrap_codec
+fi
 
 # --------------------------------------------------------------
 # F1 — pytest regression (preferred path: Docker; fallback: host pytest)
@@ -181,6 +247,53 @@ for f in hotwire/attacks/autocharge_impersonation.py hotwire/attacks/forced_disc
         cat /tmp/hotwire_f4.log
     fi
 done
+
+# --------------------------------------------------------------
+# F5 — Sim-mode attack-reach tests
+# --------------------------------------------------------------
+banner "F5 — Sim-mode attack reach (A1 + A2 + concurrent)"
+
+if python3 -m pytest tests/test_attack_sim_mode.py -q --no-header \
+        > /tmp/hotwire_f5.log 2>&1; then
+    passed=$(grep -oE '[0-9]+ passed' /tmp/hotwire_f5.log | tail -1 | awk '{print $1}')
+    if [ -n "$passed" ] && [ "$passed" -ge 3 ]; then
+        ok "F5 sim-mode attacks reach the wire: $passed/3 PASS"
+    else
+        warn "F5 ran but reported only ${passed:-?} PASS (expected 3); see /tmp/hotwire_f5.log"
+    fi
+else
+    warn "F5 sim-mode attack tests failed; see /tmp/hotwire_f5.log"
+fi
+
+# --------------------------------------------------------------
+# F6 — Real-hardware evidence bundles intact
+# --------------------------------------------------------------
+banner "F6 — Real-hardware evidence bundles"
+
+if [ ! -d datasets/real_hw_traces ]; then
+    warn "F6 datasets/real_hw_traces/ missing — bundle wasn't shipped"
+else
+    pcap_count=0
+    bad_pcap=0
+    for p in datasets/real_hw_traces/**/*.pcap datasets/real_hw_traces/*/*.pcap \
+             datasets/real_hw_traces/*/*/*.pcap datasets/real_hw_traces/*/*/*/*.pcap; do
+        [ -f "$p" ] || continue
+        pcap_count=$((pcap_count + 1))
+        # libpcap magic numbers: 0xa1b2c3d4 (us) or 0xa1b23c4d (ns)
+        head_bytes=$(od -An -N4 -tx1 "$p" 2>/dev/null | tr -d ' ')
+        case "$head_bytes" in
+            d4c3b2a1|a1b2c3d4|4d3cb2a1|a1b23c4d) : ;;
+            *) bad_pcap=$((bad_pcap + 1)) ;;
+        esac
+    done
+    if [ "$pcap_count" -ge 5 ] && [ "$bad_pcap" -eq 0 ]; then
+        ok "F6 datasets/real_hw_traces: $pcap_count valid pcap files"
+    elif [ "$bad_pcap" -gt 0 ]; then
+        fail "F6 $bad_pcap of $pcap_count pcap files have wrong magic bytes"
+    else
+        warn "F6 datasets/real_hw_traces shipped only $pcap_count pcap files (expected ≥ 5)"
+    fi
+fi
 
 # --------------------------------------------------------------
 # Summary

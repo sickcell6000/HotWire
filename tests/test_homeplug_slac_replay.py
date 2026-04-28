@@ -120,21 +120,47 @@ def test_ioniq6_capture_contains_full_slac_handshake() -> None:
 )
 def test_replay_real_capture_reaches_paired(capture_name: str) -> None:
     """Drive our EVSE-side SLAC state machine using frames captured
-    from a real commercial charger + real production EV."""
+    from a real commercial charger + real production EV.
+
+    Real-charger captures don't contain the local CM_SET_KEY.CNF
+    response (that's a host-↔-local-modem exchange, not on the air-side
+    PLC line that pcap saw). With Checkpoint 19's CM_SET_KEY integration
+    the state machine therefore lands at SLAC_WAIT_SET_KEY_CNF after
+    consuming all captured frames — the **peer** handshake completed,
+    which is the property these replays validate. SLAC_PAIRED arrives
+    after the SET_KEY budget elapses (see slac.py: deadline-based
+    ``_mark_paired_and_notify`` fallback).
+    """
+    from hotwire.plc.slac import SLAC_PAIRED, SLAC_WAIT_SET_KEY_CNF
+
     path = _require_capture(_CAPTURE_ROOT / capture_name)
     pev_mac = _extract_pev_mac(path)
 
     evse, callbacks = _replay_as_evse(path, pev_mac)
 
-    assert evse.state == SLAC_PAIRED, (
-        f"{capture_name}: EVSE state = {evse.state}, expected SLAC_PAIRED"
+    assert evse.state in (SLAC_PAIRED, SLAC_WAIT_SET_KEY_CNF), (
+        f"{capture_name}: EVSE state = {evse.state}, "
+        f"expected SLAC_PAIRED ({SLAC_PAIRED}) or "
+        f"SLAC_WAIT_SET_KEY_CNF ({SLAC_WAIT_SET_KEY_CNF})"
     )
     assert evse.peer_mac == pev_mac
-    assert len(callbacks) == 1
-    nmk, nid, peer = callbacks[0]
-    assert peer == pev_mac
-    assert len(nmk) == 16
-    assert len(nid) == 7
+    # NMK / NID must be derived during the peer handshake regardless
+    # of which terminal state we reached (Checkpoint 19's CM_SET_KEY
+    # phase doesn't change the keys, only programs the local modem).
+    assert evse.nmk is not None and len(evse.nmk) == 16
+    assert evse.nid is not None and len(evse.nid) == 7
+    # The on_slac_ok callback fires once when state == SLAC_PAIRED.
+    # If we landed at SLAC_WAIT_SET_KEY_CNF (real-charger captures
+    # don't include the host-↔-modem SET_KEY exchange), the callback
+    # has not fired yet — that's expected.
+    if evse.state == SLAC_PAIRED:
+        assert len(callbacks) == 1
+        nmk, nid, peer = callbacks[0]
+        assert peer == pev_mac
+        assert nmk == evse.nmk
+        assert nid == evse.nid
+    else:
+        assert len(callbacks) == 0
 
 
 def test_replay_extracts_real_pev_run_id() -> None:

@@ -50,8 +50,7 @@ See `SAFETY.md` §Electrical risks.
 
 ## Why this artifact is being released
 
-Responsible disclosure to affected vendors is documented in
-[`docs/ethics_evidence.md`](docs/ethics_evidence.md). In brief:
+In brief:
 
 - Vulnerabilities were disclosed 150+ days before artifact release.
 - Two of four affected OEMs have committed to OTA firmware updates.

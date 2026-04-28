@@ -56,6 +56,14 @@ TEST_SCRIPTS = [
     "test_two_process_loopback.py",
     "test_attack_integration.py",
     "test_forced_discharge_integration.py",
+    # Post-baseline additions: PauseController API coverage + GUI
+    # integration + simulation-mode attack reach + session replay vs
+    # real-hardware bundles.
+    "test_pause_controller.py",
+    "test_attack_sim_mode.py",
+    "test_session_replay_real_hw.py",
+    "test_gui_pause_edit_dialog.py",
+    "test_gui_worker_reuse.py",
 ]
 
 

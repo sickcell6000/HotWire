@@ -52,6 +52,12 @@ DemoExiLog.txt
 *.pcapng
 results/output/
 
+# Exception: curated paper-§6 evidence captures live under
+# datasets/real_hw_traces/ and ARE tracked. Do not let the global *.pcap
+# / *.jsonl rules above swallow them.
+!datasets/real_hw_traces/**/*.pcap
+!datasets/real_hw_traces/**/*.jsonl
+
 # Archive (git-ignored — large legacy folder)
 archive/
 

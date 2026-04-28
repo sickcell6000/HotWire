@@ -241,7 +241,42 @@ class HotWireWorker:
             self.pev.mainfunction()
 
     def shutdown(self) -> None:
-        """Graceful teardown — stops the SDP server thread if running."""
+        """Graceful teardown — release every external resource so the
+        Python process can construct a fresh ``HotWireWorker`` and
+        reach a working V2G session again.
+
+        Without this the previous worker's TCP listening socket stays
+        bound (even with SO_REUSEADDR the new socket gets routed to
+        the dead one in the kernel's accept queue) and the peer can
+        complete SDP but its TCP connect never lands at the new
+        worker — manifesting as the phase 7 stress regression.
+
+        Order matters: stop accepting new SDP requests first so peers
+        don't race in mid-shutdown, then close the EVSE TCP server,
+        then disconnect the PEV TCP client (if any), then drop the
+        FSM references so their finalizers run.
+        """
         if self.sdp_server is not None:
-            self.sdp_server.stop()
+            try:
+                self.sdp_server.stop()
+            except Exception:                                       # noqa: BLE001
+                pass
             self.sdp_server = None
+        if self.evse is not None:
+            tcp_server = getattr(self.evse, "Tcp", None)
+            if tcp_server is not None:
+                try:
+                    tcp_server.shutdown()
+                except Exception:                                   # noqa: BLE001
+                    pass
+        if self.pev is not None:
+            tcp_client = getattr(self.pev, "Tcp", None)
+            if tcp_client is not None:
+                try:
+                    tcp_client.disconnect()
+                except Exception:                                   # noqa: BLE001
+                    pass
+        # Drop FSM refs so the GC reclaims them deterministically — the
+        # FSM owns the TCP client/server and large buffers.
+        self.evse = None
+        self.pev = None

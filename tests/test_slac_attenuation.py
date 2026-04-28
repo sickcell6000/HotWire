@@ -158,8 +158,14 @@ def test_full_slac_with_attenuation_replay(capture_name: str) -> None:
         time.sleep(0.002)
 
     assert injected >= 5, f"expected several frames, got {injected}"
-    assert evse.state == SLAC_PAIRED, (
-        f"{capture_name}: EVSE state={evse.state}, expected SLAC_PAIRED"
+    # Real-charger captures don't include the local CM_SET_KEY.CNF
+    # that Checkpoint 19 added — accept either terminal state. See
+    # tests/test_homeplug_slac_replay.py for the longer rationale.
+    from hotwire.plc.slac import SLAC_WAIT_SET_KEY_CNF
+    assert evse.state in (SLAC_PAIRED, SLAC_WAIT_SET_KEY_CNF), (
+        f"{capture_name}: EVSE state={evse.state}, "
+        f"expected SLAC_PAIRED ({SLAC_PAIRED}) or "
+        f"SLAC_WAIT_SET_KEY_CNF ({SLAC_WAIT_SET_KEY_CNF})"
     )
     assert evse.peer_mac == pev_mac
 

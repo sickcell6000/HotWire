@@ -1,0 +1,7 @@
+{
+  "interface": "eth0",
+  "host_os": "posix",
+  "platform": "linux",
+  "python": "3.11.2",
+  "cwd": "/home/pi/project/HotWire"
+}

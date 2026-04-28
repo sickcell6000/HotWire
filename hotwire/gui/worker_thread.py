@@ -147,6 +147,16 @@ class QtWorkerThread(QThread):
         if self._pause_controller.is_currently_paused():
             self._pause_controller.abort()
         self.wait(int(timeout_s * 1000))
+        # Release the worker's external resources (TCP server / SDP /
+        # pcap RX) so a subsequent ``start()`` constructs a clean
+        # worker. Without this the GUI's stop→start cycle hits the
+        # same dangling-socket bug as phase7_stress (commit e4b7ee2).
+        if self._worker is not None:
+            try:
+                self._worker.shutdown()
+            except Exception as e:                                  # noqa: BLE001
+                self._trace(f"[WorkerThread] worker.shutdown raised: {e}")
+            self._worker = None
         if self._session_logger is not None:
             self._session_logger.close()
             self._session_logger = None

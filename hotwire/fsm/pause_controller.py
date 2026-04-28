@@ -90,9 +90,23 @@ class PauseController:
         return self._pending is not None
 
     def get_pending(self) -> Optional[dict]:
-        """GUI: inspect the currently paused message (for display)."""
+        """GUI: inspect the currently paused message (for display).
+
+        Returns a one-level-deep copy so the caller can mutate the
+        ``params`` dict without affecting the controller's stored
+        state. Without this, two consecutive calls would return
+        snapshots that share the same inner ``params`` reference,
+        and a GUI that pre-fills an editor with the first snapshot
+        could accidentally re-write the FSM's eventual default.
+        """
         with self._lock:
-            return dict(self._pending) if self._pending else None
+            if not self._pending:
+                return None
+            snapshot = dict(self._pending)
+            params = snapshot.get("params")
+            if isinstance(params, dict):
+                snapshot["params"] = dict(params)
+            return snapshot
 
     # ---- Override API (legacy "config-provider" parity) -------------
 

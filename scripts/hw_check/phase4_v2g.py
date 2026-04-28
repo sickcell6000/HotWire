@@ -49,7 +49,18 @@ def phase4_v2g(
     role: str,
     budget_s: float = 60.0,
     min_current_demand: int = 5,
+    pause_controller=None,
 ) -> PhaseResult:
+    """End-to-end DIN session driver.
+
+    ``pause_controller`` accepts an externally-built
+    :class:`hotwire.fsm.pause_controller.PauseController` so callers can
+    install :meth:`set_override` /:meth:`set_pause_enabled` hooks before
+    the worker starts. Useful for attack matrix harnesses
+    (``phase4_v2g_with_attack.py``) that need the same V2G stack but
+    with attacker-shaped messages on the wire. When omitted the worker
+    constructs a fresh empty controller — same behaviour as before.
+    """
     if not ctx.interface:
         return PhaseResult(
             name="phase4_v2g",
@@ -111,26 +122,35 @@ def phase4_v2g(
             artifacts.append(cap.pcap_path)
 
         # Pre-pair the local modem with the stable NMK/NID from config
-        # *before* standing up the full worker. Rationale: a previous
-        # phase4 session may have left the modems in a random AVLN
-        # (or, worse, with no AVLN at all if something reset them).
-        # Without this bootstrap, worker-level SLAC has to race against
-        # a modem that isn't forwarding the peer's HPAV frames, which
-        # usually looks like "PARAM.REQ sent 15x, EVSE saw 0".
-        # A one-shot SLAC using the config NMK brings both modems back
-        # into the expected AVLN; the worker-level SLAC that follows
-        # then succeeds on the first try. Best-effort — if pre-pair
-        # fails we still let the worker run and report its own error.
-        _prepair_modem(ctx, role, _trace)
+        # *before* standing up the full worker. Disabled by default
+        # because the worker's own ``RealHomePlug._ensure_slac_started``
+        # already pulls the same config NMK/NID and runs SLAC + CM_SET_KEY
+        # idempotently — running it twice creates a race where the modem
+        # locks into the prepair AVLN and ignores the worker's fresh
+        # M-SOUNDs. Set ``HOTWIRE_PHASE4_PREPAIR=1`` to re-enable for
+        # flaky modems where AVLN drift recovery is needed.
+        if os.environ.get("HOTWIRE_PHASE4_PREPAIR", "0") == "1":
+            _trace(
+                "[phase4] HOTWIRE_PHASE4_PREPAIR=1 — running pre-pair SLAC"
+            )
+            _prepair_modem(ctx, role, _trace)
+        else:
+            _trace(
+                "[phase4] pre-pair disabled (worker handles SLAC); "
+                "set HOTWIRE_PHASE4_PREPAIR=1 to opt in"
+            )
 
         try:
-            worker = HotWireWorker(
+            worker_kwargs: dict = dict(
                 callbackAddToTrace=_trace,
                 callbackShowStatus=_status,
                 mode=mode,
                 isSimulationMode=0,           # <- real hardware
                 message_observer=observer,
             )
+            if pause_controller is not None:
+                worker_kwargs["pause_controller"] = pause_controller
+            worker = HotWireWorker(**worker_kwargs)
         except Exception as e:                                  # noqa: BLE001
             ctx.log.event(
                 kind="phase4.worker_error",
@@ -328,11 +348,21 @@ def _early_pass(
     stages = {stage for _d, stage in observed}
     if role == "pev":
         return cd_count >= min_cd
-    # EVSE: three canonical outbound milestones
+    # EVSE: three canonical outbound milestones must all be seen, AND
+    # we must service at least ``min_cd`` CurrentDemandRes responses so
+    # the peer PEV has time to satisfy its own pass criterion before we
+    # close the socket. Without this second clause EVSE early-exits in
+    # ~5 s and the PEV's CurrentDemand loop never gets the responses it
+    # needs to reach min_cd.
     tx_stages = {s for d, s in observed if d == "tx"}
     required = {"SessionSetupRes", "ChargeParameterDiscoveryRes",
                 "PowerDeliveryRes"}
-    return required.issubset(tx_stages)
+    if not required.issubset(tx_stages):
+        return False
+    cd_responses = sum(
+        1 for d, s in observed if d == "tx" and s == "CurrentDemandRes"
+    )
+    return cd_responses >= min_cd
 
 
 def _verdict(
@@ -354,11 +384,25 @@ def _verdict(
     required = {"SessionSetupRes", "ChargeParameterDiscoveryRes",
                 "PowerDeliveryRes"}
     missing = required - tx_stages
-    if not missing:
+    cd_responses = sum(
+        1 for d, s in observed if d == "tx" and s == "CurrentDemandRes"
+    )
+    if missing:
+        return (Status.FAIL,
+                f"EVSE missing {sorted(missing)} (saw tx: {sorted(tx_stages)})")
+    if cd_responses >= min_cd:
+        return (Status.PASS,
+                f"EVSE served full DIN chain + {cd_responses} "
+                f"CurrentDemandRes in {elapsed:.1f}s")
+    # Backward-compat: if the operator deliberately set --min-cd 0 we
+    # accept the old 'just got to PowerDeliveryRes' behaviour.
+    if min_cd == 0:
         return (Status.PASS,
                 f"EVSE emitted full DIN response chain in {elapsed:.1f}s")
     return (Status.FAIL,
-            f"EVSE missing {sorted(missing)} (saw tx: {sorted(tx_stages)})")
+            f"EVSE only served {cd_responses}/{min_cd} CurrentDemandRes "
+            f"messages (full chain reached at "
+            f"{elapsed:.1f}s but PEV CurrentDemand loop didn't accumulate)")
 
 
 def _format_details(observed: list[tuple[str, str]], traces: list[str]) -> str:

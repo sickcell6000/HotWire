@@ -1,0 +1,7 @@
+{
+  "interface": "\\Device\\NPF_{4C95DA23-E78D-4555-8861-C0F158E9F74E}",
+  "host_os": "nt",
+  "platform": "win32",
+  "python": "3.9.0",
+  "cwd": "C:\\Users\\USER\\HotWire"
+}
