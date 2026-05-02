@@ -1,0 +1,28 @@
+# HotWire — DIN 70121 / ISO 15118 EV Charging Attack Testbed
+#
+# Python >= 3.11 required.
+#
+# This file lists ONLY what the simulation-mode artifact (AEC Functional
+# badge) actually needs. For real-hardware packet capture see
+# requirements-hw.txt.
+#
+# Linux / Raspberry Pi prerequisites (one-time, system-wide):
+#     sudo apt install -y python3-venv python3-dev
+# Then create and activate a venv:
+#     python3 -m venv .venv && source .venv/bin/activate
+# before running `pip install -r requirements.txt` here.
+
+# --- Core runtime ---------------------------------------------------------
+PyQt5>=5.15.0          # GUI: hotwire/gui/* (every widget imports PyQt5)
+psutil>=5.9.0          # disk/cpu/memory/NIC checks for preflight + dock
+
+# --- Test suite (verify_artifact.sh F1 + F5) ------------------------------
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-timeout>=2.1.0
+pytest-qt>=4.3.0       # GUI tests; needs PyQt5 above
+
+# --- Developer tools (optional; not required for AEC) ---------------------
+# black>=23.0.0
+# ruff>=0.1.0
+# mypy>=1.5.0

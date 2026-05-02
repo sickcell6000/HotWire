@@ -1,0 +1,19 @@
+--- a/udplog.py
++++ b/udplog.py
+@@ -17,6 +17,16 @@ class udplog():
+         #  Facility = 1 = "user"
+         #  Severity = 7 = "debug"
+         # print("[UDPLOG] Logging " + s)
++        #
++        # HOTWIRE-PATCH: honour the disabled flag regardless of purpose.
++        # Upstream only skips when purpose=="" and disabled, but
++        # purpose != "" frames still hit self.transmit -> Npcap
++        # sendpacket, which fails with ERROR_GEN_FAILURE (Windows error
++        # 31) when the link layer has nobody listening (modem stuck in
++        # bootloader mode, cable unplugged, etc). Refuse to transmit
++        # anything when syslog is disabled.
++        if not self.isUpdSyslogEnabled:
++            return
+         if (purpose==""):
+             if (not self.isUpdSyslogEnabled):
+                 # If no special purpose, and the logging is disabled, we stop here.

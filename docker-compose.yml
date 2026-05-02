@@ -1,0 +1,90 @@
+# HotWire — docker-compose orchestration
+#
+# Two services:
+#   hotwire-ci   — one-shot: builds image, runs entrypoint, exits.
+#                  Best for local verify or CI. `docker compose run hotwire-ci`.
+#   hotwire-dev  — watch mode: docker rebuilds the image + reruns tests
+#                  every time a Python file under the repo changes.
+#                  `docker compose watch` (Docker 24+).
+#
+# Both services mount ./runs, ./reports, ./htmlcov so artifacts persist
+# on the host and can be opened by a browser / Wireshark / CI tooling.
+
+services:
+  # --------------------------------------------------------------
+  # One-shot CI run. Use:
+  #   docker compose run --rm hotwire-ci
+  # or equivalently:
+  #   docker compose up --build --abort-on-container-exit hotwire-ci
+  # --------------------------------------------------------------
+  hotwire-ci:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hotwire:ci
+    container_name: hotwire-ci
+    # No TTY — CI friendly. Add "-it" on docker run if you want colors.
+    tty: false
+    stdin_open: false
+    environment:
+      HOTWIRE_CI_REGRESSION: "1"
+      HOTWIRE_CI_HW_CHECK:   "1"
+      HOTWIRE_CI_CODEC:      "1"
+      HOTWIRE_CI_GUI:        "1"
+    volumes:
+      - ./runs:/work/runs
+      - ./reports:/work/reports
+      - ./htmlcov:/work/htmlcov
+
+  # --------------------------------------------------------------
+  # Watch-mode development. Use:
+  #   docker compose watch
+  # Any save under hotwire/ / tests/ / scripts/ triggers a sync (fast)
+  # or rebuild (when a Dockerfile-affecting file changes).
+  #
+  # See https://docs.docker.com/compose/file-watch/
+  # --------------------------------------------------------------
+  hotwire-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hotwire:dev
+    container_name: hotwire-dev
+    profiles: ["watch"]            # not started by default `docker compose up`
+    environment:
+      HOTWIRE_CI_REGRESSION: "1"
+      HOTWIRE_CI_HW_CHECK:   "1"
+      HOTWIRE_CI_CODEC:      "0"    # codec binary rebuilt only when vendor/ changes
+      HOTWIRE_CI_GUI:        "1"
+    volumes:
+      - ./runs:/work/runs
+      - ./reports:/work/reports
+      - ./htmlcov:/work/htmlcov
+    develop:
+      watch:
+        # Sync Python sources directly into the running container —
+        # triggers the entrypoint again via restart action.
+        - action: sync+restart
+          path: ./hotwire
+          target: /work/hotwire
+        - action: sync+restart
+          path: ./tests
+          target: /work/tests
+        - action: sync+restart
+          path: ./scripts
+          target: /work/scripts
+          ignore:
+            - scripts/docker_ci_entrypoint.sh   # changes to script require rebuild anyway
+        - action: sync+restart
+          path: ./config
+          target: /work/config
+
+        # Rebuilds required when vendor or deps change.
+        - action: rebuild
+          path: ./vendor
+        - action: rebuild
+          path: ./requirements.txt
+        - action: rebuild
+          path: ./Dockerfile
+        - action: rebuild
+          path: ./scripts/docker_ci_entrypoint.sh

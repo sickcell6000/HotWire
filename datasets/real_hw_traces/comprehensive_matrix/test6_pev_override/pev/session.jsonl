@@ -1,0 +1,92 @@
+{"ts": "2026-04-27T15:20:45.031530+00:00", "kind": "run.start", "run_dir": "/home/pi/project/HotWire/runs/20260427-232045", "interface": "eth0", "host_os": "posix", "platform": "linux", "python": "3.11.2", "cwd": "/home/pi/project/HotWire"}
+{"ts": "2026-04-27T15:20:45.065304+00:00", "kind": "phase6.override_installed", "stage": "PreChargeReq", "EVTargetVoltage": "999"}
+{"ts": "2026-04-27T15:20:45.066272+00:00", "kind": "pcap.start", "phase": "phase6", "tool": "tcpdump", "argv": ["tcpdump", "-i", "eth0", "-w", "/home/pi/project/HotWire/runs/20260427-232045/phase6_capture.pcap", "-U", "ether proto 0x88E1 or ip6"], "output": "/home/pi/project/HotWire/runs/20260427-232045/phase6_capture.pcap"}
+{"ts": "2026-04-27T15:20:45.487817+00:00", "kind": "phase6.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:20:45.488026+00:00", "kind": "phase6.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:20:45.505552+00:00", "kind": "phase6.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:20:45.512872+00:00", "kind": "phase6.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:20:45.512998+00:00", "kind": "phase6.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:20:45.513053+00:00", "kind": "phase6.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:20:45.513118+00:00", "kind": "phase6.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:20:45.513413+00:00", "kind": "phase6.start", "budget_s": 25.0}
+{"ts": "2026-04-27T15:20:45.513506+00:00", "kind": "phase6.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:20:45.513560+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:45.516554+00:00", "kind": "phase6.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:20:45.516874+00:00", "kind": "phase6.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=8f603141d8953f0d)"}
+{"ts": "2026-04-27T15:20:46.511719+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:47.506473+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:47.536894+00:00", "kind": "phase6.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=8f603141d8953f0d)"}
+{"ts": "2026-04-27T15:20:48.501135+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:49.495921+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:49.559247+00:00", "kind": "phase6.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=8f603141d8953f0d)"}
+{"ts": "2026-04-27T15:20:50.502108+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:51.501856+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:51.563097+00:00", "kind": "phase6.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=8f603141d8953f0d)"}
+{"ts": "2026-04-27T15:20:52.502025+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:53.502830+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:53.564060+00:00", "kind": "phase6.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=8f603141d8953f0d)"}
+{"ts": "2026-04-27T15:20:53.595247+00:00", "kind": "phase6.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:20:54.506358+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:20:54.719152+00:00", "kind": "phase6.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:20:54.993334+00:00", "kind": "phase6.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:20:54.993645+00:00", "kind": "phase6.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:20:55.024544+00:00", "kind": "phase6.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:20:55.024791+00:00", "kind": "phase6.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:20:55.024961+00:00", "kind": "phase6.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:20:55.055361+00:00", "kind": "phase6.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:20:55.055522+00:00", "kind": "phase6.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:20:55.061721+00:00", "kind": "phase6.trace", "message": "[WORKER] SDP discovered SECC at [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:20:55.092616+00:00", "kind": "phase6.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 50"}
+{"ts": "2026-04-27T15:20:55.092821+00:00", "kind": "phase6.trace", "message": "[WORKER] Network established — starting PEV FSM"}
+{"ts": "2026-04-27T15:20:55.092973+00:00", "kind": "phase6.trace", "message": "[PEV] re-initializing fsmPev"}
+{"ts": "2026-04-27T15:20:55.093306+00:00", "kind": "phase6.trace", "message": "TCP disconnected and reset."}
+{"ts": "2026-04-27T15:20:55.093449+00:00", "kind": "phase6.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State B"}
+{"ts": "2026-04-27T15:20:55.093770+00:00", "kind": "phase6.trace", "message": "[HARDWAREINTERFACE-REAL] Power relay OFF"}
+{"ts": "2026-04-27T15:20:55.517981+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 149 314 644 150 0 0 --> 50"}
+{"ts": "2026-04-27T15:20:55.972710+00:00", "kind": "phase6.trace", "message": "[PEV] Checkpoint301: connecting to [fe80::19f2:db35:ec31:5f8]:57122"}
+{"ts": "2026-04-27T15:20:55.972961+00:00", "kind": "phase6.trace", "message": "TCP connecting to fe80::19f2:db35:ec31:5f8 port 57122..."}
+{"ts": "2026-04-27T15:20:55.981998+00:00", "kind": "phase6.trace", "message": "Connecting with sockaddr: ('fe80::19f2:db35:ec31:5f8', 57122, 0, 2)"}
+{"ts": "2026-04-27T15:20:55.986013+00:00", "kind": "phase6.trace", "message": "TCP connected to fe80::19f2:db35:ec31:5f8:57122"}
+{"ts": "2026-04-27T15:20:55.986213+00:00", "kind": "phase6.trace", "message": "[PEV] connected"}
+{"ts": "2026-04-27T15:20:55.986375+00:00", "kind": "phase6.trace", "message": "[PEV] from 1:Connecting entering 2:Connected"}
+{"ts": "2026-04-27T15:20:56.017154+00:00", "kind": "phase6.trace", "message": "[PEV] Checkpoint400: Sending supportedAppProtocolReq (8000dbab9371d3234b71d1b981899189...)"}
+{"ts": "2026-04-27T15:20:56.021826+00:00", "kind": "phase6.trace", "message": "[PEV] from 2:Connected entering 3:WaitForAppProtocolRes"}
+{"ts": "2026-04-27T15:20:56.084165+00:00", "kind": "phase6.trace", "message": "[PEV] WaitAppRes received (12bytes) = 01 FE 80 01 00 00 00 04 80 40 00 40 "}
+{"ts": "2026-04-27T15:20:56.087805+00:00", "kind": "phase6.trace", "message": "[PEV] {\n\"msgName\": \"supportedAppProtocolRes\",\n\"info\": \"4 bytes to convert\", \n\"error\": \"\",\n\"result\": \"ResponseCode 0, SchemaID_isUsed 1, SchemaID 1\",\n\"schema\": \"appHandshake\",\n\"debug\": \"\"\n}"}
+{"ts": "2026-04-27T15:20:56.088106+00:00", "kind": "phase6.trace", "message": "[PEV] SessionSetupReq: encoding command EDA_D83ADD22F182"}
+{"ts": "2026-04-27T15:20:56.091894+00:00", "kind": "phase6.trace", "message": "[PEV] SessionSetupReq: sending (29bytes) = 01 FE 80 01 00 00 00 15 80 9A 02 00 00 00 00 00 00 00 00 11 D0 1B 60 EB 74 8B C6 08 00 "}
+{"ts": "2026-04-27T15:20:56.095719+00:00", "kind": "phase6.trace", "message": "[PEV] from 3:WaitForAppProtocolRes entering 4:WaitForSessionSetupRes"}
+{"ts": "2026-04-27T15:20:56.126133+00:00", "kind": "phase6.trace", "message": "[CONNMGR] ConnectionLevel changed from 50 to 100"}
+{"ts": "2026-04-27T15:20:56.190958+00:00", "kind": "phase6.trace", "message": "[PEV] {\n\"msgName\": \"SessionSetupRes\",\n\"info\": \"23 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK_NewSessionEstablished\",\n\"EVSEID.bytesLen\": \"7\",\n\"EVSEID\": \"5a5a4445464c54\",\n\"debug\": \"Line538\"\n}"}
+{"ts": "2026-04-27T15:20:56.191361+00:00", "kind": "phase6.trace", "message": "[PEV] Checkpoint506: SessionId = 0102030405060708"}
+{"ts": "2026-04-27T15:20:56.191514+00:00", "kind": "phase6.trace", "message": "[PEV] ServiceDiscoveryReq: encoding command EDB_0102030405060708"}
+{"ts": "2026-04-27T15:20:56.195066+00:00", "kind": "phase6.trace", "message": "[PEV] ServiceDiscoveryReq: sending (21bytes) = 01 FE 80 01 00 00 00 0D 80 9A 02 00 40 80 C1 01 41 81 C2 11 98 "}
+{"ts": "2026-04-27T15:20:56.198755+00:00", "kind": "phase6.trace", "message": "[PEV] from 4:WaitForSessionSetupRes entering 5:WaitForServiceDiscoveryRes"}
+{"ts": "2026-04-27T15:20:56.263497+00:00", "kind": "phase6.trace", "message": "[PEV] {\n\"msgName\": \"ServiceDiscoveryRes\",\n\"info\": \"20 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"debug\": \"Line514\"\n}"}
+{"ts": "2026-04-27T15:20:56.263810+00:00", "kind": "phase6.trace", "message": "[PEV] ServicePaymentSelectionReq: encoding command EDC_0102030405060708"}
+{"ts": "2026-04-27T15:20:56.267359+00:00", "kind": "phase6.trace", "message": "[PEV] ServicePaymentSelectionReq: sending (24bytes) = 01 FE 80 01 00 00 00 10 80 9A 02 00 40 80 C1 01 41 81 C2 11 B2 00 12 80 "}
+{"ts": "2026-04-27T15:20:56.271023+00:00", "kind": "phase6.trace", "message": "[PEV] from 5:WaitForServiceDiscoveryRes entering 6:WaitForServicePaymentRes"}
+{"ts": "2026-04-27T15:20:56.335931+00:00", "kind": "phase6.trace", "message": "[PEV] {\n\"msgName\": \"ServicePaymentSelectionRes\",\n\"info\": \"14 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"debug\": \"Line526\"\n}"}
+{"ts": "2026-04-27T15:20:56.336242+00:00", "kind": "phase6.trace", "message": "[PEV] ContractAuthenticationReq: encoding command EDL_0102030405060708"}
+{"ts": "2026-04-27T15:20:56.339981+00:00", "kind": "phase6.trace", "message": "[PEV] ContractAuthenticationReq: sending (21bytes) = 01 FE 80 01 00 00 00 0D 80 9A 02 00 40 80 C1 01 41 81 C2 10 B8 "}
+{"ts": "2026-04-27T15:20:56.343672+00:00", "kind": "phase6.trace", "message": "[PEV] from 6:WaitForServicePaymentRes entering 7:WaitForContractAuthRes"}
+{"ts": "2026-04-27T15:20:56.586523+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 116 281 611 117 0 322 --> 100"}
+{"ts": "2026-04-27T15:20:57.258154+00:00", "kind": "phase6.trace", "message": "[PEV] {\n\"msgName\": \"ContractAuthenticationRes\",\n\"info\": \"15 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"EVSEProcessing\": \"Finished\",\n\"debug\": \"Line430\"\n}"}
+{"ts": "2026-04-27T15:20:57.258560+00:00", "kind": "phase6.trace", "message": "[PEV] ChargeParameterDiscoveryReq: encoding command EDE_0102030405060708_30"}
+{"ts": "2026-04-27T15:20:57.262710+00:00", "kind": "phase6.trace", "message": "[PEV] ChargeParameterDiscoveryReq: sending (52bytes) = 01 FE 80 01 00 00 00 2C 80 9A 02 00 40 80 C1 01 41 81 C2 10 71 90 40 07 80 C0 C1 90 08 0E 19 09 80 60 A1 1C 06 01 84 87 06 D0 08 06 12 14 13 80 20 C8 14 00 "}
+{"ts": "2026-04-27T15:20:57.267321+00:00", "kind": "phase6.trace", "message": "[PEV] from 7:WaitForContractAuthRes entering 8:WaitForChargeParamRes"}
+{"ts": "2026-04-27T15:20:57.601324+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 83 248 578 84 0 319 --> 100"}
+{"ts": "2026-04-27T15:20:58.182453+00:00", "kind": "phase6.trace", "message": "[PEV] {\n\"msgName\": \"ChargeParameterDiscoveryRes\",\n\"info\": \"50 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"EVSEProcessing\": \"Finished\",\n\"SAScheduleList_isUsed\": \"1\",\n\"SAScheduleList.SAScheduleTuple.arrayLen\": \"1\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.arrayLen\": \"1\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].TimeInterval_isUsed\": \"0\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval_isUsed\": \"1\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval.start\": \"0\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval.duration_isUsed\": \"0\",\n\"SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].PMax\": \"50\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"EVSEMaximumCurrentLimit.Multiplier\": \"0\",\n\"EVSEMaximumCurrentLimit.Value\": \"200\",\n\"EVSEMaximumCurrentLimit.Unit\": \"A\",\n\"EVSEMaximumPowerLimit_isUsed\": \"1\",\n\"EVSEMaximumPowerLimit.Multiplier\": \"3\",\n\"EVSEMaximumPowerLimit.Value\": \"10\",\n\"EVSEMaximumPowerLimit.Unit\": \"W\",\n\"EVSEMaximumVoltageLimit.Multiplier\": \"0\",\n\"EVSEMaximumVoltageLimit.Value\": \"450\",\n\"EVSEMaximumVoltageLimit.Unit\": \"V\",\n\"EVSEMinimumCurrentLimit.Multiplier\": \"0\",\n\"EVSEMinimumCurrentLimit.Value\": \"1\",\n\"EVSEMinimumCurrentLimit.Unit\": \"A\",\n\"EVSEMinimumVoltageLimit.Multiplier\": \"0\",\n\"EVSEMinimumVoltageLimit.Value\": \"200\",\n\"EVSEMinimumVoltageLimit.Unit\": \"V\",\n\"debug\": \"Line406\"\n}"}
+{"ts": "2026-04-27T15:20:58.183033+00:00", "kind": "phase6.trace", "message": "[HARDWAREINTERFACE-REAL] CP -> State C (charging)"}
+{"ts": "2026-04-27T15:20:58.183499+00:00", "kind": "phase6.trace", "message": "[HARDWAREINTERFACE-REAL] Connector lock"}
+{"ts": "2026-04-27T15:20:58.183773+00:00", "kind": "phase6.trace", "message": "[PEV] from 8:WaitForChargeParamRes entering 9:WaitForConnectorLock"}
+{"ts": "2026-04-27T15:20:58.214540+00:00", "kind": "phase6.trace", "message": "[PEV] CableCheckReq: encoding command EDF_0102030405060708_30"}
+{"ts": "2026-04-27T15:20:58.218602+00:00", "kind": "phase6.trace", "message": "[PEV] CableCheckReq: sending (24bytes) = 01 FE 80 01 00 00 00 10 80 9A 02 00 40 80 C1 01 41 81 C2 10 11 40 07 80 "}
+{"ts": "2026-04-27T15:20:58.222783+00:00", "kind": "phase6.trace", "message": "[PEV] from 9:WaitForConnectorLock entering 10:WaitForCableCheckRes"}
+{"ts": "2026-04-27T15:20:58.617464+00:00", "kind": "phase6.trace", "message": "[CONNMGR] 9 50 215 545 51 0 1010 --> 100"}
+{"ts": "2026-04-27T15:20:59.138509+00:00", "kind": "phase6.trace", "message": "[PEV] {\n\"msgName\": \"CableCheckRes\",\n\"info\": \"19 bytes to convert\", \n\"error\": \"\",\n\"result\": \"\",\n\"schema\": \"DIN\",\n\"g_errn\": \"0\",\n\"header.SessionID\": \"0102030405060708\",\n\"header.Notification_isUsed\": \"0\",\n\"header.Signature_isUsed\": \"0\",\n\"ResponseCode\": \"OK\",\n\"DC_EVSEStatus.EVSEIsolationStatus\": \"1\",\n\"DC_EVSEStatus.EVSEIsolationStatus_text\": \"Valid\",\n\"DC_EVSEStatus.EVSEIsolationStatus_isUsed\": \"1\",\n\"DC_EVSEStatus.EVSEStatusCode\": \"1\",\n\"EVSEStatusCode_text\": \"EVSE_Ready\",\n\"DC_EVSEStatus.NotificationMaxDelay\": \"0\",\n\"DC_EVSEStatus.EVSENotification\": \"0\",\n\"DC_EVSEStatus.EVSENotification_text\": \"None\",\n\"EVSEProcessing\": \"Finished\",\n\"debug\": \"Line370\"\n}"}
+{"ts": "2026-04-27T15:20:59.139144+00:00", "kind": "phase6.trace", "message": "[PEV] PreChargeReq: encoding command EDG_0102030405060708_30_999_1"}
+{"ts": "2026-04-27T15:20:59.143262+00:00", "kind": "phase6.trace", "message": "[PEV] PreChargeReq: sending (32bytes) = 01 FE 80 01 00 00 00 18 80 9A 02 00 40 80 C1 01 41 81 C2 11 51 40 07 80 C1 43 9C 1C 0C 0C 00 40 "}
+{"ts": "2026-04-27T15:20:59.147547+00:00", "kind": "phase6.trace", "message": "[PEV] from 10:WaitForCableCheckRes entering 11:WaitForPreChargeRes"}
+{"ts": "2026-04-27T15:20:59.262237+00:00", "kind": "pcap.stop", "phase": "phase6", "returncode": 0, "stderr_tail": "tcpdump: listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes\n50 packets captured\n53 packets received by filter\n0 packets dropped by kernel\n", "pcap_path": "/home/pi/project/HotWire/runs/20260427-232045/phase6_capture.pcap", "pcap_size": 5245}
+{"ts": "2026-04-27T15:20:59.262789+00:00", "kind": "run.end"}

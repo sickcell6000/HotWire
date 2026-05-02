@@ -1,0 +1,91 @@
+{"ts": "2026-04-27T15:14:15.245657+00:00", "kind": "run.start", "run_dir": "/home/pi/project/HotWire/runs/20260427-231415", "interface": "eth0", "host_os": "posix", "platform": "linux", "python": "3.11.2", "cwd": "/home/pi/project/HotWire"}
+{"ts": "2026-04-27T15:14:15.245770+00:00", "kind": "phase.start", "phase": "phase4_v2g"}
+{"ts": "2026-04-27T15:14:15.282405+00:00", "kind": "pcap.start", "phase": "phase4", "tool": "tcpdump", "argv": ["tcpdump", "-i", "eth0", "-w", "/home/pi/project/HotWire/runs/20260427-231415/phase4_capture.pcap", "-U", "ether proto 0x88E1 or ip6"], "output": "/home/pi/project/HotWire/runs/20260427-231415/phase4_capture.pcap"}
+{"ts": "2026-04-27T15:14:15.583680+00:00", "kind": "phase4.trace", "message": "[phase4] HOTWIRE_PHASE4_PREPAIR=1 — running pre-pair SLAC"}
+{"ts": "2026-04-27T15:14:15.708034+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=dd98381047ef2245)"}
+{"ts": "2026-04-27T15:14:17.717331+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=dd98381047ef2245)"}
+{"ts": "2026-04-27T15:14:19.732914+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=dd98381047ef2245)"}
+{"ts": "2026-04-27T15:14:21.748546+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=dd98381047ef2245)"}
+{"ts": "2026-04-27T15:14:23.724630+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] total timeout; failing"}
+{"ts": "2026-04-27T15:14:23.759178+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] done (failed) in 8.1s"}
+{"ts": "2026-04-27T15:14:23.788707+00:00", "kind": "phase4.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:14:23.789065+00:00", "kind": "phase4.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:14:23.825230+00:00", "kind": "phase4.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:14:23.833995+00:00", "kind": "phase4.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:14:23.834220+00:00", "kind": "phase4.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:14:23.834372+00:00", "kind": "phase4.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:14:23.834554+00:00", "kind": "phase4.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:14:23.835273+00:00", "kind": "phase4.start", "role": "pev", "budget_s": 50.0}
+{"ts": "2026-04-27T15:14:23.835523+00:00", "kind": "phase4.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:14:23.835694+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:23.836170+00:00", "kind": "phase4.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:14:23.836636+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:24.837416+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:25.837289+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:25.837860+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:26.838046+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:27.838861+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:27.839489+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:28.838956+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:29.841461+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:29.841833+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:30.838428+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:31.833368+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:31.863782+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:32.828185+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:33.822515+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:33.883053+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:34.817477+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:35.816687+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:35.908046+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:36.816673+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:37.817103+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:37.908535+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:38.817348+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:39.817173+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:39.908607+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:40.820744+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:41.815765+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:41.936584+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:42.810413+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:43.804778+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:43.955679+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:44.800111+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:45.797401+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:45.979994+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:46.797988+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:47.797749+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:47.982001+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:48.800108+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:49.799621+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:50.012138+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:50.801178+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:51.798954+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:52.040339+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=cfabccfca540d444)"}
+{"ts": "2026-04-27T15:14:52.793889+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:53.788291+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:53.848706+00:00", "kind": "phase4.trace", "message": "[SLAC pev] total timeout; failing"}
+{"ts": "2026-04-27T15:14:53.848773+00:00", "kind": "phase4.trace", "message": "[RealHomePlug] SLAC failed in role=1; CONNMGR will remain at eth-link level"}
+{"ts": "2026-04-27T15:14:54.783121+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:55.777756+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:56.778351+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:57.778551+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:58.779201+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:14:59.778821+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:00.778577+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:01.780817+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:02.775521+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:03.769854+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:04.764472+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:05.758758+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:06.754514+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:07.754022+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:08.755815+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:09.755633+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:10.755424+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:11.756615+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:12.754734+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:13.749092+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:13.903556+00:00", "kind": "pcap.stop", "phase": "phase4", "returncode": 0, "stderr_tail": "tcpdump: listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes\n22 packets captured\n22 packets received by filter\n0 packets dropped by kernel\n", "pcap_path": "/home/pi/project/HotWire/runs/20260427-231415/phase4_capture.pcap", "pcap_size": 1978}
+{"ts": "2026-04-27T15:15:13.903957+00:00", "kind": "phase.end", "phase": "phase4_v2g", "status": "FAIL", "summary": "PEV only saw 0/5 CurrentDemandRes messages (stages reached rx: [])", "metrics": {"role": "pev", "interface": "eth0", "budget_s": 50.0, "min_current_demand": 5, "elapsed_s": 50.068, "trace_lines": 84, "total_messages": 0, "current_demand_count": 0}, "duration_s": 58.65817557399987}
+{"ts": "2026-04-27T15:15:13.904621+00:00", "kind": "run.end"}

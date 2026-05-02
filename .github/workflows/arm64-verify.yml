@@ -1,0 +1,167 @@
+name: ARM64 artifact verification
+
+# Native arm64 build of the Docker image, end-to-end, on GitHub's free
+# arm64 runner (public-repo perk). Proves the Dockerfile's Qt5
+# toolchain fix resolves the reviewer-reported PyQt5 `qmake` failure
+# on linux/arm64 *without* depending on a local Raspberry Pi.
+#
+# Trigger manually from the Actions tab (workflow_dispatch) or
+# automatically on any `woot26-artifact-*` tag push.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'woot26-artifact-*'
+
+jobs:
+  arm64-docker-build:
+    name: Docker build + verify (linux/arm64 native)
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repo (+ submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Host info
+        run: |
+          echo "=== uname ==="
+          uname -a
+          echo "=== os-release ==="
+          cat /etc/os-release
+          echo "=== docker ==="
+          docker version
+          docker buildx version
+          echo "=== resources ==="
+          nproc
+          free -h
+          df -h /
+
+      - name: Build hotwire-ci image (no cache, native arm64)
+        run: |
+          docker compose build --no-cache hotwire-ci 2>&1 | tee /tmp/build.log
+
+      - name: Verify image (qmake + Qt5 toolchain + OpenV2G codec)
+        run: |
+          # NB: no `set -e` — we want every probe to attempt, even if one
+          # command-not-found earlier (e.g. `file` is not in the image).
+          docker run --rm --entrypoint sh hotwire:ci -c '
+            echo "=== Architecture confirm (host + container) ==="
+            echo "uname -m       = $(uname -m)"
+            echo "uname -a       = $(uname -a)"
+            echo "dpkg arch      = $(dpkg --print-architecture 2>/dev/null || echo "(no dpkg)")"
+            python -c "import platform; print(\"python.machine =\", platform.machine())"
+            echo
+            echo "=== qmake (proves Qt5 toolchain installed for source-build path) ==="
+            qmake -v
+            echo
+            echo "=== PyQt5 (arm64: deliberately skipped; expect ModuleNotFoundError) ==="
+            python -c "import PyQt5; print(\"PyQt5 import ok\")" 2>&1 \
+                || echo "(expected on arm64: PyQt5 stripped from in-container deps)"
+            echo
+            echo "=== OpenV2G codec (native arm64 binary, compiled in codec-builder stage) ==="
+            ls -la /work/hotwire/exi/codec/OpenV2G
+            # ELF magic bytes peek (avoids depending on /usr/bin/file):
+            head -c 20 /work/hotwire/exi/codec/OpenV2G | od -An -tx1 \
+                | head -1 | tr -s " "
+            python -c "
+            with open(\"/work/hotwire/exi/codec/OpenV2G\", \"rb\") as f:
+                magic = f.read(20)
+            assert magic[:4] == b\"\x7fELF\", magic[:4]
+            cls = {1: \"ELF32\", 2: \"ELF64\"}[magic[4]]
+            endian = {1: \"LE\", 2: \"BE\"}[magic[5]]
+            machine = {3: \"x86\", 62: \"x86_64\", 40: \"arm\", 183: \"aarch64\"}.get(magic[18], f\"e_machine={magic[18]}\")
+            print(f\"ELF header     = {cls} {endian} {machine}\")
+            "
+          ' 2>&1 | tee /tmp/qt_check.log
+
+      - name: Run F1 (in-container pytest regression)
+        run: |
+          docker compose run --rm \
+            -e HOTWIRE_CI_CODEC=1 \
+            -e HOTWIRE_CI_GUI=1 \
+            -e HOTWIRE_CI_REGRESSION=1 \
+            -e HOTWIRE_CI_HW_CHECK=1 \
+            hotwire-ci 2>&1 | tee /tmp/f1.log
+        continue-on-error: true
+        # ↑ keep going so logs upload even if a test fails on arm64
+
+      # Install host-side Python deps so verify_artifact.sh's F2-F6
+      # (which run on the host, not inside Docker) can execute. PyQt5
+      # is stripped because arm64 has no manylinux wheel — the GUI
+      # tests are already auto-skipped inside the Docker F1 path.
+      - name: Set up host Python venv (for verify_artifact.sh F2-F6)
+        run: |
+          set -eux
+          python3 -m venv /tmp/venv
+          source /tmp/venv/bin/activate
+          # Strip PyQt5 + pytest-qt + pypcap (same as Dockerfile arm64 path)
+          grep -vE '^(pypcap|PyQt5|pyqt5|pytest-qt)' requirements.txt > /tmp/requirements.host.txt
+          pip install --no-cache-dir -r /tmp/requirements.host.txt
+          pip install --no-cache-dir pytest-cov
+          python -c "import hotwire; print('hotwire package importable')"
+
+      - name: Run verify_artifact.sh end-to-end (the true 8/8 PASS test)
+        run: |
+          source /tmp/venv/bin/activate
+          # Make sure the script uses our just-built Docker image for F1,
+          # and our just-set-up venv Python for everything else.
+          bash verify_artifact.sh 2>&1 | tee /tmp/verify_artifact.log
+        continue-on-error: true
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== Build log tail ==="
+          tail -40 /tmp/build.log || true
+          echo
+          echo "=== Qt check ==="
+          cat /tmp/qt_check.log || true
+          echo
+          echo "=== F1 tail ==="
+          tail -60 /tmp/f1.log || true
+          echo
+          echo "=== verify_artifact.sh tail (true 8/8 check) ==="
+          tail -50 /tmp/verify_artifact.log 2>/dev/null || echo "(verify log not produced)"
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arm64-verify-logs
+          path: |
+            /tmp/build.log
+            /tmp/qt_check.log
+            /tmp/f1.log
+            /tmp/verify_artifact.log
+          if-no-files-found: warn
+
+      # ===== Strategy B: ship pre-built Docker image tarball =====
+      # Reviewer can `docker load < hotwire-ci-arm64.tar.gz` and run
+      # `bash verify_artifact.sh` without re-building anything. Removes
+      # the build-environment variable (proxy / pip config / Docker
+      # Desktop version) from the reproduction equation.
+      - name: Save Docker image as compressed tarball
+        if: success()
+        run: |
+          set -eux
+          docker images hotwire:ci
+          docker save hotwire:ci | gzip -1 > /tmp/hotwire-ci-arm64.tar.gz
+          ls -lh /tmp/hotwire-ci-arm64.tar.gz
+          # Print the SHA so reviewer can verify against the Release page
+          sha256sum /tmp/hotwire-ci-arm64.tar.gz | tee /tmp/hotwire-ci-arm64.tar.gz.sha256
+
+      - name: Upload Docker image tarball
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hotwire-ci-image-arm64
+          path: |
+            /tmp/hotwire-ci-arm64.tar.gz
+            /tmp/hotwire-ci-arm64.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0   # tarball is already gzipped; don't double-compress

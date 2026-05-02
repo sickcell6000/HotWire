@@ -1,0 +1,13 @@
+# Treat the OpenV2Gx codec binaries as binary so git doesn't mangle
+# their bytes with CRLF line-ending conversion under Windows.
+hotwire/exi/codec/OpenV2G       binary
+hotwire/exi/codec/OpenV2G.exe   binary
+
+# Pcap files (used as bench evidence) are also binary.
+*.pcap                          binary
+*.pcapng                        binary
+
+# Shell scripts must keep LF endings even on Windows checkouts so they
+# stay POSIX-conformant (CRLF would break /usr/bin/env interpreter
+# detection in the shebang line).
+*.sh                            text eol=lf
