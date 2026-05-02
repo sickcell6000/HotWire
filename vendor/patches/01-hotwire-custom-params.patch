@@ -1,0 +1,1486 @@
+diff --git a/src/codec/EncoderChannel.c b/src/codec/EncoderChannel.c
+index f1d4f80..00e0305 100644
+--- a/src/codec/EncoderChannel.c
++++ b/src/codec/EncoderChannel.c
+@@ -208,8 +208,7 @@ int encodeUnsignedInteger64(bitstream_t* stream, uint64_t n) {
+ void _shiftRight7(uint8_t* buf, int len) {
+ 	const int shift = 7;
+     unsigned char tmp = 0x00, tmp2 = 0x00;
+-    int k;
+-    for (k = 0; k <= len; k++) {
++    for (int k = 0; k <= len; k++) {
+         if (k == 0) {
+             tmp = buf[k];
+             buf[k] >>= shift;
+diff --git a/src/test/iso1_commandlineinterface.h b/src/test/iso1_commandlineinterface.h
+index 2e680a1..9ec1f16 100644
+--- a/src/test/iso1_commandlineinterface.h
++++ b/src/test/iso1_commandlineinterface.h
+@@ -788,28 +788,28 @@ void encodeIso1ChargeParameterDiscoveryResponse(void) {
+     
+     
+     cpdc->EVSEMaximumPowerLimit.Multiplier = 3;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMaximumPowerLimit.Unit = iso1unitSymbolType_W;
++    cpdc->EVSEMaximumPowerLimit.Unit = dinunitSymbolType_W;
+     cpdc->EVSEMaximumPowerLimit.Value = 10;
+     
+     cpdc->EVSEMaximumVoltageLimit.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMaximumVoltageLimit.Unit = iso1unitSymbolType_V;
++    cpdc->EVSEMaximumVoltageLimit.Unit = dinunitSymbolType_V;
+     cpdc->EVSEMaximumVoltageLimit.Value = 450;
+     
+     cpdc->EVSEMinimumCurrentLimit.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMinimumCurrentLimit.Unit = iso1unitSymbolType_A;
++    cpdc->EVSEMinimumCurrentLimit.Unit = dinunitSymbolType_A;
+     cpdc->EVSEMinimumCurrentLimit.Value = 1;
+     
+     cpdc->EVSEMinimumVoltageLimit.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMinimumVoltageLimit.Unit = iso1unitSymbolType_V;
++    cpdc->EVSEMinimumVoltageLimit.Unit = dinunitSymbolType_V;
+     cpdc->EVSEMinimumVoltageLimit.Value = 200;
+     
+     cpdc->EVSECurrentRegulationTolerance.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSECurrentRegulationTolerance.Unit = iso1unitSymbolType_A;
++    cpdc->EVSECurrentRegulationTolerance.Unit = dinunitSymbolType_A;
+     cpdc->EVSECurrentRegulationTolerance.Value = 5;
+     cpdc->EVSECurrentRegulationTolerance_isUsed=1;
+     
+     cpdc->EVSEPeakCurrentRipple.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEPeakCurrentRipple.Unit = iso1unitSymbolType_A;
++    cpdc->EVSEPeakCurrentRipple.Unit = dinunitSymbolType_A;
+     cpdc->EVSEPeakCurrentRipple.Value = 5;    
+     //cpdc->EVSEEnergyToBeDelivered ;
+     //cpdc->EVSEEnergyToBeDelivered_isUsed:1;
+@@ -979,4 +979,4 @@ void encodeIso1AuthorizationResponse(void) {
+     g_errn = encode_iso1ExiDocument(&global_stream1, &iso1Doc);
+     printGlobalStream();
+     sprintf(gInfoString, "encodeContractAuthenticationResponse finished");
+-}
++}
+\ No newline at end of file
+diff --git a/src/test/main_commandlineinterface.c b/src/test/main_commandlineinterface.c
+index a1e5b67..d86faf5 100644
+--- a/src/test/main_commandlineinterface.c
++++ b/src/test/main_commandlineinterface.c
+@@ -95,7 +95,7 @@ char gPropertiesString[10000];
+ char gDebugString[20000];
+ char s[1000];
+ char gAdditionalParamList[1000];
+-#define NUM_OF_ADDITIONAL_PARAMS 5
++#define NUM_OF_ADDITIONAL_PARAMS 30
+ char gAdditionalParam[NUM_OF_ADDITIONAL_PARAMS][100];
+ uint8_t nNumberOfFoundAdditionalParameters;
+ #define MAX_LEN_OF_SESSION_ID 8 /* session ID has 8 bytes (may be longer, but the Ioniq uses 8 bytes) */
+@@ -235,43 +235,45 @@ void addMessageName(char *messagename) {
+   The parameter must be separated by underscores.
+   Output: Array of strings containing the paramters, and the number of parameters in nNumberOfFoundAdditionalParameters
+  */
++/*
++ * 使用 strtok 函式來正確地分割由底線分隔的參數。
++ * 這個版本比舊版更穩健，可以處理各種格式的參數字串。
++ */
+ void parseAdditionalParameters(void) {
+-  int i,k, iParamNumber;
+-  int a, b;
+-  char s[1000];
+-  nNumberOfFoundAdditionalParameters = 0;
+-  if (gAdditionalParamList[strlen(gAdditionalParamList)-1]!='_') {
+-      strcat(gAdditionalParamList, "_");
+-  }
+-  for (iParamNumber=0; iParamNumber<NUM_OF_ADDITIONAL_PARAMS; iParamNumber++) {
+-    a=-1;
+-    b=-1;
+-    for (i=0; i<strlen(gAdditionalParamList); i++) {
+-        if ((gAdditionalParamList[i]=='_') && (a>=0) && (b==-1)) b=i; /* the index of the second underscore */
+-        if ((gAdditionalParamList[i]=='_') && (a==-1)) a=i; /* the index of the first underscore */
+-    }
+-    //printf("parameter search indexes %d %d\n", a, b);
+-    if ((a>=0) && (b>a+1)) {
+-        /* we have a valid start index and end index. Means: we have a parameter. */
++    char* token;
++    // strtok 會修改原始字串，所以我們在一個複本上操作。
++    char paramListCopy[1000];
++    int i; // 用於 addProperty 迴圈
++
++    nNumberOfFoundAdditionalParameters = 0;
++
++    // 確保 gAdditionalParamList 不是空的，以防萬一。
++    if (strlen(gAdditionalParamList) == 0) {
++        return;
++    }
++
++    strcpy(paramListCopy, gAdditionalParamList);
++
++    // 取得第一個參數 (token)
++    token = strtok(paramListCopy, "_");
++
++    // 繼續取得後續的參數，直到沒有為止
++    while (token != NULL && nNumberOfFoundAdditionalParameters < NUM_OF_ADDITIONAL_PARAMS) {
++        strcpy(gAdditionalParam[nNumberOfFoundAdditionalParameters], token);
+         nNumberOfFoundAdditionalParameters++;
+-        k=0;
+-        for (i=a+1; i<b; i++) { /* copy the parameter from the list to a local string */
+-            s[k]=gAdditionalParamList[i];
+-            k++;
+-        }
+-        s[k]=0; /* add terminating zero */
+-        gAdditionalParamList[a] = ' '; /* replace the leading underscore of the current parameter by blank, so it will be skipped in the next round. */
+-        strcpy(gAdditionalParam[iParamNumber], s);
+-        //printf("Parameter is >%s<\n", s);
++        token = strtok(NULL, "_");
++    }
++
++    // 這個迴圈是為了在 JSON 輸出中顯示解析出的參數，用於除錯。
++    // 為了保持功能完整性，我們把它移到這裡。
++    for (i = 0; i < nNumberOfFoundAdditionalParameters; i++) {
++        char s[100]; // 宣告區域變數 s
++        sprintf(s, "parameter%d", i);
++        addProperty(s, gAdditionalParam[i]);
+     }
+-  }
+-  //printf("We have %d additional parameters.\n", nNumberOfFoundAdditionalParameters);
+-  for (i=0; i<nNumberOfFoundAdditionalParameters; i++) {
+-      sprintf(s, "parameter%d", i);
+-      addProperty(s, gAdditionalParam[i]);
+-  }
+ }
+ 
++
+ /* Get the element k of the gAdditionalParam, and convert it into int. */
+ /* In case the element is not available, we return value 0 and set the gErrorString. */
+ /* In case the element is no number, we return 0. */
+@@ -806,14 +808,30 @@ void translateDocDinToJson(void) {
+         #define v1 m.DC_EVSEStatus.EVSEIsolationStatus
+         #define v2 m.DC_EVSEStatus.EVSEIsolationStatus_isUsed
+         #define v3 m.DC_EVSEStatus.EVSEStatusCode
+-        #define v4 m.DC_EVSEStatus.NotificationMaxDelay /* expected time until the PEV reacts on the below mentioned notification. Not relevant. */
++        #define v4 m.DC_EVSEStatus.NotificationMaxDelay 
+         #define v5 m.DC_EVSEStatus.EVSENotification
+         sprintf(sTmp, "%d", v1); addProperty("DC_EVSEStatus.EVSEIsolationStatus", sTmp);
++        // 可以選擇性地添加 EVSEIsolationStatus 的文字描述
++        switch(v1) {
++            case dinisolationLevelType_Invalid: addProperty("DC_EVSEStatus.EVSEIsolationStatus_text", "Invalid"); break;
++            case dinisolationLevelType_Valid: addProperty("DC_EVSEStatus.EVSEIsolationStatus_text", "Valid"); break;
++            case dinisolationLevelType_Warning: addProperty("DC_EVSEStatus.EVSEIsolationStatus_text", "Warning"); break;
++            case dinisolationLevelType_Fault: addProperty("DC_EVSEStatus.EVSEIsolationStatus_text", "Fault"); break;
++            default: addProperty("DC_EVSEStatus.EVSEIsolationStatus_text", "Unknown"); break;
++        }
+         sprintf(sTmp, "%d", v2); addProperty("DC_EVSEStatus.EVSEIsolationStatus_isUsed", sTmp);
+         sprintf(sTmp, "%d", v3); addProperty("DC_EVSEStatus.EVSEStatusCode", sTmp);
+-        translatedinDC_EVSEStatusCodeTypeToJson(v3);
++        translatedinDC_EVSEStatusCodeTypeToJson(v3); // 這會添加 EVSEStatusCode_text 屬性
+         sprintf(sTmp, "%d", v4); addProperty("DC_EVSEStatus.NotificationMaxDelay", sTmp);
+         sprintf(sTmp, "%d", v5); addProperty("DC_EVSEStatus.EVSENotification", sTmp);
++        // 可以選擇性地添加 EVSENotification 的文字描述
++        switch(v5) {
++            case dinEVSENotificationType_None: addProperty("DC_EVSEStatus.EVSENotification_text", "None"); break;
++            case dinEVSENotificationType_StopCharging: addProperty("DC_EVSEStatus.EVSENotification_text", "StopCharging"); break;
++            case dinEVSENotificationType_ReNegotiation: addProperty("DC_EVSEStatus.EVSENotification_text", "ReNegotiation"); break;
++            default: addProperty("DC_EVSEStatus.EVSENotification_text", "Unknown"); break;
++        }
++
+         #undef v1
+         #undef v2
+         #undef v3
+@@ -1177,26 +1195,42 @@ static void encodeSupportedAppProtocolRequest(void) {
+ 
+ 
+ static void encodeSupportedAppProtocolResponse(void) {
+-    /* The :supportedAppProtocolRes contains only two fields:
+-        ResponseCode
+-        SchemaID (optional) It is not clear, in which cases the SchemaID can be left empty. Maybe if the list has only one enty. Or
+-        maybe always, to just select the first entry. */
+-  /* Command line to set the SchemaID 1:
+-    $ ./OpenV2G.exe Eh__1
+-  */
+-
+   init_appHandEXIDocument(&aphsDoc);
+   aphsDoc.supportedAppProtocolRes_isUsed = 1u;
+-  aphsDoc.supportedAppProtocolRes.ResponseCode = appHandresponseCodeType_OK_SuccessfulNegotiation;
+-  aphsDoc.supportedAppProtocolRes.SchemaID = getIntParam(0); /* take the SchemaID from the command line */
+-  aphsDoc.supportedAppProtocolRes.SchemaID_isUsed = 1u; /* todo: shall we try without SchemaID?
+-     Discussed in https://github.com/uhi22/pyPLC/issues/6#issuecomment-1608817611 and
+-     https://github.com/uhi22/pyPLC/issues/9#issue-1776275992 */
++
++  appHandresponseCodeType resCode = appHandresponseCodeType_OK_SuccessfulNegotiation; // Default
++  uint8_t schemaId = 0; // Default
++  uint8_t schemaIdIsUsed_flag = 0u; // Default to not used, "0" for command
++
++  // gAdditionalParam[0]: ResponseCode (enum value as string)
++  // gAdditionalParam[1]: SchemaID_isUsed ("0" or "1")
++  // gAdditionalParam[2]: SchemaID (if SchemaID_isUsed is "1")
++
++  if (nNumberOfFoundAdditionalParameters >= 1) {
++      resCode = (appHandresponseCodeType)getIntParam(0);
++  }
++
++  if (nNumberOfFoundAdditionalParameters >= 2) {
++      schemaIdIsUsed_flag = (uint8_t)getIntParam(1); // This will be 0 or 1
++      if (schemaIdIsUsed_flag == 1u && nNumberOfFoundAdditionalParameters >= 3) {
++          schemaId = (uint8_t)getIntParam(2);
++      } else {
++          schemaIdIsUsed_flag = 0u; // Ensure it's 0 if not enough params or explicitly set to 0
++      }
++  }
++
++  aphsDoc.supportedAppProtocolRes.ResponseCode = resCode;
++  if (schemaIdIsUsed_flag == 1u) { // Check the flag from param
++      aphsDoc.supportedAppProtocolRes.SchemaID = schemaId;
++      aphsDoc.supportedAppProtocolRes.SchemaID_isUsed = 1u; // Set the struct's _isUsed flag
++  } else {
++      aphsDoc.supportedAppProtocolRes.SchemaID_isUsed = 0u; // Explicitly set not used
++  }
+ 
+   prepareGlobalStream();
+   g_errn = encode_appHandExiDocument(&global_stream1, &aphsDoc);
+   printGlobalStream();
+-  sprintf(gInfoString, "encodeSupportedAppProtocolResponse finished");
++  sprintf(gInfoString, "encodeSupportedAppProtocolResponse finished with custom params");
+ }
+ 
+ static void encodeSessionSetupRequest(void) {
+@@ -1248,40 +1282,64 @@ static void init_dinMessageHeaderWithSessionID(void) {
+ }
+ 
+ static void encodeSessionSetupResponse(void) {
+-     /* This is the place, where we, as charger, decide about the new session ID. */
+-     /* As simplification, we always use the same session ID, so we have no need to transfer
+-        the number via command line interface to the upper layers in case we are the charger.
+-        On the other hand, if we are the car, then we need to use the sessionID which was decided
+-        by the charger, and we need to transfer it to and from the upper layers. */
++    int i;
++    uint8_t evseIdBytes[dinSessionSetupResType_EVSEID_BYTES_SIZE];
++    uint8_t evseIdLen = 0;
++    dinresponseCodeType responseCode = dinresponseCodeType_OK_NewSessionEstablished; // Default
++
++    // 預期參數順序:
++    // gAdditionalParam[0]: ResponseCode (整數形式的枚舉值)
++    // gAdditionalParam[1]: EVSEID (十六進制字串)
++    // EVSETimeStamp 相關參數已移除
++
++    if (nNumberOfFoundAdditionalParameters >= 1) {
++        responseCode = (dinresponseCodeType)getIntParam(0);
++    }
++
++    if (nNumberOfFoundAdditionalParameters >= 2) {
++        char* evseIdHex = gAdditionalParam[1];
++        evseIdLen = strlen(evseIdHex) / 2;
++        if (evseIdLen > 0 && evseIdLen <= dinSessionSetupResType_EVSEID_BYTES_SIZE) {
++            for (i = 0; i < evseIdLen; i++) {
++                char s3[3];
++                s3[0] = evseIdHex[2 * i];
++                s3[1] = evseIdHex[2 * i + 1];
++                s3[2] = 0;
++                evseIdBytes[i] = (uint8_t)strtol(s3, NULL, 16);
++            }
++        } else {
++            sprintf(gErrorString, "EVSEID hex string format/length error. Using default.");
++            evseIdBytes[0] = 'Z'; evseIdBytes[1] = 'Z'; evseIdBytes[2] = 'D';
++            evseIdBytes[3] = 'E'; evseIdBytes[4] = 'F'; evseIdBytes[5] = 'L'; evseIdBytes[6] = 'T';
++            evseIdLen = 7;
++        }
++    } else {
++        evseIdBytes[0] = 'Z'; evseIdBytes[1] = 'Z'; evseIdBytes[2] = 'D';
++        evseIdBytes[3] = 'E'; evseIdBytes[4] = 'F'; evseIdBytes[5] = 'L'; evseIdBytes[6] = 'T';
++        evseIdLen = 7;
++    }
++
+     init_dinMessageHeaderWithSessionID();
+     init_dinBodyType(&dinDoc.V2G_Message.Body);
+     dinDoc.V2G_Message.Body.SessionSetupRes_isUsed = 1u;
+     init_dinSessionSetupResType(&dinDoc.V2G_Message.Body.SessionSetupRes);
+-    /* If the SECC receives a SessionSetupReq including a SessionID value which is not equal to 
+-    zero (0) and not equal to the SessionID value stored from the preceding V2G Communication 
+-    Session, it shall send a SessionID value in the SessionSetupRes message that is unequal to 
+-    "0" and unequal to the SessionID value stored from the preceding V2G Communication 
+-    Session and indicate the new V2G Communication Session with the ResponseCode set to 
+-    "OK_NewSessionEstablished"
+-    */
+-    dinDoc.V2G_Message.Body.SessionSetupRes.ResponseCode = dinresponseCodeType_OK_NewSessionEstablished;
+-    /* EVSEID has min length 7, max length 37 for ISO. In DIN decoder we find maxsize 32. */
+-    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytes[0] = 'Z';
+-    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytes[1] = 'Z';
+-    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytes[2] = '0';
+-    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytes[3] = '0';
+-    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytes[4] = '0';
+-    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytes[5] = '0';
+-    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytes[6] = '0';
+-    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytesLen = 7;
+-    //dinDoc.V2G_Message.Body.SessionSetupRes.EVSETimeStamp_isUsed = 0u;
+-    //dinDoc.V2G_Message.Body.SessionSetupRes.EVSETimeStamp = 123456789;
++
++    dinDoc.V2G_Message.Body.SessionSetupRes.ResponseCode = responseCode;
++
++    for (i = 0; i < evseIdLen; i++) {
++        dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytes[i] = evseIdBytes[i];
++    }
++    dinDoc.V2G_Message.Body.SessionSetupRes.EVSEID.bytesLen = evseIdLen;
++
++    // EVSETimeStamp_isUsed 和 EVSETimeStamp 已被移除，因為它們不屬於 dinSessionSetupResType
++
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeSessionSetupResponse finished");
++    sprintf(gInfoString, "encodeSessionSetupResponse finished with custom params (if any)");
+ }
+ 
++
+ static void encodeServiceDiscoveryRequest(void) {
+     useSessionIdFromCommandLine();
+     init_dinMessageHeaderWithSessionID();
+@@ -1297,35 +1355,133 @@ static void encodeServiceDiscoveryRequest(void) {
+ }
+ 
+ void encodeServiceDiscoveryResponse(void) {
+-    init_dinMessageHeaderWithSessionID();
+-    init_dinBodyType(&dinDoc.V2G_Message.Body);
++    // 確保 dinDoc 和 Header 已正確初始化 (通常在 runTheEncoder 中完成)
++    // init_dinEXIDocument(&dinDoc); // 如果此函式可能獨立調用，則取消註解
++    // dinDoc.V2G_Message_isUsed = 1u; // 如果此函式可能獨立調用，則取消註解
++    init_dinMessageHeaderWithSessionID(); // 初始化 Header 和 SessionID
++    init_dinBodyType(&dinDoc.V2G_Message.Body); // 初始化 Body 結構
+     dinDoc.V2G_Message.Body.ServiceDiscoveryRes_isUsed = 1u;
+     init_dinServiceDiscoveryResType(&dinDoc.V2G_Message.Body.ServiceDiscoveryRes);
+-    dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ResponseCode = dinresponseCodeType_OK;
+-    /* the mandatory fields in the ISO are PaymentOptionList and ChargeService.
+-       But in the DIN, this is different, we find PaymentOptions, ChargeService and optional ServiceList */
+-    dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.array[0] = dinpaymentOptionType_ExternalPayment; /* EVSE handles the payment */
+-    dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.arrayLen = 1; /* just one single payment option in the table */
+-    dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceID = 1; /* todo: not clear what this means  */
+-    //dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName
+-    //dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName_isUsed
+-    dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceCategory = dinserviceCategoryType_EVCharging;
+-    //dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope
+-    //dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope_isUsed
+-    dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.FreeService = 0; /* what ever this means. Just from example. */
+-    /* dinEVSESupportedEnergyTransferType, e.g.
+-                                dinEVSESupportedEnergyTransferType_DC_combo_core or
+-                                dinEVSESupportedEnergyTransferType_DC_core or
+-                                dinEVSESupportedEnergyTransferType_DC_extended
+-                                dinEVSESupportedEnergyTransferType_AC_single_phase_core.
+-        DC_extended means "extended pins of an IEC 62196-3 Configuration FF connector", which is
+-        the normal CCS connector https://en.wikipedia.org/wiki/IEC_62196#FF) */
+-    dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.EnergyTransferType = dinEVSESupportedEnergyTransferType_DC_extended;
++
++    // Python 傳遞的參數順序 (gAdditionalParam 的索引):
++    // 0: ResponseCode (int enum)
++    // 1: PaymentOption_Contract_isUsed ("0" or "1")
++    // 2: PaymentOption_ExternalPayment_isUsed ("0" or "1")
++    // 3: ChargeService_ServiceID (int)
++    // 4: ChargeService_ServiceCategory_Enum (int)
++    // 5: ChargeService_FreeService ("0" or "1")
++    // 6: ChargeService_EnergyTransferType_Enum (int)
++    // 7: ChargeService_ServiceName_isUsed ("0" or "1")
++    // 8: ChargeService_ServiceName (string, or "-" if not used)
++    // 9: ChargeService_ServiceScope_isUsed ("0" or "1")
++    // 10: ChargeService_ServiceScope (string, or "-" if not used)
++
++    if (nNumberOfFoundAdditionalParameters >= 11) {
++        uint8_t param_idx = 0; // 用於追蹤目前參數的索引
++        sprintf(gInfoString, "Encoding ServiceDiscoveryResponse with custom parameters. ");
++
++        // 1. ResponseCode
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ResponseCode = (dinresponseCodeType)getIntParam(param_idx++);
++
++        // 2. & 3. PaymentOptions
++        uint8_t paymentOptCount = 0;
++        int paymentContractUsed = getIntParam(param_idx++);
++        int paymentExternalUsed = getIntParam(param_idx++);
++
++        if (paymentContractUsed == 1) {
++            if (paymentOptCount < dinPaymentOptionsType_PaymentOption_ARRAY_SIZE) {
++                 dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.array[paymentOptCount++] = dinpaymentOptionType_Contract;
++            }
++        }
++        if (paymentExternalUsed == 1) {
++            if (paymentOptCount < dinPaymentOptionsType_PaymentOption_ARRAY_SIZE) {
++                dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.array[paymentOptCount++] = dinpaymentOptionType_ExternalPayment;
++            }
++        }
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.arrayLen = paymentOptCount;
++        
++        if (paymentOptCount == 0 && dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ResponseCode < dinresponseCodeType_FAILED) {
++             if (strlen(gErrorString) == 0) {
++                char tempInfo[256]; // 臨時緩衝區
++                sprintf(tempInfo, "%sDefaulted to ExternalPayment as no option was selected by user. ", gInfoString);
++                strcpy(gInfoString, tempInfo);
++            }
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.array[0] = dinpaymentOptionType_ExternalPayment;
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.arrayLen = 1;
++        }
++
++        // 4. ChargeService_ServiceID
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceID = (uint16_t)getIntParam(param_idx++);
++        // 5. ChargeService_ServiceCategory_Enum
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceCategory = (dinserviceCategoryType)getIntParam(param_idx++);
++        // 6. ChargeService_FreeService
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.FreeService = (getIntParam(param_idx++) == 1);
++        // 7. ChargeService_EnergyTransferType_Enum
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.EnergyTransferType = (dinEVSESupportedEnergyTransferType)getIntParam(param_idx++);
++
++        // 8. ChargeService_ServiceName_isUsed
++        int csNameUsed = getIntParam(param_idx++);
++        // 9. ChargeService_ServiceName
++        char* serviceNameStr = gAdditionalParam[param_idx++]; 
++        if (csNameUsed == 1 && strcmp(serviceNameStr, "-") != 0 && strlen(serviceNameStr) > 0) {
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName_isUsed = 1u;
++            copyStringToExi(dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName.characters, serviceNameStr);
++            uint16_t nameLen = strlen(serviceNameStr);
++            if (nameLen >= dinServiceTagType_ServiceName_CHARACTERS_SIZE) {
++                nameLen = dinServiceTagType_ServiceName_CHARACTERS_SIZE - 1;
++            }
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName.charactersLen = nameLen;
++        } else {
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName_isUsed = 0u;
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName.charactersLen = 0;
++        }
++
++        // 10. ChargeService_ServiceScope_isUsed
++        int csScopeUsed = getIntParam(param_idx++);
++        // 11. ChargeService_ServiceScope
++        char* serviceScopeStr = gAdditionalParam[param_idx++]; 
++        if (csScopeUsed == 1 && strcmp(serviceScopeStr, "-") != 0 && strlen(serviceScopeStr) > 0) {
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope_isUsed = 1u;
++            copyStringToExi(dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope.characters, serviceScopeStr);
++            uint16_t scopeLen = strlen(serviceScopeStr);
++            if (scopeLen >= dinServiceTagType_ServiceScope_CHARACTERS_SIZE) {
++                scopeLen = dinServiceTagType_ServiceScope_CHARACTERS_SIZE - 1;
++            }
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope.charactersLen = scopeLen;
++        } else {
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope_isUsed = 0u;
++            dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope.charactersLen = 0;
++        }
++        
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ServiceList_isUsed = 0u;
++
++    } else { 
++        char tempInfo[256];
++        sprintf(tempInfo, "Encoding ServiceDiscoveryResponse with default values (nParams: %d, expected >= 11). ", nNumberOfFoundAdditionalParameters);
++        strcpy(gInfoString, tempInfo);
++
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ResponseCode = dinresponseCodeType_OK;
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.array[0] = dinpaymentOptionType_ExternalPayment; 
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.PaymentOptions.PaymentOption.arrayLen = 1; 
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceID = 1; 
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceCategory = dinserviceCategoryType_EVCharging;
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.FreeService = 0; 
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.EnergyTransferType = dinEVSESupportedEnergyTransferType_DC_extended;
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName_isUsed = 0u;
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceName.charactersLen = 0;
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope_isUsed = 0u;
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ChargeService.ServiceTag.ServiceScope.charactersLen = 0;
++        dinDoc.V2G_Message.Body.ServiceDiscoveryRes.ServiceList_isUsed = 0u;
++    }
+     
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeServiceDiscoveryResponse finished");
++    
++    if (strlen(gInfoString) > 0 && gInfoString[strlen(gInfoString)-1] != ' ') {
++         strcat(gInfoString, " ");
++    }
++    strcat(gInfoString, "encodeServiceDiscoveryResponse complete.");
+ }
+ 
+ static void encodeServicePaymentSelectionRequest(void) {
+@@ -1348,16 +1504,34 @@ static void encodeServicePaymentSelectionRequest(void) {
+ 
+ 
+ void encodeServicePaymentSelectionResponse(void) {
+-    init_dinMessageHeaderWithSessionID();
+-    init_dinBodyType(&dinDoc.V2G_Message.Body);
++    init_dinMessageHeaderWithSessionID(); // 初始化 Header 和 SessionID
++    init_dinBodyType(&dinDoc.V2G_Message.Body); // 初始化 Body 結構
+     dinDoc.V2G_Message.Body.ServicePaymentSelectionRes_isUsed = 1u;
+     init_dinServicePaymentSelectionResType(&dinDoc.V2G_Message.Body.ServicePaymentSelectionRes);
+-    /* The ServicePaymentSelectionRes has only one element: The ResponseCode. */
+-    dinDoc.V2G_Message.Body.ServicePaymentSelectionRes.ResponseCode = dinresponseCodeType_OK;
++
++    // 預設 ResponseCode
++    dinresponseCodeType responseCode = dinresponseCodeType_OK;
++
++    // 從命令列參數獲取 ResponseCode (假設是第一個參數)
++    // gAdditionalParam[0]: ResponseCode (整數形式的枚舉值)
++    if (nNumberOfFoundAdditionalParameters >= 1) {
++        responseCode = (dinresponseCodeType)getIntParam(0);
++        sprintf(gInfoString, "Using custom ResponseCode %d. ", responseCode);
++    } else {
++        sprintf(gInfoString, "Using default ResponseCode %d. ", responseCode);
++    }
++
++    dinDoc.V2G_Message.Body.ServicePaymentSelectionRes.ResponseCode = responseCode;
++
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeServicePaymentSelectionResponse finished");
++    // 更新 gInfoString 以反映是否使用了自訂參數
++    if (nNumberOfFoundAdditionalParameters >= 1) {
++         strcat(gInfoString, "encodeServicePaymentSelectionResponse finished with custom ResponseCode.");
++    } else {
++         strcat(gInfoString, "encodeServicePaymentSelectionResponse finished with default ResponseCode.");
++    }
+ }
+ 
+ 
+@@ -1419,98 +1593,170 @@ static void encodeChargeParameterDiscoveryRequest(void) {
+ }
+ 
+ void encodeChargeParameterDiscoveryResponse(void) {
+-    struct dinEVSEChargeParameterType *cp;
+-    struct dinDC_EVSEChargeParameterType *cpdc;
+-    init_dinMessageHeaderWithSessionID();
+-    init_dinBodyType(&dinDoc.V2G_Message.Body);
++    struct dinEVSEChargeParameterType *cp; // AC 參數，在此範例中未使用但保留結構
++    struct dinDC_EVSEChargeParameterType *cpdc; // DC 參數
++
++    init_dinMessageHeaderWithSessionID(); // 初始化 Header 和 SessionID
++    init_dinBodyType(&dinDoc.V2G_Message.Body); // 初始化 Body 結構
+     dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes_isUsed = 1u;
+     init_dinChargeParameterDiscoveryResType(&dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes);
+-    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.ResponseCode = dinresponseCodeType_OK;
+-    /*
+-        dinEVSEProcessingType_Finished = 0,
+-        dinEVSEProcessingType_Ongoing = 1
+-    */
+-    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.EVSEProcessing = dinEVSEProcessingType_Finished;
+-    /* The encoder wants either SASchedules or SAScheduleList. If both are missing, it fails. (around line 3993 in dinEXIDatatypesEncoder.c). */
+-    /* https://github.com/uhi22/pyPLC/issues/14#issuecomment-1895620509
+-       https://github.com/uhi22/pyPLC/issues/14#issuecomment-1895572137
+-       The SAScheduleList is optional, but it is mandatory if the EVSEProcessing is Finished (at least in ISO).
+-       So we set it here. */
+-    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.SAScheduleList_isUsed = 1u;
+-    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.SAScheduleList.SAScheduleTuple.arrayLen = 1;
+-    #define SchedTuple0 dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.SAScheduleList.SAScheduleTuple.array[0]
+-    SchedTuple0.SAScheduleTupleID = 0;
+-    SchedTuple0.PMaxSchedule.PMaxScheduleID = 0;
+-    SchedTuple0.PMaxSchedule.PMaxScheduleEntry.arrayLen = 1;
+-    SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].TimeInterval_isUsed = 0;
+-    SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval_isUsed = 1; /* at least one of TimeInterval and RelativeTimeInterval is
+-                                                                                            necessary, otherwise the encoder gives an error. */
+-    SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval.start = 0; /* "now" */
+-    SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval.duration_isUsed = 0; /* no duration, so "endless" */
+-    SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].PMax = 50; /* what is the scaling of the int16? Assuming kW. */
+-    #undef SchedTuple0
+-    cp = &dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.EVSEChargeParameter;
+-    cp->noContent = 0;
+-    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.EVSEChargeParameter_isUsed=0;
+-    
+-    //dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.AC_EVSEChargeParameter
+-    //dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.AC_EVSEChargeParameter_isUsed
+-    cpdc = &dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.DC_EVSEChargeParameter;
+-    
+-    /* https://github.com/SmartEVSE/SmartEVSE-3/issues/25#issuecomment-1666231234
+-       Public chargers are reporting "invalid", which means, the isolation check has not
+-       yet performed. Reporting "valid" at this step may confuse the car. */
+-    cpdc->DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Invalid;
+-    cpdc->DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1;
+-    cpdc->DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_Ready;
+-    cpdc->DC_EVSEStatus.NotificationMaxDelay = 0; /* expected time until the PEV reacts on the below mentioned notification. Not relevant. */
+-    cpdc->DC_EVSEStatus.EVSENotification = dinEVSENotificationType_None; /* could also be dinEVSENotificationType_StopCharging */
+-
+-
+-    cpdc->EVSEMaximumCurrentLimit.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMaximumCurrentLimit.Unit = dinunitSymbolType_A;
+-    cpdc->EVSEMaximumCurrentLimit.Unit_isUsed = 1;
+-    cpdc->EVSEMaximumCurrentLimit.Value = 200;
+-    
+-    
+-    cpdc->EVSEMaximumPowerLimit.Multiplier = 3;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMaximumPowerLimit.Unit = dinunitSymbolType_W;
+-    cpdc->EVSEMaximumPowerLimit.Unit_isUsed = 1;
+-    cpdc->EVSEMaximumPowerLimit.Value = 10;
+-    cpdc->EVSEMaximumPowerLimit_isUsed = 1;
+-    
+-    cpdc->EVSEMaximumVoltageLimit.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMaximumVoltageLimit.Unit = dinunitSymbolType_V;
+-    cpdc->EVSEMaximumVoltageLimit.Unit_isUsed = 1;
+-    cpdc->EVSEMaximumVoltageLimit.Value = 450;
+-    
+-    cpdc->EVSEMinimumCurrentLimit.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMinimumCurrentLimit.Unit = dinunitSymbolType_A;
+-    cpdc->EVSEMinimumCurrentLimit.Unit_isUsed = 1;
+-    cpdc->EVSEMinimumCurrentLimit.Value = 1;
+-    
+-    cpdc->EVSEMinimumVoltageLimit.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEMinimumVoltageLimit.Unit = dinunitSymbolType_V;
+-    cpdc->EVSEMinimumVoltageLimit.Unit_isUsed = 1;
+-    cpdc->EVSEMinimumVoltageLimit.Value = 200;
++
++    // 從 gAdditionalParam 讀取參數來填充回應
++    // 參數順序由 fsmEvse.py 中的 command_string 決定
++
++    // 預設值 (如果參數不足或無效，getIntParam/gAdditionalParam 可能為0或空字串)
++    dinresponseCodeType resCode = dinresponseCodeType_OK;
++    dinEVSEProcessingType evseProcessing = dinEVSEProcessingType_Finished;
++    uint8_t sasListUsed = 1u;
++    uint16_t sasTupleArrayLen = 1;
++    uint32_t relTimeStart = 0;
++    int16_t pMax = 50;
++    uint8_t dcIsoStatusUsed = 1u;
++    dinisolationLevelType dcIsoStatus = dinisolationLevelType_Invalid;
++    dinDC_EVSEStatusCodeType dcStatusCode = dinDC_EVSEStatusCodeType_EVSE_Ready;
++    uint16_t dcNotifMaxDelay = 0;
++    dinEVSENotificationType dcEvseNotif = dinEVSENotificationType_None;
++
++    int16_t maxCurrMult = 0, maxCurrVal = 200; dinunitSymbolType maxCurrUnit = dinunitSymbolType_A;
++    uint8_t maxPowerUsed = 1u;
++    int16_t maxPowerMult = 3, maxPowerVal = 10; dinunitSymbolType maxPowerUnit = dinunitSymbolType_W;
++    int16_t maxVoltMult = 0, maxVoltVal = 450; dinunitSymbolType maxVoltUnit = dinunitSymbolType_V;
++    int16_t minCurrMult = 0, minCurrVal = 1; dinunitSymbolType minCurrUnit = dinunitSymbolType_A;
++    int16_t minVoltMult = 0, minVoltVal = 200; dinunitSymbolType minVoltUnit = dinunitSymbolType_V;
++
++    uint8_t param_idx = 0;
++
++    if (nNumberOfFoundAdditionalParameters > param_idx) resCode = (dinresponseCodeType)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) evseProcessing = (dinEVSEProcessingType)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) sasListUsed = (uint8_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) sasTupleArrayLen = (uint16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) relTimeStart = (uint32_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) pMax = (int16_t)getIntParam(param_idx++);
+     
+-    cpdc->EVSECurrentRegulationTolerance.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSECurrentRegulationTolerance.Unit = dinunitSymbolType_A;
+-    cpdc->EVSECurrentRegulationTolerance.Unit_isUsed = 1;
+-    cpdc->EVSECurrentRegulationTolerance.Value = 5;
+-    cpdc->EVSECurrentRegulationTolerance_isUsed=1;
++    if (nNumberOfFoundAdditionalParameters > param_idx) dcIsoStatusUsed = (uint8_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) dcIsoStatus = (dinisolationLevelType)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) dcStatusCode = (dinDC_EVSEStatusCodeType)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) dcNotifMaxDelay = (uint16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) dcEvseNotif = (dinEVSENotificationType)getIntParam(param_idx++);
++
++    // EVSEMaximumCurrentLimit
++    if (nNumberOfFoundAdditionalParameters > param_idx) maxCurrMult = (int16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) maxCurrVal = (int16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) maxCurrUnit = (dinunitSymbolType)getIntParam(param_idx++);
+     
+-    cpdc->EVSEPeakCurrentRipple.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+-    cpdc->EVSEPeakCurrentRipple.Unit = dinunitSymbolType_A;
+-    cpdc->EVSEPeakCurrentRipple.Unit_isUsed = 1;
+-    cpdc->EVSEPeakCurrentRipple.Value = 5;    
+-    //cpdc->EVSEEnergyToBeDelivered ;
+-    //cpdc->EVSEEnergyToBeDelivered_isUsed:1;
+-    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.DC_EVSEChargeParameter_isUsed = 1;
++    // EVSEMaximumPowerLimit
++    if (nNumberOfFoundAdditionalParameters > param_idx) maxPowerUsed = (uint8_t)getIntParam(param_idx++);
++    if (maxPowerUsed) { // 只有在 isUsed 為 true 時才讀取後續功率參數
++        if (nNumberOfFoundAdditionalParameters > param_idx) maxPowerMult = (int16_t)getIntParam(param_idx++);
++        if (nNumberOfFoundAdditionalParameters > param_idx) maxPowerVal = (int16_t)getIntParam(param_idx++);
++        if (nNumberOfFoundAdditionalParameters > param_idx) maxPowerUnit = (dinunitSymbolType)getIntParam(param_idx++);
++    } else { // 如果 isUsed 為 false，跳過這些參數的讀取 (如果它們被傳遞的話)
++        param_idx += 3; // 假設即使 isUsed 為 false，Python 端也可能傳遞佔位符
++    }
++
++
++    // EVSEMaximumVoltageLimit
++    if (nNumberOfFoundAdditionalParameters > param_idx) maxVoltMult = (int16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) maxVoltVal = (int16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) maxVoltUnit = (dinunitSymbolType)getIntParam(param_idx++);
++
++    // EVSEMinimumCurrentLimit
++    if (nNumberOfFoundAdditionalParameters > param_idx) minCurrMult = (int16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) minCurrVal = (int16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) minCurrUnit = (dinunitSymbolType)getIntParam(param_idx++);
++
++    // EVSEMinimumVoltageLimit
++    if (nNumberOfFoundAdditionalParameters > param_idx) minVoltMult = (int16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) minVoltVal = (int16_t)getIntParam(param_idx++);
++    if (nNumberOfFoundAdditionalParameters > param_idx) minVoltUnit = (dinunitSymbolType)getIntParam(param_idx++);
++
++
++    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.ResponseCode = resCode;
++    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.EVSEProcessing = evseProcessing;
++
++    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.SAScheduleList_isUsed = sasListUsed;
++    if (sasListUsed) {
++        dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.SAScheduleList.SAScheduleTuple.arrayLen = sasTupleArrayLen;
++        if (sasTupleArrayLen > 0) {
++            // 假設只設定第一個 tuple 的第一個 entry (簡化)
++            #define SchedTuple0 dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.SAScheduleList.SAScheduleTuple.array[0]
++            SchedTuple0.SAScheduleTupleID = 1; // 通常從 1 開始
++            SchedTuple0.PMaxSchedule.PMaxScheduleID = 1; // 通常從 1 開始
++            SchedTuple0.PMaxSchedule.PMaxScheduleEntry.arrayLen = 1; // 簡化為只有一個 entry
++            SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].TimeInterval_isUsed = 0; // 假設使用 RelativeTimeInterval
++            SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval_isUsed = 1;
++            SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval.start = relTimeStart;
++            SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].RelativeTimeInterval.duration_isUsed = 0; // 假設無持續時間
++            SchedTuple0.PMaxSchedule.PMaxScheduleEntry.array[0].PMax = pMax;
++            #undef SchedTuple0
++        }
++    }
++
++    // AC 參數部分 (EVSEChargeParameter) - 保持原樣或根據需要修改
++    // 目前 OpenV2G 主要用於 DC，所以 AC 部分通常不詳細填充
++    // dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.EVSEChargeParameter_isUsed=0; // 設為 0 表示不使用 AC 參數
++
++    // DC 參數部分 (DC_EVSEChargeParameter)
++    dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.DC_EVSEChargeParameter_isUsed = 1; // 假設總是使用 DC 參數
++    cpdc = &dinDoc.V2G_Message.Body.ChargeParameterDiscoveryRes.DC_EVSEChargeParameter;
++
++    cpdc->DC_EVSEStatus.EVSEIsolationStatus_isUsed = dcIsoStatusUsed;
++    if (dcIsoStatusUsed) {
++        cpdc->DC_EVSEStatus.EVSEIsolationStatus = dcIsoStatus;
++    }
++    cpdc->DC_EVSEStatus.EVSEStatusCode = dcStatusCode;
++    cpdc->DC_EVSEStatus.NotificationMaxDelay = dcNotifMaxDelay;
++    cpdc->DC_EVSEStatus.EVSENotification = dcEvseNotif;
++
++    // EVSEMaximumCurrentLimit
++    cpdc->EVSEMaximumCurrentLimit.Multiplier = maxCurrMult;
++    cpdc->EVSEMaximumCurrentLimit.Value = maxCurrVal;
++    cpdc->EVSEMaximumCurrentLimit.Unit = maxCurrUnit;
++    cpdc->EVSEMaximumCurrentLimit.Unit_isUsed = 1; // 假設單位總是提供
++
++    // EVSEMaximumPowerLimit
++    cpdc->EVSEMaximumPowerLimit_isUsed = maxPowerUsed;
++    if (maxPowerUsed) {
++        cpdc->EVSEMaximumPowerLimit.Multiplier = maxPowerMult;
++        cpdc->EVSEMaximumPowerLimit.Value = maxPowerVal;
++        cpdc->EVSEMaximumPowerLimit.Unit = maxPowerUnit;
++        cpdc->EVSEMaximumPowerLimit.Unit_isUsed = 1; // 假設單位總是提供
++    }
++
++    // EVSEMaximumVoltageLimit
++    cpdc->EVSEMaximumVoltageLimit.Multiplier = maxVoltMult;
++    cpdc->EVSEMaximumVoltageLimit.Value = maxVoltVal;
++    cpdc->EVSEMaximumVoltageLimit.Unit = maxVoltUnit;
++    cpdc->EVSEMaximumVoltageLimit.Unit_isUsed = 1; // 假設單位總是提供
++
++    // EVSEMinimumCurrentLimit
++    cpdc->EVSEMinimumCurrentLimit.Multiplier = minCurrMult;
++    cpdc->EVSEMinimumCurrentLimit.Value = minCurrVal;
++    cpdc->EVSEMinimumCurrentLimit.Unit = minCurrUnit;
++    cpdc->EVSEMinimumCurrentLimit.Unit_isUsed = 1; // 假設單位總是提供
++
++    // EVSEMinimumVoltageLimit
++    cpdc->EVSEMinimumVoltageLimit.Multiplier = minVoltMult;
++    cpdc->EVSEMinimumVoltageLimit.Value = minVoltVal;
++    cpdc->EVSEMinimumVoltageLimit.Unit = minVoltUnit;
++    cpdc->EVSEMinimumVoltageLimit.Unit_isUsed = 1; // 假設單位總是提供
++
++    // 其他 DC 參數 (例如 EVSECurrentRegulationTolerance, EVSEPeakCurrentRipple) 可以保留預設或根據需要新增配置
++    // 為了簡化，這裡使用 init 函數的預設值，或者您可以像上面一樣從參數讀取它們
++    // 例如，如果需要，可以取消註解並修改以下內容：
++    // cpdc->EVSECurrentRegulationTolerance_isUsed=1;
++    // cpdc->EVSECurrentRegulationTolerance.Multiplier = ... ;
++    // cpdc->EVSECurrentRegulationTolerance.Value = ... ;
++    // cpdc->EVSECurrentRegulationTolerance.Unit = ... ;
++    // cpdc->EVSEPeakCurrentRipple.Multiplier = ... ;
++    // cpdc->EVSEPeakCurrentRipple.Value = ... ;
++    // cpdc->EVSEPeakCurrentRipple.Unit = ... ;
++
++
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeChargeParameterDiscoveryResponse finished");
++    sprintf(gInfoString, "encodeChargeParameterDiscoveryResponse finished with custom params (if any)");
+ }
+ 
+ static void encodeCableCheckRequest(void) {
+@@ -1537,23 +1783,72 @@ void encodeCableCheckResponse(void) {
+     init_dinBodyType(&dinDoc.V2G_Message.Body);
+     dinDoc.V2G_Message.Body.CableCheckRes_isUsed = 1u;
+     init_dinCableCheckResType(&dinDoc.V2G_Message.Body.CableCheckRes);
+-    if (getIntParam(0)) { /* command line argument decides whether we report "Ongoing" or "Finished" */
+-      dinDoc.V2G_Message.Body.CableCheckRes.EVSEProcessing=dinEVSEProcessingType_Ongoing;
+-      /* based on alpitronic behavior: Isolationmonitoring active and isolation level invalid */
+-      dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_IsolationMonitoringActive;
+-      dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1;
+-      dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Invalid;
++
++    // 參數順序 (來自 fsmEvse.py 的 command_string):
++    // gAdditionalParam[0]: EVSEProcessing (0 for Finished, 1 for Ongoing)
++    // gAdditionalParam[1]: DC_EVSEStatus.EVSEStatusCode (enum value)
++    // gAdditionalParam[2]: DC_EVSEStatus.EVSEIsolationStatus (enum value)
++    // gAdditionalParam[3]: DC_EVSEStatus.EVSEIsolationStatus_isUsed (0 or 1)
++    // gAdditionalParam[4]: DC_EVSEStatus.NotificationMaxDelay (int)
++    // gAdditionalParam[5]: DC_EVSEStatus.EVSENotification (enum value)
++    // gAdditionalParam[6]: ResponseCode (enum value)
++
++    if (nNumberOfFoundAdditionalParameters >= 1) {
++        if (getIntParam(0)) { 
++            dinDoc.V2G_Message.Body.CableCheckRes.EVSEProcessing = dinEVSEProcessingType_Ongoing;
++        } else {
++            dinDoc.V2G_Message.Body.CableCheckRes.EVSEProcessing = dinEVSEProcessingType_Finished;
++        }
++    } else {
++        dinDoc.V2G_Message.Body.CableCheckRes.EVSEProcessing = dinEVSEProcessingType_Finished; // 預設為 Finished
++    }
++
++    if (nNumberOfFoundAdditionalParameters >= 2) {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEStatusCode = (dinDC_EVSEStatusCodeType)getIntParam(1);
++    } else {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_Ready; // 預設
++    }
++
++    if (nNumberOfFoundAdditionalParameters >= 3) {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus = (dinisolationLevelType)getIntParam(2);
++    } else {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Valid; // 預設
++    }
++
++    if (nNumberOfFoundAdditionalParameters >= 4) {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = (uint8_t)getIntParam(3);
++    } else {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1u; // 預設使用
++    }
++    
++    // 如果 EVSEIsolationStatus_isUsed 為 0，則 EVSEIsolationStatus 的值其實不重要，但還是填入預設值
++    if (dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed == 0u) {
++         dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Invalid; // 或者任何適合的預設值
++    }
++
++
++    if (nNumberOfFoundAdditionalParameters >= 5) {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.NotificationMaxDelay = (uint16_t)getIntParam(4);
++    } else {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.NotificationMaxDelay = 0; // 預設
++    }
++
++    if (nNumberOfFoundAdditionalParameters >= 6) {
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSENotification = (dinEVSENotificationType)getIntParam(5);
+     } else {
+-      dinDoc.V2G_Message.Body.CableCheckRes.EVSEProcessing=dinEVSEProcessingType_Finished;
+-      /* based on alpitronic behavior: Isolation status (level) valid  */
+-      dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_Ready;
+-      dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1;
+-      dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Valid;
++        dinDoc.V2G_Message.Body.CableCheckRes.DC_EVSEStatus.EVSENotification = dinEVSENotificationType_None; // 預設
+     }
++    
++    if (nNumberOfFoundAdditionalParameters >= 7) {
++        dinDoc.V2G_Message.Body.CableCheckRes.ResponseCode = (dinresponseCodeType)getIntParam(6);
++    } else {
++        dinDoc.V2G_Message.Body.CableCheckRes.ResponseCode = dinresponseCodeType_OK; // CableCheckRes 通常是 OK
++    }
++
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeCableCheckResponse finished");
++    sprintf(gInfoString, "encodeCableCheckResponse finished with custom params (if any)");
+ }
+ 
+ static void encodePreChargeRequest(void) {
+@@ -1579,7 +1874,15 @@ static void encodePreChargeRequest(void) {
+       tcurr.Multiplier = 0;  /* -3 to 3. The exponent for base of 10. */
+       tcurr.Unit = dinunitSymbolType_A;
+       tcurr.Unit_isUsed = 1;
+-      tcurr.Value = 1; /* 1A for precharging */
++      /* HotWire patch: operator can override precharge target current via
++         arg index 3 (after sessionID, SOC, voltage). Falls back to 1 A when
++         the argument is absent, preserving upstream behaviour for callers
++         using the 3-arg form. */
++      if (nNumberOfFoundAdditionalParameters > 3) {
++          tcurr.Value = getIntParam(3);
++      } else {
++          tcurr.Value = 1; /* 1A for precharging */
++      }
+     #undef tcurr
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+@@ -1587,23 +1890,81 @@ static void encodePreChargeRequest(void) {
+     sprintf(gInfoString, "encodePreChargeRequest finished");
+ }
+ 
++// Helper function (if not already present) to get uint8_t from param
++static uint8_t getUint8Param(uint8_t k) {
++    if (k >= nNumberOfFoundAdditionalParameters) {
++        // Handle error: parameter not found
++        return 0; // Default or error value
++    }
++    return (uint8_t)atoi(gAdditionalParam[k]);
++}
++
+ void encodePreChargeResponse(void) {
+-    init_dinMessageHeaderWithSessionID();
+-    init_dinBodyType(&dinDoc.V2G_Message.Body);
++    init_dinMessageHeaderWithSessionID(); // Initializes session ID in dinDoc.V2G_Message.Header
++    init_dinBodyType(&dinDoc.V2G_Message.Body); // Initializes the body structure
+     dinDoc.V2G_Message.Body.PreChargeRes_isUsed = 1u;
+-    init_dinPreChargeResType(&dinDoc.V2G_Message.Body.PreChargeRes);
+-    dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEIsolationStatus = 1;
+-    dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1;
+-    dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEStatusCode = 1; /* EVSE_Ready. This is reported by
+-                                                                              Alpitronic, Numbat and Supercharger in all
+-                                                                              PreChargeResponses */
+-    dinDoc.V2G_Message.Body.PreChargeRes.EVSEPresentVoltage.Multiplier = 0; /* 10 ^ 0 */
+-    dinDoc.V2G_Message.Body.PreChargeRes.EVSEPresentVoltage.Unit = dinunitSymbolType_V; /* why is this shown as 0? Because unit is optional, see question2. */
+-    dinDoc.V2G_Message.Body.PreChargeRes.EVSEPresentVoltage.Value = getIntParam(0); /* Take from command line */
+-    prepareGlobalStream();
+-    g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+-    printGlobalStream();
+-    sprintf(gInfoString, "encodePreChargeResponse finished");
++    init_dinPreChargeResType(&dinDoc.V2G_Message.Body.PreChargeRes); // Initializes PreChargeRes structure
++
++    // Parameter 0: EVSEPresentVoltage.Value
++    dinDoc.V2G_Message.Body.PreChargeRes.EVSEPresentVoltage.Value = (int16_t)getIntParam(0);
++    dinDoc.V2G_Message.Body.PreChargeRes.EVSEPresentVoltage.Multiplier = 0; // Default: 10^0
++    dinDoc.V2G_Message.Body.PreChargeRes.EVSEPresentVoltage.Unit = dinunitSymbolType_V; // Default: Volts
++    dinDoc.V2G_Message.Body.PreChargeRes.EVSEPresentVoltage.Unit_isUsed = 1u; // Unit is typically used
++
++    // Parameter 1: ResponseCode
++    if (nNumberOfFoundAdditionalParameters > 1) {
++        dinDoc.V2G_Message.Body.PreChargeRes.ResponseCode = (dinresponseCodeType)getIntParam(1);
++    } else {
++        dinDoc.V2G_Message.Body.PreChargeRes.ResponseCode = dinresponseCodeType_OK; // Default
++    }
++
++    // DC_EVSEStatus fields
++    // Parameter 2: DC_EVSEStatus.EVSEIsolationStatus
++    if (nNumberOfFoundAdditionalParameters > 2) {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEIsolationStatus = (dinisolationLevelType)getIntParam(2);
++    } else {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Valid; // Default
++    }
++
++    // Parameter 3: DC_EVSEStatus.EVSEIsolationStatus_isUsed
++    if (nNumberOfFoundAdditionalParameters > 3) {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = getUint8Param(3);
++    } else {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1u; // Default: used
++    }
++    // If not used, the actual value of EVSEIsolationStatus might not matter for encoding,
++    // but good practice to set it if the _isUsed flag is false.
++    if (dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed == 0u) {
++        // Optional: Set to a default like Invalid if not used, though EXI might omit it.
++        // dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Invalid;
++    }
++
++
++    // Parameter 4: DC_EVSEStatus.EVSEStatusCode
++    if (nNumberOfFoundAdditionalParameters > 4) {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEStatusCode = (dinDC_EVSEStatusCodeType)getIntParam(4);
++    } else {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_Ready; // Default
++    }
++
++    // Parameter 5: DC_EVSEStatus.NotificationMaxDelay
++    if (nNumberOfFoundAdditionalParameters > 5) {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.NotificationMaxDelay = (uint16_t)getIntParam(5);
++    } else {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.NotificationMaxDelay = 0; // Default
++    }
++
++    // Parameter 6: DC_EVSEStatus.EVSENotification
++    if (nNumberOfFoundAdditionalParameters > 6) {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSENotification = (dinEVSENotificationType)getIntParam(6);
++    } else {
++        dinDoc.V2G_Message.Body.PreChargeRes.DC_EVSEStatus.EVSENotification = dinEVSENotificationType_None; // Default
++    }
++
++    prepareGlobalStream(); // Prepares the global_stream1 for encoding
++    g_errn = encode_dinExiDocument(&global_stream1, &dinDoc); // Encodes the document
++    printGlobalStream(); // Converts the encoded stream to a hex string in gResultString
++    sprintf(gInfoString, "encodePreChargeResponse finished with custom params (if any)");
+ }
+ 
+ static void encodePowerDeliveryRequest(void) {
+@@ -1658,19 +2019,75 @@ void encodePowerDeliveryResponse(void) {
+     init_dinBodyType(&dinDoc.V2G_Message.Body);
+     dinDoc.V2G_Message.Body.PowerDeliveryRes_isUsed = 1u;
+     init_dinPowerDeliveryResType(&dinDoc.V2G_Message.Body.PowerDeliveryRes);
+-    dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus_isUsed = 1;
+-    dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Valid;
+-    dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1;
+-    dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_Ready;
+-    dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.NotificationMaxDelay = 0; /* expected time until the PEV reacts on the below mentioned notification. Not relevant. */
+-    dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSENotification = dinEVSENotificationType_None; /* could also be dinEVSENotificationType_StopCharging */
++
++    // 預期參數順序:
++    // gAdditionalParam[0]: ResponseCode (enum int)
++    // gAdditionalParam[1]: DC_EVSEStatus.EVSEIsolationStatus_isUsed (0 or 1)
++    // gAdditionalParam[2]: DC_EVSEStatus.EVSEIsolationStatus (enum int)
++    // gAdditionalParam[3]: DC_EVSEStatus.EVSEStatusCode (enum int)
++    // gAdditionalParam[4]: DC_EVSEStatus.NotificationMaxDelay (int)
++    // gAdditionalParam[5]: DC_EVSEStatus.EVSENotification (enum int)
++
++    if (nNumberOfFoundAdditionalParameters >= 1) {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.ResponseCode = (dinresponseCodeType)getIntParam(0);
++    } else {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.ResponseCode = dinresponseCodeType_OK; // 預設值
++    }
++
++    dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus_isUsed = 1u; // 通常 DC_EVSEStatus 是使用的
++
++    if (nNumberOfFoundAdditionalParameters >= 2) {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = (uint8_t)getIntParam(1);
++    } else {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1u; // 預設使用
++    }
++
++    if (dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEIsolationStatus_isUsed) {
++        if (nNumberOfFoundAdditionalParameters >= 3) {
++            dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEIsolationStatus = (dinisolationLevelType)getIntParam(2);
++        } else {
++            dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Valid; // 預設值
++        }
++    } else {
++        // 如果未使用，EXI 編碼器通常會忽略此欄位，但可以設定一個預設值
++         dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Invalid;
++    }
++
++
++    if (nNumberOfFoundAdditionalParameters >= 4) {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEStatusCode = (dinDC_EVSEStatusCodeType)getIntParam(3);
++    } else {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_Ready; // 預設值
++    }
++
++    if (nNumberOfFoundAdditionalParameters >= 5) {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.NotificationMaxDelay = (uint16_t)getIntParam(4);
++    } else {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.NotificationMaxDelay = 0; // 預設值
++    }
++
++    if (nNumberOfFoundAdditionalParameters >= 6) {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSENotification = (dinEVSENotificationType)getIntParam(5);
++    } else {
++        dinDoc.V2G_Message.Body.PowerDeliveryRes.DC_EVSEStatus.EVSENotification = dinEVSENotificationType_None; // 預設值
++    }
++    
++    // AC_EVSEStatus_isUsed and its content are not handled here as per the request focusing on DC_EVSEStatus
++    dinDoc.V2G_Message.Body.PowerDeliveryRes.AC_EVSEStatus_isUsed = 0u;
++
++
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodePowerDeliveryResponse finished");
++    if (nNumberOfFoundAdditionalParameters > 0) {
++        sprintf(gInfoString, "encodePowerDeliveryResponse finished with custom parameters");
++    } else {
++        sprintf(gInfoString, "encodePowerDeliveryResponse finished with default parameters");
++    }
+ }
+ 
+ 
++
+ static void encodeCurrentDemandRequest(void) {
+     useSessionIdFromCommandLine();
+     init_dinMessageHeaderWithSessionID();
+@@ -1726,35 +2143,189 @@ void encodeCurrentDemandResponse(void) {
+     dinDoc.V2G_Message.Body.CurrentDemandRes_isUsed = 1u;
+     init_dinCurrentDemandResType(&dinDoc.V2G_Message.Body.CurrentDemandRes);
+     #define m dinDoc.V2G_Message.Body.CurrentDemandRes
+-    m.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Valid;
+-    m.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1;
+-    m.DC_EVSEStatus.EVSEStatusCode = getIntParam(2); /* Take from command line */; /* 1=EVSE_Ready, 2=EVSE_Shutdown, means the user stopped the session on the charger. */
+-    m.DC_EVSEStatus.NotificationMaxDelay = 0; /* expected time until the PEV reacts on the below mentioned notification. Not relevant. */
+-    m.DC_EVSEStatus.EVSENotification = dinEVSENotificationType_None; /* could also be dinEVSENotificationType_StopCharging */
+-    m.EVSEPresentVoltage.Multiplier = 0;
+-    m.EVSEPresentVoltage.Unit = dinunitSymbolType_V;
+-    m.EVSEPresentVoltage.Unit_isUsed = 1;
+-    m.EVSEPresentVoltage.Value = getIntParam(0); /* Take from command line */
+-    m.EVSEPresentCurrent.Multiplier = 0;
+-    m.EVSEPresentCurrent.Unit = dinunitSymbolType_A;
+-    m.EVSEPresentCurrent.Unit_isUsed = 1;
+-    m.EVSEPresentCurrent.Value = getIntParam(1); /* Take from command line */
+-    m.EVSECurrentLimitAchieved = 1;
+-    m.EVSEVoltageLimitAchieved = 0;
+-    m.EVSEPowerLimitAchieved = 0;
+-    m.EVSEMaximumVoltageLimit_isUsed = 0;
+-    //m.EVSEMaximumVoltageLimit
+-    m.EVSEMaximumCurrentLimit_isUsed = 0;
+-    //m.EVSEMaximumCurrentLimit
+-    m.EVSEMaximumPowerLimit_isUsed = 0;
+-    //m.EVSEMaximumPowerLimit
++
++    uint8_t param_idx = 0;
++
++    // Parameter 0: ResponseCode
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.ResponseCode = (dinresponseCodeType)getIntParam(param_idx++);
++    } else {
++        m.ResponseCode = dinresponseCodeType_OK; // Default
++    }
++
++    // Parameter 1: DC_EVSEStatus.EVSEIsolationStatus_isUsed
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.DC_EVSEStatus.EVSEIsolationStatus_isUsed = (uint8_t)getIntParam(param_idx++);
++    } else {
++        m.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 1u; // Default
++    }
++
++    // Parameter 2: DC_EVSEStatus.EVSEIsolationStatus
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.DC_EVSEStatus.EVSEIsolationStatus = (dinisolationLevelType)getIntParam(param_idx++);
++    } else {
++        m.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Valid; // Default
++    }
++     if (m.DC_EVSEStatus.EVSEIsolationStatus_isUsed == 0u) {
++        // If not used, EXI might omit it. Set a default for completeness if needed by C struct.
++        m.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Invalid;
++    }
++
++
++    // Parameter 3: DC_EVSEStatus.EVSEStatusCode
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.DC_EVSEStatus.EVSEStatusCode = (dinDC_EVSEStatusCodeType)getIntParam(param_idx++);
++    } else {
++        m.DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_Ready; // Default
++    }
++
++    // Parameter 4: DC_EVSEStatus.NotificationMaxDelay
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.DC_EVSEStatus.NotificationMaxDelay = (uint16_t)getIntParam(param_idx++);
++    } else {
++        m.DC_EVSEStatus.NotificationMaxDelay = 0; // Default
++    }
++
++    // Parameter 5: DC_EVSEStatus.EVSENotification
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.DC_EVSEStatus.EVSENotification = (dinEVSENotificationType)getIntParam(param_idx++);
++    } else {
++        m.DC_EVSEStatus.EVSENotification = dinEVSENotificationType_None; // Default
++    }
++
++    // EVSEPresentVoltage
++    // Parameter 6: Multiplier
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEPresentVoltage.Multiplier = (int8_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEPresentVoltage.Multiplier = 0;
++    }
++    // Parameter 7: Value
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEPresentVoltage.Value = (int16_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEPresentVoltage.Value = 0; // Default, should be set by FSM
++    }
++    // Parameter 8: Unit
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEPresentVoltage.Unit = (dinunitSymbolType)getIntParam(param_idx++);
++    } else {
++        m.EVSEPresentVoltage.Unit = dinunitSymbolType_V;
++    }
++    m.EVSEPresentVoltage.Unit_isUsed = 1u;
++
++
++    // EVSEPresentCurrent
++    // Parameter 9: Multiplier
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEPresentCurrent.Multiplier = (int8_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEPresentCurrent.Multiplier = 0;
++    }
++    // Parameter 10: Value
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEPresentCurrent.Value = (int16_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEPresentCurrent.Value = 0; // Default, should be set by FSM
++    }
++    // Parameter 11: Unit
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEPresentCurrent.Unit = (dinunitSymbolType)getIntParam(param_idx++);
++    } else {
++        m.EVSEPresentCurrent.Unit = dinunitSymbolType_A;
++    }
++    m.EVSEPresentCurrent.Unit_isUsed = 1u;
++
++    // Limits Achieved
++    // Parameter 12: EVSECurrentLimitAchieved
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSECurrentLimitAchieved = (uint8_t)getIntParam(param_idx++);
++    } else {
++        m.EVSECurrentLimitAchieved = 0; // Default false
++    }
++    // Parameter 13: EVSEVoltageLimitAchieved
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEVoltageLimitAchieved = (uint8_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEVoltageLimitAchieved = 0; // Default false
++    }
++    // Parameter 14: EVSEPowerLimitAchieved
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEPowerLimitAchieved = (uint8_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEPowerLimitAchieved = 0; // Default false
++    }
++
++    // Optional EVSE Limits
++    // EVSEMaximumVoltageLimit
++    // Parameter 15: EVSEMaximumVoltageLimit_isUsed
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEMaximumVoltageLimit_isUsed = (uint8_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEMaximumVoltageLimit_isUsed = 0u;
++    }
++    if (m.EVSEMaximumVoltageLimit_isUsed) {
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumVoltageLimit.Multiplier = (int8_t)getIntParam(param_idx++); else m.EVSEMaximumVoltageLimit.Multiplier = 0;
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumVoltageLimit.Value = (int16_t)getIntParam(param_idx++); else m.EVSEMaximumVoltageLimit.Value = 0;
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumVoltageLimit.Unit = (dinunitSymbolType)getIntParam(param_idx++); else m.EVSEMaximumVoltageLimit.Unit = dinunitSymbolType_V;
++        m.EVSEMaximumVoltageLimit.Unit_isUsed = 1u;
++    } else { // Fill with defaults if not used, C struct needs them if _isUsed is true, but EXI won't send if _isUsed is false.
++        m.EVSEMaximumVoltageLimit.Multiplier = 0;
++        m.EVSEMaximumVoltageLimit.Value = 0;
++        m.EVSEMaximumVoltageLimit.Unit = dinunitSymbolType_V;
++        m.EVSEMaximumVoltageLimit.Unit_isUsed = 1u; // Or 0u if unit itself is optional when parent is not used
++         param_idx +=3; // Skip these params if not used
++    }
++
++
++    // EVSEMaximumCurrentLimit
++    // Parameter 19: EVSEMaximumCurrentLimit_isUsed (assuming previous block took 3 params if used)
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEMaximumCurrentLimit_isUsed = (uint8_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEMaximumCurrentLimit_isUsed = 0u;
++    }
++    if (m.EVSEMaximumCurrentLimit_isUsed) {
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumCurrentLimit.Multiplier = (int8_t)getIntParam(param_idx++); else m.EVSEMaximumCurrentLimit.Multiplier = 0;
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumCurrentLimit.Value = (int16_t)getIntParam(param_idx++); else m.EVSEMaximumCurrentLimit.Value = 0;
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumCurrentLimit.Unit = (dinunitSymbolType)getIntParam(param_idx++); else m.EVSEMaximumCurrentLimit.Unit = dinunitSymbolType_A;
++        m.EVSEMaximumCurrentLimit.Unit_isUsed = 1u;
++    } else {
++        m.EVSEMaximumCurrentLimit.Multiplier = 0;
++        m.EVSEMaximumCurrentLimit.Value = 0;
++        m.EVSEMaximumCurrentLimit.Unit = dinunitSymbolType_A;
++        m.EVSEMaximumCurrentLimit.Unit_isUsed = 1u;
++        param_idx +=3;
++    }
++
++    // EVSEMaximumPowerLimit
++    // Parameter 23: EVSEMaximumPowerLimit_isUsed
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        m.EVSEMaximumPowerLimit_isUsed = (uint8_t)getIntParam(param_idx++);
++    } else {
++        m.EVSEMaximumPowerLimit_isUsed = 0u;
++    }
++    if (m.EVSEMaximumPowerLimit_isUsed) {
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumPowerLimit.Multiplier = (int8_t)getIntParam(param_idx++); else m.EVSEMaximumPowerLimit.Multiplier = 0;
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumPowerLimit.Value = (int16_t)getIntParam(param_idx++); else m.EVSEMaximumPowerLimit.Value = 0;
++        if (nNumberOfFoundAdditionalParameters > param_idx) m.EVSEMaximumPowerLimit.Unit = (dinunitSymbolType)getIntParam(param_idx++); else m.EVSEMaximumPowerLimit.Unit = dinunitSymbolType_W;
++        m.EVSEMaximumPowerLimit.Unit_isUsed = 1u;
++    } else {
++        m.EVSEMaximumPowerLimit.Multiplier = 0;
++        m.EVSEMaximumPowerLimit.Value = 0;
++        m.EVSEMaximumPowerLimit.Unit = dinunitSymbolType_W;
++        m.EVSEMaximumPowerLimit.Unit_isUsed = 1u;
++        param_idx +=3;
++    }
++
+     #undef m
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeCurrentDemandResponse finished");
++    sprintf(gInfoString, "encodeCurrentDemandResponse finished with custom params (if any, total %d)", nNumberOfFoundAdditionalParameters);
+ }
+ 
++
+ static void encodeWeldingDetectionRequest(void) {
+     useSessionIdFromCommandLine();
+     init_dinMessageHeaderWithSessionID();
+@@ -1775,21 +2346,116 @@ static void encodeWeldingDetectionRequest(void) {
+ }
+ 
+ void encodeWeldingDetectionResponse(void) {
+-    init_dinMessageHeaderWithSessionID();
+-    init_dinBodyType(&dinDoc.V2G_Message.Body);
++    init_dinMessageHeaderWithSessionID(); // Initializes session ID in dinDoc.V2G_Message.Header
++    init_dinBodyType(&dinDoc.V2G_Message.Body); // Initializes the body structure
+     dinDoc.V2G_Message.Body.WeldingDetectionRes_isUsed = 1u;
+-    init_dinWeldingDetectionResType(&dinDoc.V2G_Message.Body.WeldingDetectionRes);
+-    #define m dinDoc.V2G_Message.Body.WeldingDetectionRes
+-    m.EVSEPresentVoltage.Multiplier = 0;
+-    m.EVSEPresentVoltage.Unit = dinunitSymbolType_V;
+-    m.EVSEPresentVoltage.Unit_isUsed = 1;
+-    m.EVSEPresentVoltage.Value = getIntParam(0); /* Take from command line */
+-    #undef m
++    init_dinWeldingDetectionResType(&dinDoc.V2G_Message.Body.WeldingDetectionRes); // Initializes WeldingDetectionRes structure
++
++    #define res dinDoc.V2G_Message.Body.WeldingDetectionRes
++    uint8_t param_idx = 0;
++
++    // Parameter 0: ResponseCode (dinresponseCodeType)
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        res.ResponseCode = (dinresponseCodeType)getIntParam(param_idx++);
++    } else {
++        res.ResponseCode = dinresponseCodeType_OK; // Default
++    }
++
++    // DC_EVSEStatus
++    // Parameter 1: DC_EVSEStatus.EVSEIsolationStatus_isUsed (uint8_t)
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        res.DC_EVSEStatus.EVSEIsolationStatus_isUsed = (uint8_t)getIntParam(param_idx++);
++    } else {
++        res.DC_EVSEStatus.EVSEIsolationStatus_isUsed = 0u; // Default: not used
++    }
++
++    // Parameter 2: DC_EVSEStatus.EVSEIsolationStatus (dinisolationLevelType)
++    if (res.DC_EVSEStatus.EVSEIsolationStatus_isUsed) {
++        if (nNumberOfFoundAdditionalParameters > param_idx) {
++            res.DC_EVSEStatus.EVSEIsolationStatus = (dinisolationLevelType)getIntParam(param_idx++);
++        } else {
++            // If isUsed is true but param not provided, default to Invalid or some defined state
++            res.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Invalid;
++        }
++    } else {
++        // If not used, still consume the parameter index if it were to be provided,
++        // and ensure the value is initialized (init_dinWeldingDetectionResType should handle).
++        if (nNumberOfFoundAdditionalParameters > param_idx) param_idx++;
++        res.DC_EVSEStatus.EVSEIsolationStatus = dinisolationLevelType_Invalid; // Explicitly set
++    }
++
++    // Parameter 3: DC_EVSEStatus.EVSEStatusCode (dinDC_EVSEStatusCodeType)
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        res.DC_EVSEStatus.EVSEStatusCode = (dinDC_EVSEStatusCodeType)getIntParam(param_idx++);
++    } else {
++        res.DC_EVSEStatus.EVSEStatusCode = dinDC_EVSEStatusCodeType_EVSE_NotReady; // Default
++    }
++
++    // Parameter 4: DC_EVSEStatus.NotificationMaxDelay (uint16_t)
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        res.DC_EVSEStatus.NotificationMaxDelay = (uint16_t)getIntParam(param_idx++);
++    } else {
++        res.DC_EVSEStatus.NotificationMaxDelay = 0; // Default
++    }
++
++    // Parameter 5: DC_EVSEStatus.EVSENotification (dinEVSENotificationType)
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        res.DC_EVSEStatus.EVSENotification = (dinEVSENotificationType)getIntParam(param_idx++);
++    } else {
++        res.DC_EVSEStatus.EVSENotification = dinEVSENotificationType_None; // Default
++    }
++
++    // EVSEPresentVoltage
++    // Parameter 6: EVSEPresentVoltage.Multiplier (int8_t)
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        res.EVSEPresentVoltage.Multiplier = (int8_t)getIntParam(param_idx++);
++    } else {
++        res.EVSEPresentVoltage.Multiplier = 0; // Default
++    }
++
++    // Parameter 7: EVSEPresentVoltage.Value (int16_t)
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        res.EVSEPresentVoltage.Value = (int16_t)getIntParam(param_idx++);
++    } else {
++        res.EVSEPresentVoltage.Value = 0; // Default
++    }
++
++    // Parameter 8: EVSEPresentVoltage.Unit_isUsed (uint8_t)
++    // In DIN, Unit for PhysicalValueType is optional (minOccurs="0")
++    if (nNumberOfFoundAdditionalParameters > param_idx) {
++        res.EVSEPresentVoltage.Unit_isUsed = (uint8_t)getIntParam(param_idx++);
++    } else {
++        // If not specified, default based on whether a unit is provided next.
++        // For simplicity here, if Unit parameter (param_idx+1) is present, assume Unit_isUsed=1.
++        // A more robust way would be for the caller (Python) to explicitly state Unit_isUsed.
++        // Based on the JSON output (which is from a decoder), if "Unit" is present, Unit_isUsed was 1.
++        // Let's assume Python will send this flag.
++        res.EVSEPresentVoltage.Unit_isUsed = 0u; // Default to not used if param not sent
++    }
++
++    // Parameter 9: EVSEPresentVoltage.Unit (dinunitSymbolType)
++    if (res.EVSEPresentVoltage.Unit_isUsed) {
++        if (nNumberOfFoundAdditionalParameters > param_idx) {
++            res.EVSEPresentVoltage.Unit = (dinunitSymbolType)getIntParam(param_idx++);
++        } else {
++            // If Unit_isUsed is true but unit parameter is missing, default to a unit.
++            res.EVSEPresentVoltage.Unit = dinunitSymbolType_V; // Default unit to V
++        }
++    } else {
++        // If unit is not used, still consume the parameter index if provided.
++        if (nNumberOfFoundAdditionalParameters > param_idx) param_idx++;
++        // The actual unit value doesn't matter if Unit_isUsed is 0, EXI encoder should omit it.
++        // init_dinWeldingDetectionResType should set a default.
++    }
++
++    #undef res
++
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeWeldingDetectionResponse finished");
++    sprintf(gInfoString, "encodeWeldingDetectionResponse finished with %d custom params", nNumberOfFoundAdditionalParameters);
+ }
++
+                 
+ static void encodeSessionStopRequest(void) {
+     useSessionIdFromCommandLine();
+@@ -1806,16 +2472,36 @@ static void encodeSessionStopRequest(void) {
+ }
+ 
+ void encodeSessionStopResponse(void) {
+-    init_dinMessageHeaderWithSessionID();
+-    init_dinBodyType(&dinDoc.V2G_Message.Body);
++    init_dinMessageHeaderWithSessionID(); // 初始化 Header 和 SessionID
++    init_dinBodyType(&dinDoc.V2G_Message.Body); // 初始化 Body 結構
+     dinDoc.V2G_Message.Body.SessionStopRes_isUsed = 1u;
+     init_dinSessionStopResType(&dinDoc.V2G_Message.Body.SessionStopRes);
++
++    // 預設 ResponseCode
++    dinresponseCodeType responseCode = dinresponseCodeType_OK; // 預設為 OK
++
++    // 從命令列參數獲取 ResponseCode (假設是第一個參數 gAdditionalParam[0])
++    // gAdditionalParam[0]: ResponseCode (整數形式的枚舉值)
++    if (nNumberOfFoundAdditionalParameters >= 1) {
++        responseCode = (dinresponseCodeType)getIntParam(0);
++        sprintf(gInfoString, "Using custom ResponseCode %d for SessionStopRes. ", responseCode);
++    } else {
++        sprintf(gInfoString, "Using default ResponseCode %d for SessionStopRes. ", responseCode);
++    }
++
++    dinDoc.V2G_Message.Body.SessionStopRes.ResponseCode = responseCode;
++
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeSessionStopResponse finished");
+-}
+ 
++    // 更新 gInfoString 以反映是否使用了自訂參數
++    if (nNumberOfFoundAdditionalParameters >= 1) {
++         strcat(gInfoString, "encodeSessionStopResponse finished with custom ResponseCode.");
++    } else {
++         strcat(gInfoString, "encodeSessionStopResponse finished with default ResponseCode.");
++    }
++}
+ 
+ static void encodeContractAuthenticationRequest(void) {
+     useSessionIdFromCommandLine();
+@@ -1836,19 +2522,30 @@ void encodeContractAuthenticationResponse(void) {
+     init_dinBodyType(&dinDoc.V2G_Message.Body);
+     dinDoc.V2G_Message.Body.ContractAuthenticationRes_isUsed = 1u;
+     init_dinContractAuthenticationResType(&dinDoc.V2G_Message.Body.ContractAuthenticationRes);
+-    int isAuthenticationFinished = getIntParam(0);
+-    /* The ContractAuthenticationResponse has two possible results:
+-    - Either the authorization is not necessary or successfully finished, means that e.g. the user presented a valid RFID
+-    - Or the charger is still waiting for the users authentication. */
+-    if(isAuthenticationFinished){
+-        dinDoc.V2G_Message.Body.ContractAuthenticationRes.EVSEProcessing=dinEVSEProcessingType_Finished;
++
++    // Parameter 0: EVSEProcessing (0 for Ongoing, 1 for Finished)
++    int evseProcessingParam = getIntParam(0);
++    if (evseProcessingParam == 0) { // Ongoing
++        dinDoc.V2G_Message.Body.ContractAuthenticationRes.EVSEProcessing = dinEVSEProcessingType_Ongoing;
++    } else { // Finished (or any other non-zero value, assuming 1 is Finished by convention)
++        dinDoc.V2G_Message.Body.ContractAuthenticationRes.EVSEProcessing = dinEVSEProcessingType_Finished;
++    }
++
++    // Parameter 1: ResponseCode (enum value)
++    if (nNumberOfFoundAdditionalParameters > 1) { 
++        dinDoc.V2G_Message.Body.ContractAuthenticationRes.ResponseCode = (dinresponseCodeType)getIntParam(1);
++        sprintf(gInfoString, "encodeContractAuthenticationResponse with custom ResponseCode %d", (int)dinDoc.V2G_Message.Body.ContractAuthenticationRes.ResponseCode);
+     } else {
+-        dinDoc.V2G_Message.Body.ContractAuthenticationRes.EVSEProcessing=dinEVSEProcessingType_Ongoing;
++        // 如果沒有提供 ResponseCode 參數，則依賴 init_dinContractAuthenticationResType 的預設值 (通常是 OK)
++        // 或者您可以明確設定一個預設值，例如：
++        // dinDoc.V2G_Message.Body.ContractAuthenticationRes.ResponseCode = dinresponseCodeType_OK;
++        sprintf(gInfoString, "encodeContractAuthenticationResponse with default ResponseCode");
+     }
++
+     prepareGlobalStream();
+     g_errn = encode_dinExiDocument(&global_stream1, &dinDoc);
+     printGlobalStream();
+-    sprintf(gInfoString, "encodeContractAuthenticationResponse finished");
++    // sprintf(gInfoString, "encodeContractAuthenticationResponse finished"); // 已移至上方或合併
+ }
+ 
+ 

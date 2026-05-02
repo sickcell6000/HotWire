@@ -1,0 +1,105 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+hotwire-venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs (generated at runtime)
+EVSE_LOG/
+# Exception: preserve the historical Luxgen N7 forced-discharge bench
+# logs imported from the original repository main branch. These are
+# the raw Attack A2 evidence captures referenced in the paper.
+!EVSE/EVSE_LOG/
+!EVSE/EVSE_LOG/*.txt
+sessions/
+*.log
+*.jsonl
+PevExiLog.txt
+RawExiLog.txt
+MacLog.txt
+DemoExiLog.txt
+*.decoded.txt
+
+# Config — the template at config/hotwire.ini IS tracked; only a user's
+# personal copy in the project root (or legacy pyPlc.ini) is ignored.
+/hotwire.ini
+/pyPlc.ini
+
+# Artifacts
+*.pcap
+*.pcapng
+results/output/
+
+# Exception: curated paper-§6 evidence captures live under
+# datasets/real_hw_traces/ and ARE tracked. Do not let the global *.pcap
+# / *.jsonl rules above swallow them.
+!datasets/real_hw_traces/**/*.pcap
+!datasets/real_hw_traces/**/*.jsonl
+
+# Archive (git-ignored — large legacy folder)
+archive/
+
+# OpenV2Gx build artifacts (source lives in vendor/OpenV2Gx as a submodule).
+vendor/OpenV2Gx/Debug/
+vendor/OpenV2Gx/Release/*.o
+vendor/OpenV2Gx/Release/*.d
+vendor/OpenV2Gx/Release/src/
+vendor/OpenV2Gx/Release/OpenV2G.exe
+
+# OpenV2G EXI codec — platform-specific binaries built locally per-host
+# from vendor/OpenV2Gx/. See scripts/build_codec.sh / build_codec.ps1.
+# We don't track these because the same path holds different content on
+# Linux/x86_64, Linux/aarch64 (Pi), and Windows/x86_64 — each host
+# would clobber the others' binary on every git pull.
+hotwire/exi/codec/OpenV2G
+hotwire/exi/codec/OpenV2G.exe
+
+# OpenV2G rebuild artifacts
+vendor/_build_openv2g/
+
+
+# Hardware-check artefacts
+runs/
+
+# Docker CI artefacts (bind-mounted from container)
+reports/
+
+# Paper sources are kept out of the public repository — only PDFs are
+# distributed (as part of the artifact bundle). LaTeX sources live in
+# a separate writing repo, not here.
+paper/
+*.tex
+*.aux
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.out
+

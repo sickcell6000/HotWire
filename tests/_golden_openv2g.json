@@ -1,0 +1,134 @@
+{
+  "EDa_1_5A5A4445464C54": {
+    "desc": "SessionSetupRes rc=1 ZZDEFLT",
+    "error": "",
+    "info": "encodeSessionSetupResponse finished with custom params (if any)",
+    "result": "809a02004080c1014181c211e0201d6969111519315080"
+  },
+  "EDa_1_AABBCCDDEEFF01": {
+    "desc": "SessionSetupRes rc=1 spoof",
+    "error": "",
+    "info": "encodeSessionSetupResponse finished with custom params (if any)",
+    "result": "809a02004080c1014181c211e0201eaaef3377bbfc0480"
+  },
+  "EDb_0_0_2_1_1_1_0_0_0_0_0": {
+    "desc": "ServiceDiscoveryRes contract+AC",
+    "error": "",
+    "info": "Encoding ServiceDiscoveryResponse with custom parameters. Defaulted to ExternalPayment as no option was selected by user. encodeServiceDiscoveryResponse complete.",
+    "result": "809a02004080c1014181c211a0012002492004"
+  },
+  "EDb_0_1_1_0_0_3_0_0_0_0_0": {
+    "desc": "ServiceDiscoveryRes default 11-arg",
+    "error": "",
+    "info": "Encoding ServiceDiscoveryResponse with custom parameters. encodeServiceDiscoveryResponse complete.",
+    "result": "809a02004080c1014181c211a000090002080020"
+  },
+  "EDc_0": {
+    "desc": "ServicePaymentSelectionRes OK",
+    "error": "",
+    "info": "Using custom ResponseCode 0. encodeServicePaymentSelectionResponse finished with custom ResponseCode.",
+    "result": "809a02004080c1014181c211c000"
+  },
+  "EDc_2": {
+    "desc": "ServicePaymentSelectionRes Failed",
+    "error": "",
+    "info": "Using custom ResponseCode 2. encodeServicePaymentSelectionResponse finished with custom ResponseCode.",
+    "result": "809a02004080c1014181c211c040"
+  },
+  "EDe_0_0_1_1_0_50_1_1_1_0_0_0_200_3_1_3_10_7_0_450_5_0_1_3_0_200_5": {
+    "desc": "CPD default",
+    "error": "",
+    "info": "encodeChargeParameterDiscoveryResponse finished with custom params (if any)",
+    "result": "809a02004080c1014181c2108000000400200010642a820400000c0c320040c0e014060a184060606002060a190022320008"
+  },
+  "EDe_0_0_1_1_0_999_1_1_1_0_0_0_300_3_1_3_15_7_0_500_5_0_1_3_0_250_5": {
+    "desc": "CPD max voltage bumped",
+    "error": "",
+    "info": "encodeChargeParameterDiscoveryResponse finished with custom params (if any)",
+    "result": "809a02004080c1014181c2108000000400200011ce0e2a820400000c0c2b0080c0e01e060a1e8060606002060a1f4022320008"
+  },
+  "EDf_0_1_1_1_0_0": {
+    "desc": "CableCheck Finished Ready Valid",
+    "error": "",
+    "info": "encodeCableCheckResponse finished with custom params (if any)",
+    "result": "809a02004080c1014181c21020004080000000"
+  },
+  "EDf_1_4_0_1_0_0": {
+    "desc": "CableCheck Ongoing IsolMonitor Invalid",
+    "error": "",
+    "info": "encodeCableCheckResponse finished with custom params (if any)",
+    "result": "809a02004080c1014181c21020000200000400"
+  },
+  "EDg_350_0_1_1_1_0_0": {
+    "desc": "PreCharge 350V OK",
+    "error": "",
+    "info": "encodePreChargeResponse finished with custom params (if any)",
+    "result": "809a02004080c1014181c2116000408000018286f01000"
+  },
+  "EDg_500_0_1_1_1_0_0": {
+    "desc": "PreCharge 500V OK (attack)",
+    "error": "",
+    "info": "encodePreChargeResponse finished with custom params (if any)",
+    "result": "809a02004080c1014181c2116000408000018287a01800"
+  },
+  "EDh_0_1_1_1_0_0": {
+    "desc": "PowerDelivery OK",
+    "error": "",
+    "info": "encodePowerDeliveryResponse finished with custom parameters",
+    "result": "809a02004080c1014181c211400420400000"
+  },
+  "EDi_0_1_1_1_0_0_0_400_5_0_50_3_0_0_0_1_0_450_5_1_0_200_3_1_3_60_7": {
+    "desc": "CurrentDemand default",
+    "error": "",
+    "info": "encodeCurrentDemandResponse finished with custom params (if any, total 27)",
+    "result": "809a02004080c1014181c210e00040800001828480181818190000060a1840603030c801030381e000"
+  },
+  "EDi_0_1_1_1_0_0_0_888_5_0_50_3_0_0_0_1_0_999_5_1_0_200_3_1_3_60_7": {
+    "desc": "CurrentDemand attack",
+    "error": "",
+    "info": "encodeCurrentDemandResponse finished with custom params (if any, total 27)",
+    "result": "809a02004080c1014181c210e000408000018287c0301818190000060a1ce0e03030c801030381e000"
+  },
+  "EDj_0_1_1_1_0_0_0_0_5": {
+    "desc": "Welding V=0",
+    "error": "",
+    "info": "encodeWeldingDetectionResponse finished with 9 custom params",
+    "result": "809a02004080c1014181c21220004080000182800000"
+  },
+  "EDk_0": {
+    "desc": "SessionStop OK",
+    "error": "",
+    "info": "Using custom ResponseCode 0 for SessionStopRes. encodeSessionStopResponse finished with custom ResponseCode.",
+    "result": "809a02004080c1014181c2120000"
+  },
+  "EDk_2": {
+    "desc": "SessionStop Failed",
+    "error": "",
+    "info": "Using custom ResponseCode 2 for SessionStopRes. encodeSessionStopResponse finished with custom ResponseCode.",
+    "result": "809a02004080c1014181c2120040"
+  },
+  "EDl_0_0": {
+    "desc": "ContractAuth Ongoing OK",
+    "error": "",
+    "info": "encodeContractAuthenticationResponse with custom ResponseCode 0",
+    "result": "809a02004080c1014181c210c00200"
+  },
+  "EDl_1_0": {
+    "desc": "ContractAuth Finished OK",
+    "error": "",
+    "info": "encodeContractAuthenticationResponse with custom ResponseCode 0",
+    "result": "809a02004080c1014181c210c00000"
+  },
+  "Eh_0_1_0": {
+    "desc": "supportedAppProtocolRes OK schema=0",
+    "error": "",
+    "info": "encodeSupportedAppProtocolResponse finished with custom params",
+    "result": "80400000"
+  },
+  "Eh_2_0_0": {
+    "desc": "supportedAppProtocolRes Failed_NoNegotiation",
+    "error": "",
+    "info": "encodeSupportedAppProtocolResponse finished with custom params",
+    "result": "804880"
+  }
+}

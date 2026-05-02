@@ -1,0 +1,83 @@
+{"ts": "2026-04-27T15:15:44.050512+00:00", "kind": "run.start", "run_dir": "/home/pi/project/HotWire/runs/20260427-231544", "interface": "eth0", "host_os": "posix", "platform": "linux", "python": "3.11.2", "cwd": "/home/pi/project/HotWire"}
+{"ts": "2026-04-27T15:15:44.050614+00:00", "kind": "phase.start", "phase": "phase4_v2g"}
+{"ts": "2026-04-27T15:15:44.087301+00:00", "kind": "pcap.start", "phase": "phase4", "tool": "tcpdump", "argv": ["tcpdump", "-i", "eth0", "-w", "/home/pi/project/HotWire/runs/20260427-231544/phase4_capture.pcap", "-U", "ether proto 0x88E1 or ip6"], "output": "/home/pi/project/HotWire/runs/20260427-231544/phase4_capture.pcap"}
+{"ts": "2026-04-27T15:15:44.388460+00:00", "kind": "phase4.trace", "message": "[phase4] HOTWIRE_PHASE4_PREPAIR=1 — running pre-pair SLAC"}
+{"ts": "2026-04-27T15:15:44.516034+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=4182c6a1c5dab323)"}
+{"ts": "2026-04-27T15:15:46.525314+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=4182c6a1c5dab323)"}
+{"ts": "2026-04-27T15:15:48.534353+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=4182c6a1c5dab323)"}
+{"ts": "2026-04-27T15:15:50.550013+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=4182c6a1c5dab323)"}
+{"ts": "2026-04-27T15:15:52.526123+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] [SLAC pev] total timeout; failing"}
+{"ts": "2026-04-27T15:15:52.563172+00:00", "kind": "phase4.trace", "message": "[phase4/prepair] done (failed) in 8.0s"}
+{"ts": "2026-04-27T15:15:52.604666+00:00", "kind": "phase4.trace", "message": "[RealHomePlug] opened interface 'eth0'"}
+{"ts": "2026-04-27T15:15:52.605018+00:00", "kind": "phase4.trace", "message": "[RealHomePlug] pcap driver initialised"}
+{"ts": "2026-04-27T15:15:52.637735+00:00", "kind": "phase4.trace", "message": "[HARDWAREINTERFACE-REAL] candidate serial port: /dev/ttyUSB0 (CP2102 USB to UART Bridge Controller - CP2102 USB to UART Bridge Controller)"}
+{"ts": "2026-04-27T15:15:52.647565+00:00", "kind": "phase4.trace", "message": "[HARDWAREINTERFACE-REAL] serial open: /dev/ttyUSB0 @ 19200 baud"}
+{"ts": "2026-04-27T15:15:52.647768+00:00", "kind": "phase4.trace", "message": "[HARDWAREINTERFACE-REAL] initialized (serial_ok=True, mode=celeron55-compat)"}
+{"ts": "2026-04-27T15:15:52.647888+00:00", "kind": "phase4.trace", "message": "[WORKER] initialized"}
+{"ts": "2026-04-27T15:15:52.648036+00:00", "kind": "phase4.trace", "message": "[PEV] Initializing fsmPev"}
+{"ts": "2026-04-27T15:15:52.648613+00:00", "kind": "phase4.start", "role": "pev", "budget_s": 50.0}
+{"ts": "2026-04-27T15:15:52.648804+00:00", "kind": "phase4.trace", "message": "[CONNMGR] ConnectionLevel changed from 0 to 5"}
+{"ts": "2026-04-27T15:15:52.648938+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:52.649343+00:00", "kind": "phase4.trace", "message": "[RealHomePlug] SLAC started (role=pev, local_mac=d8:3a:dd:22:f1:82)"}
+{"ts": "2026-04-27T15:15:52.649723+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=6a82dacfa29ac40e)"}
+{"ts": "2026-04-27T15:15:53.650441+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:54.654734+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:54.655049+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=6a82dacfa29ac40e)"}
+{"ts": "2026-04-27T15:15:55.649442+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:56.644390+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:15:56.674817+00:00", "kind": "phase4.trace", "message": "[SLAC pev] sent CM_SLAC_PARAM.REQ (run_id=6a82dacfa29ac40e)"}
+{"ts": "2026-04-27T15:15:56.735532+00:00", "kind": "phase4.trace", "message": "[SLAC pev] got CM_SLAC_PARAM.CNF from 00:e0:4c:36:28:d2; entering attenuation round"}
+{"ts": "2026-04-27T15:15:57.098229+00:00", "kind": "phase4.trace", "message": "[SLAC pev] got CM_ATTEN_CHAR.IND; replying RSP and sending MATCH.REQ"}
+{"ts": "2026-04-27T15:15:57.189138+00:00", "kind": "phase4.trace", "message": "[SLAC pev] got CM_SLAC_MATCH.CNF; NMK/NID received; paired"}
+{"ts": "2026-04-27T15:15:57.189257+00:00", "kind": "phase4.trace", "message": "[SLAC pev] peer handshake done; programming local modem with NID=9c107ac45e1b6a NMK=848ea9b6..."}
+{"ts": "2026-04-27T15:15:57.219634+00:00", "kind": "phase4.trace", "message": "[SLAC pev] got CM_SET_KEY.CNF from 14:cc:20:4d:b7:c3"}
+{"ts": "2026-04-27T15:15:57.219739+00:00", "kind": "phase4.trace", "message": "[SLAC pev] PAIRED (local modem ACKed SET_KEY); nid=9c107ac45e1b6a nmk=848ea9b6... peer=00:e0:4c:36:28:d2"}
+{"ts": "2026-04-27T15:15:57.219798+00:00", "kind": "phase4.trace", "message": "[RealHomePlug] SLAC paired — reported ModemFinderOk(2) + SlacOk() to connection manager"}
+{"ts": "2026-04-27T15:15:57.250012+00:00", "kind": "phase4.trace", "message": "[CONNMGR] ConnectionLevel changed from 5 to 20"}
+{"ts": "2026-04-27T15:15:57.250099+00:00", "kind": "phase4.trace", "message": "[WORKER] starting SDP discovery..."}
+{"ts": "2026-04-27T15:16:03.257344+00:00", "kind": "phase4.trace", "message": "[WORKER] SDP discovery timed out"}
+{"ts": "2026-04-27T15:16:03.651775+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 151 316 646 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:04.654333+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 118 283 613 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:05.651493+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 85 250 580 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:06.645891+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 52 217 547 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:07.640284+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 19 184 514 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:08.635447+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 151 481 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:09.630676+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 118 448 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:10.629898+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 85 415 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:11.629568+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 52 382 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:12.630297+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 19 349 0 0 0 --> 20"}
+{"ts": "2026-04-27T15:16:13.205853+00:00", "kind": "phase4.trace", "message": "[CONNMGR] ConnectionLevel changed from 20 to 15"}
+{"ts": "2026-04-27T15:16:13.630153+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 316 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:14.630212+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 283 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:15.630728+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 250 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:16.625606+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 217 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:17.620019+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 184 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:18.614389+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 151 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:19.609104+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 118 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:20.606322+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 85 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:21.605906+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 52 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:22.607333+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 19 0 0 0 --> 15"}
+{"ts": "2026-04-27T15:16:23.182966+00:00", "kind": "phase4.trace", "message": "[CONNMGR] ConnectionLevel changed from 15 to 5"}
+{"ts": "2026-04-27T15:16:23.607183+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:24.606717+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:25.607477+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:26.605552+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:27.599975+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:28.594262+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:29.588915+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:30.583337+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:31.582489+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:32.583600+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:33.583536+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:34.583082+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:35.582933+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:36.590534+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:37.585115+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:38.579955+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:39.574772+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:40.569132+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:41.564751+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:42.565295+00:00", "kind": "phase4.trace", "message": "[CONNMGR] 9 0 0 0 0 0 0 --> 5"}
+{"ts": "2026-04-27T15:16:42.688799+00:00", "kind": "pcap.stop", "phase": "phase4", "returncode": 0, "stderr_tail": "tcpdump: listening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes\n29 packets captured\n29 packets received by filter\n0 packets dropped by kernel\n", "pcap_path": "/home/pi/project/HotWire/runs/20260427-231544/phase4_capture.pcap", "pcap_size": 2589}
+{"ts": "2026-04-27T15:16:42.689547+00:00", "kind": "phase.end", "phase": "phase4_v2g", "status": "FAIL", "summary": "PEV only saw 0/5 CurrentDemandRes messages (stages reached rx: [])", "metrics": {"role": "pev", "interface": "eth0", "budget_s": 50.0, "min_current_demand": 5, "elapsed_s": 50.04, "trace_lines": 76, "total_messages": 0, "current_demand_count": 0}, "duration_s": 58.63890678000007}
+{"ts": "2026-04-27T15:16:42.691120+00:00", "kind": "run.end"}

@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "scope": "AutochargeImpersonation.evccid",
+      "value": "aabbccddeeff",
+      "label": "Test fixture (paper §6 demo)",
+      "note": "Synthetic 12-hex EVCCID used in HotWire's regression tests and reproduction walkthrough. Safe to replay against the testbed; do NOT use against any production charging station.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "AutochargeImpersonation.evccid",
+      "value": "d83add22f182",
+      "label": "PEV Pi self-MAC (sim only)",
+      "note": "Local MAC of the bench PEV Raspberry Pi (eth0). Use for simulation / loopback testing — replaying this against a real station won't impersonate anyone.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "AutochargeImpersonation.evccid",
+      "value": "deadbeefdead",
+      "label": "OpenV2G sentinel (do NOT replay)",
+      "note": "This is the placeholder OpenV2G falls back to when the EVCCID parameter is missing or invalid. If you see this in EVSE traces, the sender failed to set EVCCID correctly. Listed here so the operator can recognise it, not as a real value.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "ForcedDischarge.voltage",
+      "value": 400,
+      "label": "Luxgen N7 nominal (paper Table 4)",
+      "note": "60 kWh battery, ~400 V nominal pack voltage. Vulnerable BMS in paper §6.2 — closed contactors and discharged 1.25 kWh in 60 min.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "ForcedDischarge.voltage",
+      "value": 380,
+      "label": "DIN spec default",
+      "note": "ForcedDischarge dataclass default. Reasonable starting point for an unknown target; bump to match real V_batt once you know it.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "ForcedDischarge.voltage",
+      "value": 350,
+      "label": "PreCharge default in OpenV2G",
+      "note": "Voltage value used by HotWire's PreChargeRes when no override is set. Useful for baseline / control sessions.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "ForcedDischarge.voltage",
+      "value": 450,
+      "label": "Hyundai IONIQ 6 nominal (paper Table 4)",
+      "note": "77.4 kWh battery on 800 V architecture, but DC ramps to ~450 V at typical SoC. Vulnerable BMS in paper §6.2.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "ForcedDischarge.current",
+      "value": 1,
+      "label": "Default safe (just non-zero)",
+      "note": "Tells the EV some current is flowing so it doesn't abort the session. Real current is dictated by the load bank, not this number.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "ForcedDischarge.current",
+      "value": 12,
+      "label": "1.25 kW @ 100 Ω load bank",
+      "note": "For ~400 V battery × 100 Ω ≈ 4 A through one resistor; with 4 in parallel = 16 A. Paper bench used 5×220V/250W bulbs → 1.25 kW.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "SessionSetupReq.EVCCID",
+      "value": "aabbccddeeff",
+      "label": "Test fixture (paper §6 demo)",
+      "note": "Mirrors the AutochargeImpersonation preset; lets you set the spoofed EVCCID directly via Stage Config Panel without going through the attack launcher.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "SessionSetupReq.EVCCID",
+      "value": "d83add22f182",
+      "label": "PEV Pi self-MAC (sim only)",
+      "note": "Local MAC of the bench PEV Raspberry Pi.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "PreChargeRes.EVSEPresentVoltage",
+      "value": 400,
+      "label": "Luxgen N7 nominal (paper Table 4)",
+      "note": "Match this to the real battery voltage (or V_batt ± 5 V) so the BMS exits PreCharge.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "PreChargeRes.EVSEPresentVoltage",
+      "value": 405,
+      "label": "Luxgen N7 + 5 V offset (paper experimental matrix)",
+      "note": "Paper §5 experimental methodology tested V_batt ± 0/5/10 V offsets. This is the +5 V variant.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "PreChargeRes.EVSEPresentVoltage",
+      "value": 395,
+      "label": "Luxgen N7 - 5 V offset (paper experimental matrix)",
+      "note": "Paper §5 -5 V offset variant.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "ChargeParameterDiscoveryRes.EVSEMaximumVoltageLimit",
+      "value": 450,
+      "label": "Standard 400 V architecture upper limit",
+      "note": "Tells the EV the EVSE can deliver up to 450 V. Set 50 V above target battery voltage to give headroom.",
+      "created": "2026-04-30T00:00:00"
+    },
+    {
+      "scope": "ChargeParameterDiscoveryRes.EVSEMaximumCurrentLimit",
+      "value": 200,
+      "label": "Standard fast-charge cap",
+      "note": "200 A is typical for Phase-1 CCS deployments; matches paper-tested charging stations (180-360 kW).",
+      "created": "2026-04-30T00:00:00"
+    }
+  ]
+}
