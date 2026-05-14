@@ -44,11 +44,27 @@ for V in 200 400 800; do
     EVSE_LOG="$RUN/evse.log"
     PEV_LOG="$RUN/pev.log"
 
+    # Each iteration picks its own free ephemeral IPv6 port. Without
+    # this every iteration would re-use the config-default 57122 and
+    # collide with the previous iteration's port still in TIME_WAIT
+    # (Linux default 60-120 s) — which is exactly the AEC reviewer
+    # failure mode: an empty result table because every run aborted
+    # at bind time.
+    PORT=$(python3 -c '
+import socket
+s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+s.bind(("::1", 0))
+print(s.getsockname()[1])
+s.close()
+' 2>/dev/null) || PORT=""
+
     cd "$REPO"
-    HOTWIRE_CONFIG="$CFG" python3 -u scripts/run_evse.py > "$EVSE_LOG" 2>&1 &
+    HOTWIRE_CONFIG="$CFG" HOTWIRE_TCP_PORT_OVERRIDE="$PORT" \
+        python3 -u scripts/run_evse.py > "$EVSE_LOG" 2>&1 &
     EV=$!
     sleep 1.5
-    HOTWIRE_CONFIG="$CFG" python3 -u scripts/run_pev.py  > "$PEV_LOG"  2>&1 &
+    HOTWIRE_CONFIG="$CFG" HOTWIRE_TCP_PORT_OVERRIDE="$PORT" \
+        python3 -u scripts/run_pev.py  > "$PEV_LOG"  2>&1 &
     PV=$!
 
     sleep "$DUR"

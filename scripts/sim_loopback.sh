@@ -29,6 +29,29 @@ echo
 
 cd "$REPO_DIR"
 
+# Pick a free ephemeral IPv6 TCP port and pin it via the
+# HOTWIRE_TCP_PORT_OVERRIDE env var (honoured by
+# hotwire/plc/tcp_socket.py::_resolve_tcp_port). The default 57122
+# from config/hotwire.ini gets held in TIME_WAIT for ~2 minutes
+# after every run on Linux, and any leftover process from a prior
+# failed verification (e.g. AEC reviewers iterating) holds it for
+# the whole TCP server lifetime. Using a fresh port per invocation
+# makes the script robust to both conditions.
+if [ -z "${HOTWIRE_TCP_PORT_OVERRIDE:-}" ]; then
+    HOTWIRE_TCP_PORT_OVERRIDE=$(python3 -c '
+import socket
+s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+s.bind(("::1", 0))
+print(s.getsockname()[1])
+s.close()
+' 2>/dev/null) || HOTWIRE_TCP_PORT_OVERRIDE=""
+    if [ -n "$HOTWIRE_TCP_PORT_OVERRIDE" ]; then
+        export HOTWIRE_TCP_PORT_OVERRIDE
+        echo "  port     : ${HOTWIRE_TCP_PORT_OVERRIDE} (dynamic, IPv6 ::1)"
+        echo
+    fi
+fi
+
 # Start EVSE first; give it a second to bind the TCP server before
 # PEV tries to connect.
 python3 -u scripts/run_evse.py > "$EVSE_LOG" 2>&1 &

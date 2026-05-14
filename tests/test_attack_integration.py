@@ -39,10 +39,27 @@ from hotwire.core.worker import HotWireWorker  # noqa: E402
 from hotwire.fsm.pause_controller import PauseController  # noqa: E402
 
 
-def test_autocharge_attack_end_to_end(tmp_path):
+def test_autocharge_attack_end_to_end(tmp_path, monkeypatch):
     spoofed_evccid = "deadbeef1234"
     attack = AutochargeImpersonation(evccid=spoofed_evccid)
     assert attack.overrides["SessionSetupReq"]["EVCCID"] == spoofed_evccid
+
+    # Pin a free ephemeral IPv6 port for this test instance so it
+    # doesn't collide with stale port 57122 holders (e.g. zombies
+    # from a prior failed AEC verification run on the same host).
+    # hotwire.plc.tcp_socket._resolve_tcp_port honours this env var
+    # for both the EVSE TCP server and the PEV client side.
+    # We use pytest's monkeypatch (instead of plain os.environ[...]=)
+    # so the override is reverted at teardown — otherwise
+    # test_tcp_port_falls_in_iana_dynamic_range would read our
+    # picked port (Linux ephemeral range 32768-60999) and fail its
+    # IANA dynamic-range assertion (49152-65535).
+    import socket as _socket
+    _probe = _socket.socket(_socket.AF_INET6, _socket.SOCK_STREAM)
+    _probe.bind(("::1", 0))
+    _free_port = _probe.getsockname()[1]
+    _probe.close()
+    monkeypatch.setenv("HOTWIRE_TCP_PORT_OVERRIDE", str(_free_port))
 
     evse_log = tmp_path / "evse.jsonl"
     pev_log = tmp_path / "pev.jsonl"
