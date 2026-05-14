@@ -53,7 +53,11 @@ def test_status_signal_updates_panel(qtbot):
     w = HotWireMainWindow(mode=C_EVSE_MODE, is_simulation=True)
     qtbot.addWidget(w)
     w.signals.status_changed.emit("evseState", "Running")
-    assert w.status_panel._labels["evseState"].text() == "Running"
+    # StatusPanel was refactored to split FSM-pushed scalar labels from
+    # telemetry labels (see hotwire/gui/widgets/status_panel.py: the
+    # old _labels dict became _fsm_labels + _telemetry_labels). evseState
+    # is FSM-pushed so it lives in _fsm_labels.
+    assert w.status_panel._fsm_labels["evseState"].text() == "Running"
     assert w.status_panel._primary_label.text() == "Running"
 
 
