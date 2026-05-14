@@ -21,8 +21,12 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
-TAG="woot26-artifact-rc1"
-TOPDIR="HotWire-${TAG}"
+# Default: pack from the rc1 tag (the Zenodo-published snapshot).
+# Override with first arg to pack from any ref, e.g.:
+#   bash scripts/pack_zenodo_zip.sh main      # pack current main HEAD
+#   bash scripts/pack_zenodo_zip.sh HEAD      # pack working tree's HEAD
+REF="${1:-woot26-artifact-rc1}"
+TOPDIR="HotWire-woot26-artifact-rc1"           # zip top-dir name stays constant
 OUT="dist/${TOPDIR}.zip"
 STAGING="dist/_staging"
 
@@ -30,8 +34,8 @@ echo "[pack] cleaning staging area"
 rm -rf "${STAGING}" "${OUT}"
 mkdir -p "${STAGING}/${TOPDIR}" "$(dirname "${OUT}")"
 
-echo "[pack] exporting root tracked files at ${TAG}"
-git archive --format=tar --prefix="${TOPDIR}/" "${TAG}" \
+echo "[pack] exporting root tracked files at ${REF}"
+git archive --format=tar --prefix="${TOPDIR}/" "${REF}" \
     | tar -x -C "${STAGING}"
 
 echo "[pack] exporting submodule vendor/OpenV2Gx tracked files"

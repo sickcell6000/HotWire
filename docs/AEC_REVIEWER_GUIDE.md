@@ -81,9 +81,13 @@ follow the platform-specific block below — each starts with `unzip`
 
 ```bash
 # One-time system prerequisites (Pi/aarch64 has no PyQt5 wheel,
-# so we use the apt-packaged Qt5 binary and let venv see it):
+# so we use the apt-packaged Qt5 binary and let venv see it).
+# build-essential is needed because F0 compiles vendor/OpenV2Gx
+# (no prebuilt Linux binary ships in the artifact).
 sudo apt update
-sudo apt install -y python3-venv python3-dev python3-pip python3-pyqt5 python3-pyqt5.qtsvg unzip
+sudo apt install -y python3-venv python3-dev python3-pip \
+    python3-pyqt5 python3-pyqt5.qtsvg \
+    build-essential unzip
 
 unzip HotWire-woot26-artifact-rc1.zip
 cd HotWire-woot26-artifact-rc1

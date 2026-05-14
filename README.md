@@ -50,9 +50,13 @@ software, and that is what this artifact lets you verify.
 
 ```bash
 # One-time system prerequisites (Pi/aarch64 has no PyQt5 wheel,
-# so we use the apt-packaged Qt5 binary and let venv see it):
+# so we use the apt-packaged Qt5 binary and let venv see it).
+# build-essential is needed because F0 compiles vendor/OpenV2Gx
+# from source on first run.
 sudo apt update
-sudo apt install -y python3-venv python3-dev python3-pip python3-pyqt5 python3-pyqt5.qtsvg
+sudo apt install -y python3-venv python3-dev python3-pip \
+    python3-pyqt5 python3-pyqt5.qtsvg \
+    build-essential
 
 git clone --recurse-submodules https://github.com/sickcell6000/HotWire.git
 cd HotWire
