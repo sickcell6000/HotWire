@@ -316,10 +316,14 @@ banner "F5 — Sim-mode attack reach (A1 + A2 + concurrent)"
 # Defensive: same pytest-availability guard as F1's host-fallback.
 # Reviewers on Windows often have multiple Pythons on PATH (Microsoft
 # Store stub vs. real install); the stub is missing ``pytest`` and
-# made earlier runs report a misleading "F5 failed".
+# made earlier runs report a misleading "F5 failed". We try the
+# top-level $PYTHON_CMD first (the venv-resolved interpreter F0-F4
+# already use) so an activated hotwire-venv on Windows Git Bash is
+# picked up even though Scripts/ doesn't ship python3.exe.
 F5_PY=""
-for candidate in python3 python; do
-    if command -v "$candidate" >/dev/null 2>&1 \
+for candidate in "$PYTHON_CMD" python3 python; do
+    if [ -n "$candidate" ] \
+            && command -v "$candidate" >/dev/null 2>&1 \
             && "$candidate" -c "import pytest" >/dev/null 2>&1; then
         F5_PY="$candidate"
         break
