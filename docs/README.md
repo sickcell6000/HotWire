@@ -31,6 +31,8 @@ Operator authorization + electrical safety: see [SAFETY.md](../SAFETY.md).
 
 The repository is GPL-3.0 and archived on Zenodo at
 [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377).
+Latest post-fix version: <https://zenodo.org/records/20185373>
+(MD5 `59de7f9820fc57b2c2afdb4cdd77fb4a`).
 
 The Zenodo record contains:
 

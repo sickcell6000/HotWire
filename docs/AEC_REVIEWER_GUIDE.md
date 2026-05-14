@@ -17,9 +17,12 @@ Committee.
 - **Public source repository:** <https://github.com/sickcell6000/HotWire>
 - **License:** GPL-3.0
 - **Zenodo DOI:** [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377)
-  (snapshot of the `woot26-artifact-rc1` tag; a separate post-AE
+  (original v1 submission snapshot at the `woot26-artifact-rc1` tag).
+  **Reviewers should fetch the post-fix v2 record at
+  <https://zenodo.org/records/20185373>** (see Step 0 below). The
+  concept DOI resolves to the latest version. A separate post-AE
   version will be archived for the camera-ready paper per the
-  WOOT '26 CFA two-stage process).
+  WOOT '26 CFA two-stage process.
 
 ## Badges requested
 
@@ -69,13 +72,16 @@ record below — please download the zip from there rather than `git
 clone`-ing the repo, so reviewers and authors look at exactly the
 same bytes:
 
-> **Download:** <https://zenodo.org/records/19986377>
-> (DOI [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377))
+> **Download:** <https://zenodo.org/records/20185373>
+> (concept DOI [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377)
+> auto-redirects to this latest version)
 
 The download is a single file, `HotWire-woot26-artifact-rc1.zip`
-(~5 MB). Save it somewhere convenient (e.g. `~/Downloads/`), then
-follow the platform-specific block below — each starts with `unzip`
-+ `cd` into the unpacked directory.
+(2.5 MB, MD5 `59de7f9820fc57b2c2afdb4cdd77fb4a`,
+SHA-256 `3bbb5c8d0a9a344307bae5eae3e2076c9917f65db54a0aa4cd37ff89b5bc29f7`).
+Save it somewhere convenient (e.g. `~/Downloads/`), then follow the
+platform-specific block below — each starts with `unzip` + `cd`
+into the unpacked directory.
 
 #### Linux / Raspberry Pi
 
