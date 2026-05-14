@@ -1,4 +1,4 @@
-# HotWire — real-hardware-only Python dependencies.
+# HotWire - real-hardware-only Python dependencies.
 #
 # This file is NOT required for the AEC Functional badge or for any
 # simulation-mode work. It is only needed if you want to run HotWire

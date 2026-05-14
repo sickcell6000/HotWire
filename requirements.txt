@@ -1,4 +1,4 @@
-# HotWire — DIN 70121 / ISO 15118 EV Charging Attack Testbed
+# HotWire - DIN 70121 / ISO 15118 EV Charging Attack Testbed
 #
 # Python >= 3.11 required.
 #

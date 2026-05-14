@@ -26,6 +26,21 @@ set -uo pipefail
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO_DIR"
 
+# Resolve a usable Python interpreter. Windows Git Bash venvs ship
+# python.exe but NOT python3.exe under Scripts/, so `python3` would
+# bypass the activated venv and fall through to system Python (often
+# missing hotwire deps). Linux + macOS venvs symlink both. We pick
+# python3 first when present, else python.
+#
+# F1 host fallback + F5 do their own deeper "this python has pytest
+# installed?" checks; this variable is the default for everything else
+# (F0 codec build, F2 / F3 sim scripts, F4 py_compile).
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 || command -v python)}"
+if [ -z "${PYTHON_CMD:-}" ]; then
+    PYTHON_CMD="python3"   # let downstream commands fail with a clear "not found"
+fi
+export PYTHON_CMD
+
 BOLD="$(printf '\033[1m')"
 RED="$(printf '\033[31m')"
 GREEN="$(printf '\033[32m')"
@@ -123,7 +138,7 @@ bootstrap_codec() {
         log "    xcode-select --install                     # macOS"
         return 1
     fi
-    if (cd "$REPO_DIR" && python3 vendor/build_openv2g.py) >> /tmp/hotwire_f0.log 2>&1; then
+    if (cd "$REPO_DIR" && "$PYTHON_CMD" vendor/build_openv2g.py) >> /tmp/hotwire_f0.log 2>&1; then
         if codec_works "$CODEC_BIN"; then
             ok "F0 codec built: $CODEC_BIN ($(wc -c < "$CODEC_BIN") bytes)"
         else
@@ -152,11 +167,11 @@ banner "F1 — pytest regression (278 unit + integration tests)"
 
 run_host_pytest_fallback() {
     log "Falling back to host pytest (no Docker available)..."
-    if ! command -v python3 >/dev/null 2>&1; then
-        fail "F1 fallback: python3 not on PATH; cannot run host pytest"
+    if ! command -v "$PYTHON_CMD" >/dev/null 2>&1; then
+        fail "F1 fallback: $PYTHON_CMD not on PATH; cannot run host pytest"
         return
     fi
-    if ! python3 -c "import pytest" >/dev/null 2>&1; then
+    if ! "$PYTHON_CMD" -c "import pytest" >/dev/null 2>&1; then
         warn "F1 fallback: pytest not installed; install with: pip install -r requirements.txt"
         return
     fi
@@ -167,7 +182,7 @@ run_host_pytest_fallback() {
     # the host has PyQt5 from apt AND PyQt6 from pip co-installed, which
     # segfaults pytest during collection with 7+ Qt extension modules
     # loaded simultaneously).
-    if python3 -m pytest tests/ -q --ignore=tests/fixtures \
+    if "$PYTHON_CMD" -m pytest tests/ -q --ignore=tests/fixtures \
             --ignore=tests/test_gui_worker_reuse.py \
             --ignore=tests/test_gui_integration.py \
             --ignore=tests/test_gui_dual_scenarios.py \
@@ -220,8 +235,8 @@ fi
 # --------------------------------------------------------------
 banner "F2 — Simulation-mode full V2G session (::1 loopback, 25 s)"
 
-if ! command -v python3 >/dev/null 2>&1; then
-    fail "python3 not found on PATH — install Python 3.9+"
+if ! command -v "$PYTHON_CMD" >/dev/null 2>&1; then
+    fail "$PYTHON_CMD not found on PATH - install Python 3.9+"
 else
     if [ ! -x scripts/sim_loopback.sh ]; then
         chmod +x scripts/sim_loopback.sh 2>/dev/null || true
@@ -284,7 +299,7 @@ banner "F4 — Attack code is present and syntactically valid"
 for f in hotwire/attacks/autocharge_impersonation.py hotwire/attacks/forced_discharge.py; do
     if [ ! -f "$f" ]; then
         fail "F4 missing: $f"
-    elif python3 -m py_compile "$f" 2>/tmp/hotwire_f4.log; then
+    elif "$PYTHON_CMD" -m py_compile "$f" 2>/tmp/hotwire_f4.log; then
         size=$(wc -l < "$f")
         ok "F4 present + compiles: $f ($size lines)"
     else

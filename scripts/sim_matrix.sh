@@ -4,6 +4,13 @@
 
 set -euo pipefail
 
+# Pick the right python (see sim_loopback.sh for the Windows-venv rationale).
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 || command -v python)}"
+if [ -z "${PYTHON_CMD:-}" ]; then
+    echo "FATAL: no python or python3 on PATH; activate your hotwire-venv first" >&2
+    exit 127
+fi
+
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 MATRIX_DIR="$REPO/runs/matrix_$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$MATRIX_DIR"
@@ -50,7 +57,7 @@ for V in 200 400 800; do
     # (Linux default 60-120 s) — which is exactly the AEC reviewer
     # failure mode: an empty result table because every run aborted
     # at bind time.
-    PORT=$(python3 -c '
+    PORT=$("$PYTHON_CMD" -c '
 import socket
 s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
 s.bind(("::1", 0))
@@ -60,11 +67,11 @@ s.close()
 
     cd "$REPO"
     HOTWIRE_CONFIG="$CFG" HOTWIRE_TCP_PORT_OVERRIDE="$PORT" \
-        python3 -u scripts/run_evse.py > "$EVSE_LOG" 2>&1 &
+        "$PYTHON_CMD" -u scripts/run_evse.py > "$EVSE_LOG" 2>&1 &
     EV=$!
     sleep 1.5
     HOTWIRE_CONFIG="$CFG" HOTWIRE_TCP_PORT_OVERRIDE="$PORT" \
-        python3 -u scripts/run_pev.py  > "$PEV_LOG"  2>&1 &
+        "$PYTHON_CMD" -u scripts/run_pev.py  > "$PEV_LOG"  2>&1 &
     PV=$!
 
     sleep "$DUR"

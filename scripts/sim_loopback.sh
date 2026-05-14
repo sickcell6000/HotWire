@@ -12,6 +12,17 @@
 
 set -euo pipefail
 
+# Resolve a Python interpreter that lives in the caller's activated
+# venv. Windows Git Bash venvs install python.exe but NOT python3.exe
+# under Scripts/, so 'python3' falls through to system Python (with no
+# hotwire deps). Linux + macOS venvs symlink both. Prefer python3 if
+# present, fall back to python; allow override via $PYTHON_CMD.
+PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 || command -v python)}"
+if [ -z "${PYTHON_CMD:-}" ]; then
+    echo "FATAL: no python or python3 on PATH; activate your hotwire-venv first" >&2
+    exit 127
+fi
+
 DURATION="${1:-25}"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 STAMP="$(date +%Y%m%d-%H%M%S)"
@@ -38,7 +49,7 @@ cd "$REPO_DIR"
 # the whole TCP server lifetime. Using a fresh port per invocation
 # makes the script robust to both conditions.
 if [ -z "${HOTWIRE_TCP_PORT_OVERRIDE:-}" ]; then
-    HOTWIRE_TCP_PORT_OVERRIDE=$(python3 -c '
+    HOTWIRE_TCP_PORT_OVERRIDE=$("$PYTHON_CMD" -c '
 import socket
 s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
 s.bind(("::1", 0))
@@ -54,11 +65,11 @@ fi
 
 # Start EVSE first; give it a second to bind the TCP server before
 # PEV tries to connect.
-python3 -u scripts/run_evse.py > "$EVSE_LOG" 2>&1 &
+"$PYTHON_CMD" -u scripts/run_evse.py > "$EVSE_LOG" 2>&1 &
 EVSE_PID=$!
 sleep 1.5
 
-python3 -u scripts/run_pev.py  > "$PEV_LOG"  2>&1 &
+"$PYTHON_CMD" -u scripts/run_pev.py  > "$PEV_LOG"  2>&1 &
 PEV_PID=$!
 
 # Ensure both processes are cleaned up even if the script is

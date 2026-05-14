@@ -69,13 +69,16 @@ vendor/OpenV2Gx/Release/*.d
 vendor/OpenV2Gx/Release/src/
 vendor/OpenV2Gx/Release/OpenV2G.exe
 
-# OpenV2G EXI codec — platform-specific binaries built locally per-host
+# OpenV2G EXI codec - platform-specific binaries built locally per-host
 # from vendor/OpenV2Gx/. See scripts/build_codec.sh / build_codec.ps1.
-# We don't track these because the same path holds different content on
-# Linux/x86_64, Linux/aarch64 (Pi), and Windows/x86_64 — each host
-# would clobber the others' binary on every git pull.
+# Linux binary is ignored because Linux hosts always rebuild from source
+# (the AEC's documented Linux path apt-installs build-essential and
+# verify_artifact.sh's F0 step compiles vendor/OpenV2Gx on first run).
+# Windows binary IS tracked because Git Bash on Windows does NOT ship
+# gcc and we can't tell a reviewer to install MinGW just to compile a
+# 1.5 MB EXI codec - so the .exe rides along with the repo.
 hotwire/exi/codec/OpenV2G
-hotwire/exi/codec/OpenV2G.exe
+# hotwire/exi/codec/OpenV2G.exe  - intentionally tracked for Windows F0
 
 # OpenV2G rebuild artifacts
 vendor/_build_openv2g/
