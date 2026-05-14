@@ -86,6 +86,22 @@ codec_works() {
 bootstrap_codec() {
     log "F0 codec missing or wrong arch — initializing submodule + building from source..."
     if [ ! -f "$REPO_DIR/vendor/OpenV2Gx/src/test/main_example.c" ]; then
+        # The submodule source is missing. We can fetch it via `git
+        # submodule update --init`, but that needs a `.git` directory.
+        # The Zenodo tarball ships a populated vendor/OpenV2Gx so this
+        # branch should not be reached in the documented AEC path. If
+        # it IS reached, tell the operator exactly what's wrong instead
+        # of letting `git submodule update` fail with a cryptic
+        # "not a git repository" trace.
+        if [ ! -e "$REPO_DIR/.git" ]; then
+            fail "F0 vendor/OpenV2Gx source missing AND no .git directory in tree."
+            log "  Your unpacked archive looks incomplete. Two ways to recover:"
+            log "    (a) Re-download the Zenodo zip — it bundles vendor/OpenV2Gx source"
+            log "        so verify_artifact.sh never needs to touch git:"
+            log "        https://zenodo.org/records/19986377"
+            log "    (b) git clone --recurse-submodules https://github.com/sickcell6000/HotWire"
+            return 1
+        fi
         log "  Fetching vendor/OpenV2Gx submodule..."
         if (cd "$REPO_DIR" && git submodule update --init --recursive) > /tmp/hotwire_f0.log 2>&1; then
             log "  Submodule fetch OK."
@@ -94,6 +110,18 @@ bootstrap_codec() {
             tail -10 /tmp/hotwire_f0.log
             return 1
         fi
+    fi
+    # Need a C toolchain to compile OpenV2G. On a minimal Ubuntu the
+    # AEC apt-install line (python3-venv python3-dev python3-pip
+    # python3-pyqt5 python3-pyqt5.qtsvg unzip) does NOT pull in gcc.
+    # Detect that here and surface the missing dep upfront.
+    if ! command -v gcc >/dev/null 2>&1; then
+        fail "F0 needs gcc to build OpenV2G but gcc not found on PATH."
+        log "  Install C build tools and re-run, e.g.:"
+        log "    sudo apt install -y build-essential        # Debian / Ubuntu"
+        log "    sudo dnf install -y gcc make               # Fedora / RHEL"
+        log "    xcode-select --install                     # macOS"
+        return 1
     fi
     if (cd "$REPO_DIR" && python3 vendor/build_openv2g.py) >> /tmp/hotwire_f0.log 2>&1; then
         if codec_works "$CODEC_BIN"; then
