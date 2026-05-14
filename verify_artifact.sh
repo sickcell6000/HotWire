@@ -160,15 +160,31 @@ run_host_pytest_fallback() {
         warn "F1 fallback: pytest not installed; install with: pip install -r requirements.txt"
         return
     fi
+    # Full list of test files that touch PyQt5 / pytest-qt / qtbot at
+    # module scope. Mirrors GUI_TEST_FILES in
+    # scripts/docker_ci_entrypoint.sh — they must stay aligned so the
+    # host-fallback path doesn't crash on Qt binding mix-ups (e.g. when
+    # the host has PyQt5 from apt AND PyQt6 from pip co-installed, which
+    # segfaults pytest during collection with 7+ Qt extension modules
+    # loaded simultaneously).
     if python3 -m pytest tests/ -q --ignore=tests/fixtures \
-            --ignore=tests/test_gui_smoke.py \
+            --ignore=tests/test_gui_worker_reuse.py \
             --ignore=tests/test_gui_integration.py \
             --ignore=tests/test_gui_dual_scenarios.py \
-            --ignore=tests/test_attack_launcher.py \
+            --ignore=tests/test_gui_smoke.py \
+            --ignore=tests/test_session_replay_real_hw.py \
+            --ignore=tests/test_preflight_wizard.py \
             --ignore=tests/test_config_editor.py \
             --ignore=tests/test_config_save.py \
             --ignore=tests/test_csv_export.py \
-            --ignore=tests/test_gui_worker_reuse.py \
+            --ignore=tests/test_attack_launcher.py \
+            --ignore=tests/test_interface_status_dock.py \
+            --ignore=tests/test_interface_picker.py \
+            --ignore=tests/test_session_compare_panel.py \
+            --ignore=tests/test_live_pcap_viewer.py \
+            --ignore=tests/test_session_tools_panel.py \
+            --ignore=tests/test_hw_runner_panel.py \
+            --ignore=tests/test_session_replay.py \
             > /tmp/hotwire_ci_f1.log 2>&1; then
         summary=$(grep -E '^[0-9]+ passed|^=+ [0-9]+ passed' /tmp/hotwire_ci_f1.log | tail -1)
         ok "F1 host pytest regression: $summary (GUI + Docker-only tests skipped on host)"
