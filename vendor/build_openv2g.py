@@ -114,6 +114,23 @@ def _build_env(cc: str) -> dict[str, str]:
 PATCHES_DIR = VENDOR_ROOT / "patches"
 
 
+def _which_patch_tool() -> str:
+    """Pick the patch tool we have. AEC reviewers running off the
+    Zenodo tarball on a minimal Ubuntu container don't necessarily
+    have ``git`` installed (it's not in the AEC guide's apt-install
+    line), and the unpacked tarball has no .git anyway. Prefer the
+    portable ``patch(1)`` from build-essential, fall back to git."""
+    import shutil
+    if shutil.which("patch"):
+        return "patch"
+    if shutil.which("git"):
+        return "git"
+    raise RuntimeError(
+        "Need either 'patch' (Debian: apt install patch / part of "
+        "build-essential) or 'git' on PATH to apply vendor/patches/*.patch"
+    )
+
+
 def _apply_patches(dry_run: bool = False) -> None:
     """Apply every ``*.patch`` file under ``vendor/patches/`` to the
     submodule, skipping patches that are already applied. Keeping the
@@ -125,13 +142,17 @@ def _apply_patches(dry_run: bool = False) -> None:
     patches = sorted(PATCHES_DIR.glob("*.patch"))
     if not patches:
         return
+    tool = _which_patch_tool()
     for patch in patches:
-        # Check whether the patch is already applied — if yes, skip.
+        # Check whether the patch is already applied (apply reverse + --check).
+        if tool == "git":
+            check_cmd = ["git", "apply", "--check", "-R", str(patch)]
+        else:
+            # patch(1): -R dry-runs reverse; success means already applied.
+            check_cmd = ["patch", "--dry-run", "-R", "-p1", "-i", str(patch)]
         check = subprocess.run(
-            ["git", "apply", "--check", "-R", str(patch)],
-            cwd=OPENV2G_ROOT,
-            capture_output=True,
-            text=True,
+            check_cmd, cwd=OPENV2G_ROOT,
+            capture_output=True, text=True,
         )
         if check.returncode == 0:
             print(f"[patch] {patch.name} already applied, skipping")
@@ -139,11 +160,16 @@ def _apply_patches(dry_run: bool = False) -> None:
         print(f"[patch] applying {patch.name}")
         if dry_run:
             continue
+        if tool == "git":
+            apply_cmd = ["git", "apply", "--whitespace=nowarn", str(patch)]
+        else:
+            apply_cmd = [
+                "patch", "--forward", "--batch", "--no-backup-if-mismatch",
+                "-r", "-", "-p1", "-i", str(patch),
+            ]
         result = subprocess.run(
-            ["git", "apply", "--whitespace=nowarn", str(patch)],
-            cwd=OPENV2G_ROOT,
-            capture_output=True,
-            text=True,
+            apply_cmd, cwd=OPENV2G_ROOT,
+            capture_output=True, text=True,
         )
         if result.returncode != 0:
             sys.stderr.write(result.stdout)
