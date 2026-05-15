@@ -26,18 +26,44 @@ set -uo pipefail
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO_DIR"
 
-# Resolve a usable Python interpreter. Windows Git Bash venvs ship
-# python.exe but NOT python3.exe under Scripts/, so `python3` would
-# bypass the activated venv and fall through to system Python (often
-# missing hotwire deps). Linux + macOS venvs symlink both. We pick
-# python3 first when present, else python.
+# Resolve a usable Python interpreter. Two pitfalls we work around:
 #
-# F1 host fallback + F5 do their own deeper "this python has pytest
-# installed?" checks; this variable is the default for everything else
-# (F0 codec build, F2 / F3 sim scripts, F4 py_compile).
-PYTHON_CMD="${PYTHON_CMD:-$(command -v python3 || command -v python)}"
-if [ -z "${PYTHON_CMD:-}" ]; then
-    PYTHON_CMD="python3"   # let downstream commands fail with a clear "not found"
+#  1. Windows Git Bash venvs ship python.exe but NOT python3.exe under
+#     Scripts/, so a naive `command -v python3` bypasses the activated
+#     venv and finds something else first. Linux + macOS venvs
+#     symlink both names so the order doesn't matter there.
+#
+#  2. Windows 10/11 also ships a Microsoft Store python3.exe stub at
+#     %LOCALAPPDATA%\Microsoft\WindowsApps\python3 that exists in PATH
+#     and exits 0 to most invocations but launches a Store install
+#     dialog and has zero packages. So even when the venv IS active,
+#     `command -v python3` can return the stub and `$PYTHON_CMD -c
+#     'import pytest'` then fails with a misleading "pytest missing".
+#
+# Strategy: pick the FIRST candidate whose interpreter can `import
+# pytest`. That preference correctly resolves to the venv python on
+# any platform once the user has run `pip install -r requirements.txt`.
+# Fall back to the first interpreter that exists at all (so F0/F4 can
+# still run on a host that hasn't installed pytest yet, and downstream
+# pytest steps will warn cleanly via their existing pytest-availability
+# checks).
+PYTHON_CMD=""
+if [ -n "${PYTHON_CMD_OVERRIDE:-}" ]; then
+    PYTHON_CMD="$PYTHON_CMD_OVERRIDE"
+else
+    for candidate in python3 python python3.13 python3.12 python3.11; do
+        if command -v "$candidate" >/dev/null 2>&1 \
+                && "$candidate" -c "import pytest" >/dev/null 2>&1; then
+            PYTHON_CMD="$candidate"
+            break
+        fi
+    done
+    if [ -z "$PYTHON_CMD" ]; then
+        # No interpreter has pytest yet (acceptable for F0/F4).
+        # Pick the first that exists; if the user later runs F1/F5
+        # those steps re-probe pytest themselves and warn cleanly.
+        PYTHON_CMD="$(command -v python3 || command -v python || echo python3)"
+    fi
 fi
 export PYTHON_CMD
 
