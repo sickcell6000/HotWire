@@ -17,10 +17,19 @@ protocol-level voltage reading over its own physical inlet sensor,
 closed its high-voltage contactors and sourced current into the
 attacker-controlled load.
 
-Grep the session for the forged voltage:
+Grep the session for the forged voltage. Each line of `session.jsonl`
+is itself a JSON object whose `message` field carries the raw decoded
+trace as a JSON-encoded string — so the inner quotes are
+backslash-escaped on disk. A plain `grep '"...": "220"'` therefore
+returns nothing. Use one of these patterns instead:
 
 ```bash
-$ grep '"EVSEPresentVoltage.Value": "220"' pev/session.jsonl | head -3
+# Regex against the unescaped portion of the field name + value:
+$ grep -E 'EVSEPresentVoltage\.Value.*220' pev/session.jsonl | head -3
+
+# Or unescape first with jq before grepping (cleaner output):
+$ jq -r 'select(.message?) | .message' pev/session.jsonl \
+    | grep '"EVSEPresentVoltage.Value": "220"' | head -3
 … "msgName": "PreChargeRes",
    "EVSEPresentVoltage.Value": "220",
    "EVSEStatusCode_text": "EVSE_Ready" …
