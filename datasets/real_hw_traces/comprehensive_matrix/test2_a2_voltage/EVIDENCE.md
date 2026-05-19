@@ -21,7 +21,9 @@ Grep the session for the forged voltage. Each line of `session.jsonl`
 is itself a JSON object whose `message` field carries the raw decoded
 trace as a JSON-encoded string — so the inner quotes are
 backslash-escaped on disk. A plain `grep '"...": "220"'` therefore
-returns nothing. Use one of these patterns instead:
+returns nothing. Use one of these patterns instead (run from this
+bundle's directory — `cd datasets/real_hw_traces/comprehensive_matrix/test2_a2_voltage`
+first, or substitute the full path for `pev/session.jsonl`):
 
 ```bash
 # Regex against the unescaped portion of the field name + value:
