@@ -119,14 +119,23 @@ def _child_run_two_workers(scenario: str) -> dict:
         pause_controller=pev_pause, message_observer=pev_obs,
     )
 
-    # 20 s: enough for PEV to clock through the full DIN handshake INCLUDING
-    # the PreCharge ramp (default _PRECHARGE_RAMP_STEP_V = 25 V/round, so a
-    # 350 V target takes ~14 round-trips before CurrentDemand starts).
-    # Pre-2026-05 this was 8 s, which worked when A2 forced-overrode
-    # PreChargeRes to a static value — but that broke real PEVs whose
-    # EVTargetVoltage didn't match. The override was removed; tests now
-    # exercise the realistic ramp + CurrentDemand path.
-    deadline = time.monotonic() + 20.0
+    # PEV needs to clock through the full DIN handshake INCLUDING the
+    # PreCharge ramp (default _PRECHARGE_RAMP_STEP_V = 25 V/round, so a
+    # 350 V target takes ~14 round-trips) BEFORE CurrentDemand starts and
+    # the A2 assertion ("PEV decoded EVSEPresentVoltage=380") can fire.
+    #
+    # Pre-2026-05 the budget was 8 s, which worked when A2 forced-overrode
+    # PreChargeRes to a static value -- but that broke real PEVs whose
+    # EVTargetVoltage didn't match. Removing that override meant the test
+    # now exercises the realistic ramp, which needed 20 s on developer
+    # laptops. AEC reviewers on slower / containerised hosts reported the
+    # session reaching PowerDeliveryRes but not CurrentDemand within 20 s,
+    # so the budget is now 60 s with an env-var override for anyone who
+    # wants to dial it back. The loop short-circuits as soon as both sides
+    # have exchanged a CurrentDemand pair, so on a fast host the test
+    # still finishes in well under 10 s.
+    _deadline_s = float(os.environ.get("HOTWIRE_F5_DEADLINE_S", "60"))
+    deadline = time.monotonic() + _deadline_s
     while time.monotonic() < deadline:
         try:
             evse.mainfunction()
@@ -196,9 +205,14 @@ def _run_child(scenario: str) -> dict:
     # also re-export via HOTWIRE_TCP_PORT_ALTERNATIVE which the
     # _resolve_tcp_port logic will pick up.
     child_env["HOTWIRE_TCP_PORT_OVERRIDE"] = str(port)
+    # subprocess timeout = HOTWIRE_F5_DEADLINE_S (default 60) + 30 s
+    # buffer for venv import / Qt setup / RESULT_JSON serialisation.
+    # Must exceed the child's internal handshake deadline or we kill
+    # the child mid-CurrentDemand and the parent assertion fails.
+    _child_timeout = float(os.environ.get("HOTWIRE_F5_DEADLINE_S", "60")) + 30.0
     proc = subprocess.run(
         [sys.executable, str(Path(__file__).resolve()), "--child", scenario],
-        capture_output=True, text=True, timeout=45,
+        capture_output=True, text=True, timeout=_child_timeout,
         env=child_env,
         # Force UTF-8 stdout/stderr decoding. The child prints trace lines
         # containing arrows / box-drawing glyphs (U+2192, U+2705, etc.) as
