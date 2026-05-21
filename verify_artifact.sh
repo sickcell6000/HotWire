@@ -384,10 +384,10 @@ elif "$F5_PY" -m pytest tests/test_attack_sim_mode.py -v --no-header \
         log "    a single PEV pause-controller. Test:"
         log "    tests/test_attack_sim_mode.py::test_a1_combined_with_pev_v_override_sim"
     else
-        warn "F5 ran but reported only ${passed:-?} PASS (expected 3); see /tmp/hotwire_f5.log"
+        fail "F5 ran but reported only ${passed:-?} PASS (expected 3); see /tmp/hotwire_f5.log"
     fi
 else
-    warn "F5 sim-mode attack tests failed; see /tmp/hotwire_f5.log"
+    fail "F5 sim-mode attack tests failed; see /tmp/hotwire_f5.log"
 fi
 
 # --------------------------------------------------------------
@@ -396,7 +396,7 @@ fi
 banner "F6 — Real-hardware evidence bundles"
 
 if [ ! -d datasets/real_hw_traces ]; then
-    warn "F6 datasets/real_hw_traces/ missing — bundle wasn't shipped"
+    fail "F6 datasets/real_hw_traces/ missing — bundle wasn't shipped"
 else
     pcap_count=0
     bad_pcap=0
@@ -416,7 +416,7 @@ else
     elif [ "$bad_pcap" -gt 0 ]; then
         fail "F6 $bad_pcap of $pcap_count pcap files have wrong magic bytes"
     else
-        warn "F6 datasets/real_hw_traces shipped only $pcap_count pcap files (expected ≥ 5)"
+        fail "F6 datasets/real_hw_traces shipped only $pcap_count pcap files (expected ≥ 5)"
     fi
 fi
 
