@@ -227,9 +227,27 @@ def _run_child(scenario: str) -> dict:
     for line in proc.stdout.splitlines():
         if line.startswith("RESULT_JSON:"):
             try:
-                return json.loads(line[len("RESULT_JSON:"):].strip())
+                res = json.loads(line[len("RESULT_JSON:"):].strip())
             except json.JSONDecodeError:
                 pass
+            else:
+                # Drop the full child output to disk so an AEC reviewer
+                # who hits a failure (rx_stages cut off at [:10] in the
+                # assertion message) has everything we know: full
+                # tx_stages, rx_stages, last-30 traces, raw child stdout.
+                # Without this they'd have to rerun with `pytest -s` to
+                # capture stdout, which is non-obvious.
+                _dump_path = Path("/tmp") / f"hotwire_f5_result_{scenario}.json"
+                try:
+                    _dump_path.write_text(
+                        json.dumps({"_result": res, "_stdout": proc.stdout,
+                                    "_stderr": proc.stderr, "_rc": proc.returncode},
+                                   indent=2, default=str),
+                        encoding="utf-8",
+                    )
+                except OSError:
+                    pass  # tmp not writable; non-fatal
+                return res
     raise RuntimeError(
         f"child returned no parseable RESULT_JSON for scenario {scenario!r}; "
         f"stdout tail: {proc.stdout[-500:]}; "
@@ -264,8 +282,15 @@ def test_a2_forced_discharge_sim():
         f"trace tail={res['evse_traces_tail']}"
     )
     assert res["pev_decoded_a2_voltage"], (
-        f"PEV never decoded EVSEPresentVoltage=380; "
-        f"pev rx_stages={res['pev_rx_stages'][:10]}"
+        f"PEV never decoded EVSEPresentVoltage=380.\n"
+        f"  pev_rx_stages (full)   = {res['pev_rx_stages']}\n"
+        f"  pev_tx_stages (full)   = {res['pev_tx_stages']}\n"
+        f"  evse_tx_stages (full)  = {res['evse_tx_stages']}\n"
+        f"  evse encoded last CD?  = "
+        f"{[t for t in res['evse_traces_tail'] if 'CurrentDemand' in t][-3:]}\n"
+        f"  pev decoded last CD?   = "
+        f"{[t for t in res['pev_traces_tail'] if 'CurrentDemand' in t][-3:]}\n"
+        f"  Full dump: /tmp/hotwire_f5_result_a2.json"
     )
 
 
