@@ -148,6 +148,27 @@ def _child_run_two_workers(scenario: str) -> dict:
             break
         time.sleep(0.01)
 
+    # Drain in-flight bytes before shutdown. Without this, an AEC
+    # reviewer on a slower host can hit a race where the main deadline
+    # expires in the small gap between EVSE encoding the first
+    # CurrentDemandRes (which lands in the TCP buffer and shows up in
+    # evse_traces -> sets evse_encoded_a2_voltage=True) and PEV's next
+    # mainfunction call that would have read+decoded it. The grace
+    # iterations run unconditionally for up to 1 s so PEV gets a final
+    # chance to consume anything sitting in its socket buffer; on a
+    # healthy run the loop above already broke and these iterations are
+    # almost-no-ops.
+    for _ in range(100):     # ~1 s at 10 ms sleep
+        try:
+            evse.mainfunction()
+            pev.mainfunction()
+        except Exception:    # noqa: BLE001
+            break
+        if (any(s == "CurrentDemandReq" for s in pev_obs.tx_stages)
+                and any(s == "CurrentDemandRes" for s in pev_obs.rx_stages)):
+            break
+        time.sleep(0.01)
+
     for w in (evse, pev):
         try:
             w.shutdown()
