@@ -124,6 +124,30 @@ codec_works() {
     return 0
 }
 
+codec_patch_effective() {
+    # Verify the binary at "$1" was built with vendor/patches/01-hotwire-
+    # custom-params.patch applied. Without that patch, OpenV2G's
+    # encodeCurrentDemandResponse() ignores positional args and emits
+    # default-only CurrentDemandRes, which silently breaks Attack A2
+    # (PEV decodes EVSEPresentVoltage=0 instead of the forged value).
+    #
+    # The patch adds a unique marker in the info string -- the literal
+    # text "custom params" -- that pristine upstream OpenV2G does not
+    # produce. We run a single A2-shaped encode and grep for it.
+    #
+    # This was added because the AEC reviewer's F0 succeeded (binary
+    # ran) but produced unpatched output, so the only visible symptom
+    # was a downstream F5 a2 assertion failure with no hint why.
+    local probe_out
+    probe_out=$("$1" "EDi_0_1_1_1_0_0_0_380_5_0_10_3_0_0_0_1_0_450_5_1_0_200_3_1_3_60_7" 2>&1)
+    case "$probe_out" in
+        *"custom params"*)
+            return 0 ;;
+        *)
+            return 1 ;;
+    esac
+}
+
 bootstrap_codec() {
     log "F0 codec missing or wrong arch — initializing submodule + building from source..."
     if [ ! -f "$REPO_DIR/vendor/OpenV2Gx/src/test/main_example.c" ]; then
@@ -165,10 +189,15 @@ bootstrap_codec() {
         return 1
     fi
     if (cd "$REPO_DIR" && "$PYTHON_CMD" vendor/build_openv2g.py) >> /tmp/hotwire_f0.log 2>&1; then
-        if codec_works "$CODEC_BIN"; then
-            ok "F0 codec built: $CODEC_BIN ($(wc -c < "$CODEC_BIN") bytes)"
-        else
+        if ! codec_works "$CODEC_BIN"; then
             fail "F0 build succeeded but executable check failed at $CODEC_BIN"
+        elif ! codec_patch_effective "$CODEC_BIN"; then
+            fail "F0 built but vendor/patches/01-hotwire-custom-params.patch not effective."
+            log "  Probe with the A2 sentinel command did not return the 'custom params'"
+            log "  marker that only patched OpenV2G emits. Check /tmp/hotwire_f0.log for"
+            log "  patch-apply warnings; clean source tree and retry if needed."
+        else
+            ok "F0 codec built + patched: $CODEC_BIN ($(wc -c < "$CODEC_BIN") bytes)"
         fi
     else
         fail "F0 codec build failed; full log: /tmp/hotwire_f0.log"
@@ -177,7 +206,21 @@ bootstrap_codec() {
 }
 
 if codec_works "$CODEC_BIN"; then
-    ok "F0 codec present and executable: $CODEC_BIN ($(wc -c < "$CODEC_BIN") bytes)"
+    if codec_patch_effective "$CODEC_BIN"; then
+        ok "F0 codec present, executable, and patched: $CODEC_BIN ($(wc -c < "$CODEC_BIN") bytes)"
+    else
+        log "F0 codec exists but vendor/patches/01-hotwire-custom-params.patch did not"
+        log "    take effect (probe output missing 'custom params' marker). The binary is"
+        log "    likely stale from a build before the patch landed. Rebuilding from source..."
+        rm -f "$CODEC_BIN"
+        bootstrap_codec
+        if codec_works "$CODEC_BIN" && ! codec_patch_effective "$CODEC_BIN"; then
+            fail "F0 rebuilt codec STILL not patched. Likely vendor/patches/*.patch did not"
+            log "    apply cleanly to vendor/OpenV2Gx/. Inspect /tmp/hotwire_f0.log for"
+            log "    patch warnings, then 'rm -rf vendor/OpenV2Gx && git submodule update"
+            log "    --init --recursive && bash verify_artifact.sh' to restart from clean."
+        fi
+    fi
 elif [ -e "$CODEC_BIN" ]; then
     log "F0 codec exists but cannot execute on this host (likely arch mismatch); rebuilding from source..."
     rm -f "$CODEC_BIN"
