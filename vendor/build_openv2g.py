@@ -152,6 +152,7 @@ def _apply_patches(dry_run: bool = False) -> None:
             check_cmd = ["patch", "--dry-run", "-R", "-p1", "-i", str(patch)]
         check = subprocess.run(
             check_cmd, cwd=OPENV2G_ROOT,
+            stdin=subprocess.DEVNULL,
             capture_output=True, text=True,
         )
         if check.returncode == 0:
@@ -167,14 +168,39 @@ def _apply_patches(dry_run: bool = False) -> None:
                 "patch", "--forward", "--batch", "--no-backup-if-mismatch",
                 "-r", "-", "-p1", "-i", str(patch),
             ]
+        # stdin=DEVNULL is critical: without it patch can read prompts
+        # from the controlling TTY ("File to patch:", "Apply anyway?")
+        # despite --batch, and a reviewer who hits Enter accepts the
+        # default (skip the hunk), leaving the source half-patched.
+        # That produced a silent OpenV2G build with the EVSEPresentVoltage
+        # override missing -- which then broke F5 a2 downstream.
         result = subprocess.run(
             apply_cmd, cwd=OPENV2G_ROOT,
+            stdin=subprocess.DEVNULL,
             capture_output=True, text=True,
         )
         if result.returncode != 0:
+            sys.stderr.write(f"[patch] FAILED to apply {patch.name} "
+                             f"(rc={result.returncode})\n")
+            sys.stderr.write("=== patch stdout ===\n")
             sys.stderr.write(result.stdout)
+            sys.stderr.write("=== patch stderr ===\n")
             sys.stderr.write(result.stderr)
-            raise SystemExit(f"[patch] failed to apply {patch}")
+            raise SystemExit(f"[patch] failed to apply {patch.name}; "
+                             f"see /tmp/hotwire_f0.log for details")
+        # patch(1) returns 0 even when some hunks were rejected; the only
+        # signal is "FAILED" lines in stdout. Treat any such line as a
+        # real failure so we don't end up with a half-patched build
+        # silently passing F0 and breaking F5 with cryptic decoded-as-
+        # default symptoms.
+        if "FAILED" in result.stdout:
+            sys.stderr.write(f"[patch] {patch.name} applied with hunk failures:\n")
+            sys.stderr.write(result.stdout)
+            raise SystemExit(
+                f"[patch] {patch.name} had hunk failures; source tree is "
+                f"half-patched. Clean with 'rm -rf vendor/OpenV2Gx && "
+                f"git submodule update --init --recursive' and retry."
+            )
 
 
 def build(cc: str, dry_run: bool = False) -> Path:
