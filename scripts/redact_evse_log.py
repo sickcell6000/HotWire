@@ -7,9 +7,13 @@ NOT structured JSONL (for those, use ``redact_session.py`` instead).
 The five identifier classes redacted by default:
 
   1. Victim PEV's EVCCID (= victim vehicle MAC) — the most sensitive.
-     In SessionSetupReq lines this is the byte string the real
-     vehicle sent over the wire. Replaced with a stable
-     ``[REDACTED-N7-EVCCID]`` tag.
+     Redacted in EVERY textual form it appears in: the raw hex in
+     ``SessionSetupReq``, the colon-separated MAC in
+     ``[addressManager] pev has MAC`` lines, and the modified-EUI-64
+     IPv6 link-local in ``pev has IP`` / ``Connection from`` lines
+     (the latter two were silently leaking before this fix). Hex/MAC
+     forms become ``[REDACTED-N7-EVCCID]``; the derived IPv6 becomes
+     ``[REDACTED-N7-IPV6]``.
 
   2. EVSE-side lab machine MAC. Less sensitive (it is the
      researcher's own machine, not a victim) but still an identifier.
@@ -60,18 +64,59 @@ REDACT_EVCCID = "[REDACTED-N7-EVCCID]"
 REDACT_EVSE_MAC = "02:00:00:00:00:01"
 REDACT_IPV6_LL = "fe80::1%lab0"
 REDACT_NIC_GUID = "{REDACTED-NIC-GUID}"
+REDACT_IPV6_PEV = "[REDACTED-N7-IPV6]"
+
+
+def _evccid_forms(evccid: str) -> tuple[list[str], list[str]]:
+    """Derive every textual form of the victim EVCCID (= vehicle MAC)
+    that pyPLC/HotWire logs can emit, so none slips through:
+
+      * raw 12-hex string      e.g. ``aabbccddeeff``
+      * colon-separated MAC    e.g. ``aa:bb:cc:dd:ee:ff``
+        (the ``[addressManager] pev has MAC`` lines the old code missed)
+      * modified-EUI-64 IPv6 link-local derived from that MAC, both
+        zero-expanded and ``::``-compressed, plus the bare interface id
+        (the ``pev has IP`` / ``Connection from`` lines it missed)
+
+    Returns ``(id_forms, ipv6_forms)``: ``id_forms`` redact to
+    ``[REDACTED-N7-EVCCID]``, ``ipv6_forms`` to ``[REDACTED-N7-IPV6]``.
+    """
+    hexs = evccid.replace(":", "").strip().lower()
+    id_forms = [evccid]
+    ipv6_forms: list[str] = []
+    if re.fullmatch(r"[0-9a-f]{12}", hexs):
+        b = bytes.fromhex(hexs)
+        id_forms.append(hexs)
+        id_forms.append(":".join(f"{x:02x}" for x in b))  # colon MAC form
+        # modified EUI-64: flip the U/L bit, insert ff:fe in the middle
+        eui = bytes([b[0] ^ 0x02, b[1], b[2], 0xFF, 0xFE, b[3], b[4], b[5]])
+        iface = ":".join(f"{eui[i]:02x}{eui[i + 1]:02x}" for i in range(0, 8, 2))
+        # most-specific first so the bare id doesn't leave a dangling stub
+        ipv6_forms = [f"fe80:0000:0000:0000:{iface}", f"fe80::{iface}", iface]
+    id_forms = list(dict.fromkeys(id_forms))  # de-dup, keep order
+    return id_forms, ipv6_forms
 
 
 def redact(text: str, evccid: str, evse_mac: str, ipv6_ll: str,
            nic_guid: str) -> tuple[str, dict[str, int]]:
-    """Apply all five redaction rules. Returns (new_text, counts)."""
+    """Apply all redaction rules. Returns (new_text, counts)."""
     counts: dict[str, int] = {}
 
-    # 1. Victim EVCCID — match in JSON-style ``"EVCCID": "<hex>"``
-    #    and in plain ``EVCCID = <hex>`` log lines.
-    pattern = re.compile(re.escape(evccid), re.IGNORECASE)
-    text, n = pattern.subn(REDACT_EVCCID, text)
-    counts["EVCCID"] = n
+    # 1. Victim EVCCID (= vehicle MAC) in EVERY form it can appear:
+    #    raw hex (``"EVCCID": "<hex>"``), colon MAC (``pev has MAC``),
+    #    and the modified-EUI-64 IPv6 link-local (``pev has IP`` /
+    #    ``Connection from``). The last two were missed previously.
+    id_forms, ipv6_forms = _evccid_forms(evccid)
+    n_id = 0
+    for form in id_forms:
+        text, c = re.compile(re.escape(form), re.IGNORECASE).subn(REDACT_EVCCID, text)
+        n_id += c
+    counts["EVCCID"] = n_id
+    n_ip = 0
+    for form in ipv6_forms:
+        text, c = re.compile(re.escape(form), re.IGNORECASE).subn(REDACT_IPV6_PEV, text)
+        n_ip += c
+    counts["PEV_IPv6"] = n_ip
 
     # 2. EVSE lab MAC — match colon-separated and (less common)
     #    no-separator forms. Case-insensitive.

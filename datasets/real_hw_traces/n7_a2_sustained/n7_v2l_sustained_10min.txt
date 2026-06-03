@@ -25,7 +25,7 @@ sniffer created at eth4
 [600ms] received SET_KEY.CNF
 [600ms] SetKeyCnf says 1, this is formally 'rejected', but indeed ok.
 [755ms] received SLAC_PARAM.REQ
-[addressManager] pev has MAC AA:BB:CC:DD:EE:FF
+[addressManager] pev has MAC [REDACTED-N7-EVCCID]
 [769ms] [EVSE] transmitting CM_SLAC_PARAM.CNF
 [802ms] Checkpoint102: received SLAC_PARAM.CNF
 [1051ms] received MNBC_SOUND.IND
@@ -42,13 +42,13 @@ sniffer created at eth4
 [1315ms] received ATTEN_CHAR.IND
 [2192ms] received SLAC_MATCH.REQ
 [2194ms] [EVSE] transmitting SLAC_MATCH.CNF
-[addressManager] pev has IP fe80:0000:0000:0000:7085:38ff:fec1:7db1
+[addressManager] pev has IP [REDACTED-N7-IPV6]
 V2GTP (10bytes) = 01 FE 90 00 00 00 00 02 10 00 
 Ok, this was a valid SDP request. We are the SECC. Sending SDP response.
 SDP payload (20bytes) = FE 80 00 00 00 00 00 00 19 F2 DB 35 EC 31 05 F8 DF 22 10 00 
 V2Gframe (28bytes) = 01 FE 90 01 00 00 00 14 FE 80 00 00 00 00 00 00 19 F2 DB 35 EC 31 05 F8 DF 22 10 00 
 V2GTP (28bytes) = 01 FE 90 01 00 00 00 14 FE 80 00 00 00 00 00 00 19 F2 DB 35 EC 31 05 F8 DF 22 10 00 
-[11166ms] Connection from ('fe80::7085:38ff:fec1:7db1', 44866, 0, 8)
+[11166ms] Connection from ('[REDACTED-N7-IPV6]', 44866, 0, 8)
 [11220ms] [EVSE] In state WaitForSupportedApplicationProtocolRequest, received (76bytes) = 01 FE 80 01 00 00 00 44 80 00 DB AB 93 71 D3 23 4B 71 D1 B9 81 89 91 89 D1 91 81 89 91 D2 6B 9B 3A 23 2B 30 02 00 00 04 00 01 D7 57 26 E3 A6 97 36 F3 A3 13 53 13 13 83 A3 23 A3 23 03 13 33 A4 D7 36 74 46 56 60 04 00 00 10 08 80 
 [11235ms] [EVSE] {
 "msgName": "supportedAppProtocolReq",

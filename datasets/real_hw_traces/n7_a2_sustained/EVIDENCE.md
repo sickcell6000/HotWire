@@ -8,9 +8,11 @@ for **tens of minutes** at a time, not just a one-shot spike.
 
 The shorter `comprehensive_matrix/test2_a2_voltage/` capture in this
 artifact shows the **mechanism** (forged 220 V → BMS closes
-contactors → 5 A flows). The four files here show the **endurance**:
+contactors → 5 A flows). The files here show the **endurance**:
 the same attack held for 1, 10, and 20 minutes against a real
-production-VIN LUXGEN N7 in the lab.
+production-VIN LUXGEN N7 in the lab, plus a decoded full-session
+trace spanning **~100 minutes** (over an hour) that underpins the
+paper's $\geq$60-minute sustained-discharge claim.
 
 ## Files
 
@@ -20,6 +22,7 @@ production-VIN LUXGEN N7 in the lab.
 | `n7_v2l_sustained_1min.txt` | 40,540 | ~1 min | Continuous V2L for 1 min, manually stopped |
 | `n7_v2l_sustained_10min.txt` | 285,000+ | ~10 min | Continuous V2L for 10 min, manually stopped |
 | `n7_v2l_sustained_20min.txt` | 220,000+ | ~20 min | Continuous V2L for 20 min, manually stopped |
+| `n7_v2l_sustained_full_decoded.csv` | 68,193 | ~100 min | Protocol-reported voltage/current time series decoded from the full sustained-discharge network trace. **Identifier-free** (no EVCCID/MAC/IPv6 — only `t_rel_s`, `EVSEPresentVoltage_V`, `EVSEPresentCurrent_A`, `EVTargetVoltage_V`). This is the longest single sustained session in the artifact and backs the $\geq$60 min claim. |
 
 ## What you should grep for
 
@@ -59,7 +62,7 @@ attacker's load until the operator stopped the test.
 | External load | resistive load + indicator bulb across CCS DC ± |
 | Sentinel forged voltage | 200–253 V (PreCharge ramp values) |
 | Actual flowing current | 20 A (decoded from `EVSEPresentCurrent.Value=200, Multiplier=-1`) |
-| Sustained durations | 1 min / 10 min / 20 min separate runs |
+| Sustained durations | 1 min / 10 min / 20 min separate runs; plus one ~100 min full session (decoded CSV) |
 | Capture dates | 2025-05-19 onward |
 
 ## PII redaction
@@ -95,4 +98,4 @@ Maps to:
   `tests/test_attack_sim_mode.py::test_a2_forced_discharge_sim`
 - Mechanism (real hardware, 60 s):
   `comprehensive_matrix/test2_a2_voltage/`
-- **Endurance (real hardware, 1–20 min): this bundle.**
+- **Endurance (real hardware, 1–20 min, and ~100 min decoded full session): this bundle.**
