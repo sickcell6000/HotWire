@@ -71,7 +71,7 @@ Runtime: **~5 minutes** with `hotwire-ci.tar.gz` pre-loaded;
 | **F3** — Parametric matrix | Voltage × duration matrix all PASS | 9/9 rows marked `PASS` |
 | **F4** — Attack-code presence | A1 + A2 source compiles | both modules exit `py_compile` clean |
 | **F5** — Sim-mode attack reach | A1 + A2 fabricated values reach the wire | 3/3 sim-attack tests PASS |
-| **F6** — Real-hardware evidence | `datasets/real_hw_traces/` pcap bundles intact | all bundle pcaps validate as pcap v2.4 |
+| **F6** — Real-hardware evidence | de-identified decoded traces + session logs shipped (raw pcaps withheld for privacy) | `≥1 decoded CSV + ≥5 session logs` |
 
 ### 2.3 Manual run of individual checks
 

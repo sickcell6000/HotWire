@@ -10,7 +10,7 @@
 #   F3  Parametric matrix (9 voltage × duration runs)
 #   F4  Attack-code presence (A1 + A2 syntactically valid)
 #   F5  Sim-mode attack reach (A1 + A2 fabricated values reach wire)
-#   F6  Real-hardware evidence bundles intact (pcap magic check)
+#   F6  Real-hardware evidence present (de-identified decoded CSV + logs)
 #
 # Total runtime: ~5 minutes with the image pre-loaded from
 # hotwire-ci.tar.gz, ~25 minutes if building from source.
@@ -441,25 +441,16 @@ banner "F6 — Real-hardware evidence bundles"
 if [ ! -d datasets/real_hw_traces ]; then
     fail "F6 datasets/real_hw_traces/ missing — bundle wasn't shipped"
 else
-    pcap_count=0
-    bad_pcap=0
-    for p in datasets/real_hw_traces/**/*.pcap datasets/real_hw_traces/*/*.pcap \
-             datasets/real_hw_traces/*/*/*.pcap datasets/real_hw_traces/*/*/*/*.pcap; do
-        [ -f "$p" ] || continue
-        pcap_count=$((pcap_count + 1))
-        # libpcap magic numbers: 0xa1b2c3d4 (us) or 0xa1b23c4d (ns)
-        head_bytes=$(od -An -N4 -tx1 "$p" 2>/dev/null | tr -d ' ')
-        case "$head_bytes" in
-            d4c3b2a1|a1b2c3d4|4d3cb2a1|a1b23c4d) : ;;
-            *) bad_pcap=$((bad_pcap + 1)) ;;
-        esac
-    done
-    if [ "$pcap_count" -ge 5 ] && [ "$bad_pcap" -eq 0 ]; then
-        ok "F6 datasets/real_hw_traces: $pcap_count valid pcap files"
-    elif [ "$bad_pcap" -gt 0 ]; then
-        fail "F6 $bad_pcap of $pcap_count pcap files have wrong magic bytes"
+    # Raw pcaps are withheld for privacy: they embed the vehicle EVCCID
+    # (= the EV's PLC MAC) and other link-layer identifiers. We ship the
+    # de-identified equivalent instead -- decoded protocol-reported CSV
+    # time series plus session.jsonl logs -- which carry no identifiers.
+    csv_count=$(find datasets/real_hw_traces -name '*_decoded.csv' 2>/dev/null | wc -l | tr -d ' ')
+    jsonl_count=$(find datasets/real_hw_traces -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$csv_count" -ge 1 ] && [ "$jsonl_count" -ge 5 ]; then
+        ok "F6 de-identified evidence: $csv_count decoded CSV + $jsonl_count session logs (raw pcaps withheld for privacy)"
     else
-        fail "F6 datasets/real_hw_traces shipped only $pcap_count pcap files (expected ≥ 5)"
+        fail "F6 de-identified evidence missing (decoded CSV=$csv_count, session logs=$jsonl_count)"
     fi
 fi
 
