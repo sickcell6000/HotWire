@@ -8,6 +8,7 @@
 <meta property="og:title" content="HotWire — Attacks on EV Charging" />
 <meta property="og:description" content="With ~$180 of hardware: steal charging billed to a victim, and drain an EV's battery — on production cars and live public networks. USENIX WOOT '26." />
 <meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23F5B400' stroke='%2315181F' stroke-width='1' stroke-linejoin='round' d='M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -18,6 +19,7 @@
     --blue:#0A6CE0; --bluebg:rgba(10,108,224,.10);
     --red:#D8431F; --redbg:rgba(216,67,31,.10);
     --teal:#0C8273; --tealbg:rgba(12,130,115,.09);
+    --volt:#F5B400;
     --bd:rgba(20,24,32,.10); --bd2:rgba(20,24,32,.18);
     --shadow:0 1px 3px rgba(20,24,32,.06);
     --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
@@ -33,10 +35,14 @@
   .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
   .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 
+  /* high-voltage bolt mark */
+  .bolt{display:inline-flex;align-items:center;line-height:0;color:var(--volt)}
+  .bolt svg{height:1em;width:auto;fill:currentColor;stroke:#15181F;stroke-width:.8;stroke-linejoin:round}
+
   /* nav */
   nav{position:sticky;top:0;z-index:50;background:rgba(245,246,248,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
-  .brand{font-weight:700;letter-spacing:.06em;font-size:18px}
+  .brand{display:flex;align-items:center;gap:6px;font-weight:700;letter-spacing:.06em;font-size:18px}
   .brand .spark{color:var(--blue)}
   .navlinks{display:flex;gap:22px;font-size:14px}
   .navlinks a{color:var(--tx2)}
@@ -46,8 +52,9 @@
   /* hero */
   .hero{padding:84px 0 64px;border-bottom:1px solid var(--bd)}
   .badge{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);border:1px solid var(--blue);border-radius:999px;padding:5px 14px;margin-bottom:26px}
-  h1.title{font-size:clamp(48px,9vw,104px);font-weight:700;letter-spacing:.02em;line-height:.98}
+  h1.title{display:flex;align-items:center;gap:.1em;flex-wrap:wrap;font-size:clamp(48px,9vw,104px);font-weight:700;letter-spacing:.02em;line-height:.98}
   h1.title .spark{color:var(--blue)}
+  .title .bolt svg{height:.72em}
   .sub{font-size:clamp(18px,2.6vw,24px);color:var(--tx);margin-top:18px;font-weight:500;max-width:760px}
   .pitch{font-size:18px;color:var(--tx2);margin-top:18px;max-width:720px}
   .pitch b{color:var(--tx);font-weight:500}
@@ -139,7 +146,7 @@
 
 <nav>
   <div class="wrap">
-    <div class="brand">HOT<span class="spark">WIRE</span></div>
+    <div class="brand"><span class="bolt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z"/></svg></span><span class="word">HOT<span class="spark">WIRE</span></span></div>
     <div class="navlinks">
       <a href="#attacks">Attacks</a>
       <a href="#findings">Findings</a>
@@ -154,7 +161,7 @@
 <header class="hero">
   <div class="wrap">
     <span class="badge">USENIX WOOT '26</span>
-    <h1 class="title">HOT<span class="spark">WIRE</span></h1>
+    <h1 class="title"><span class="bolt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z"/></svg></span><span class="word">HOT<span class="spark">WIRE</span></span></h1>
     <p class="sub">Real-world impersonation and discharge attacks on electric vehicle charging systems.</p>
     <p class="pitch">With about <b>$180</b> of off-the-shelf hardware, we <b>steal charging</b> billed to a victim, and <b>drain an EV's battery</b> until it won't start — demonstrated on <b>production cars</b> and <b>live public charging networks</b>.</p>
     <div class="cta">
