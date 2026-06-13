@@ -13,11 +13,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --bg:#0E1117; --bg2:#151A23; --bg3:#1B212C;
-    --tx:#E8ECF2; --tx2:#9AA4B2; --tx3:#6B7686;
-    --red:#E5532B; --redbg:rgba(229,83,43,.12);
-    --teal:#2BB6A3; --tealbg:rgba(43,182,163,.12);
-    --bd:rgba(255,255,255,.10); --bd2:rgba(255,255,255,.18);
+    --bg:#F5F6F8; --bg2:#FFFFFF; --bg3:#EAECEF;
+    --tx:#15181F; --tx2:#525965; --tx3:#868D99;
+    --red:#D8431F; --redbg:rgba(216,67,31,.10);
+    --teal:#0C8273; --tealbg:rgba(12,130,115,.09);
+    --bd:rgba(20,24,32,.10); --bd2:rgba(20,24,32,.18);
+    --shadow:0 1px 3px rgba(20,24,32,.06);
     --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
     --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     --max:1040px;
@@ -32,7 +33,7 @@
   .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 
   /* nav */
-  nav{position:sticky;top:0;z-index:50;background:rgba(14,17,23,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
+  nav{position:sticky;top:0;z-index:50;background:rgba(245,246,248,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
   .brand{font-weight:700;letter-spacing:.06em;font-size:18px}
   .brand .spark{color:var(--red)}
@@ -50,10 +51,10 @@
   .pitch{font-size:18px;color:var(--tx2);margin-top:18px;max-width:720px}
   .pitch b{color:var(--tx);font-weight:500}
   .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
-  .btn{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:500;padding:12px 20px;border-radius:8px;border:1px solid var(--bd2);color:var(--tx);transition:background .15s}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:500;padding:12px 20px;border-radius:8px;border:1px solid var(--bd2);color:var(--tx);background:var(--bg2);transition:background .15s}
   .btn:hover{background:var(--bg3);text-decoration:none}
   .btn.primary{background:var(--red);border-color:var(--red);color:#fff}
-  .btn.primary:hover{background:#cf471f}
+  .btn.primary:hover{background:#bf3a18}
 
   section{padding:64px 0;border-bottom:1px solid var(--bd)}
   .eyebrow{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:10px}
@@ -64,7 +65,7 @@
   /* attack cards */
   .two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
   @media(max-width:760px){.two{grid-template-columns:1fr}}
-  .card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:26px}
+  .card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:26px;box-shadow:var(--shadow)}
   .card .tag{font-family:var(--mono);font-size:13px;color:var(--red);font-weight:500}
   .card h3{font-size:22px;font-weight:700;margin:8px 0 12px}
   .card p{color:var(--tx2);font-size:15.5px}
@@ -75,7 +76,7 @@
   /* stat grid */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:30px}
   @media(max-width:860px){.stats{grid-template-columns:repeat(2,1fr)}}
-  .stat{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:22px}
+  .stat{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:22px;box-shadow:var(--shadow)}
   .stat .n{font-size:34px;font-weight:700;color:var(--red);line-height:1}
   .stat .n.teal{color:var(--teal)}
   .stat .l{color:var(--tx2);font-size:14px;margin-top:10px}
@@ -83,15 +84,15 @@
   /* how-it-works steps */
   .flow{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
   @media(max-width:760px){.flow{grid-template-columns:1fr}}
-  .step{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:24px}
+  .step{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:24px;box-shadow:var(--shadow)}
   .step h4{font-size:17px;font-weight:700;margin-bottom:12px}
-  .msg{font-family:var(--mono);font-size:13.5px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:14px;color:var(--tx2);line-height:1.9;overflow-x:auto}
+  .msg{font-family:var(--mono);font-size:13.5px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:14px;color:var(--tx2);line-height:1.9;overflow-x:auto}
   .msg .ev{color:var(--teal)} .msg .at{color:var(--red)} .msg .ok{color:var(--tx)}
 
   /* demos */
   .demos{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
   @media(max-width:760px){.demos{grid-template-columns:1fr}}
-  .demo{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+  .demo{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
   .demoframe{aspect-ratio:16/9;background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--tx3);gap:12px;border-bottom:1px solid var(--bd)}
   .demo video{width:100%;display:block;background:#000}
   .play{width:58px;height:58px;border-radius:50%;border:2px solid var(--tx3);display:flex;align-items:center;justify-content:center}
@@ -101,7 +102,7 @@
   .demo .cap p{color:var(--tx2);font-size:14px;margin-top:4px}
 
   /* table */
-  .tablewrap{margin-top:28px;overflow-x:auto;border:1px solid var(--bd);border-radius:12px}
+  .tablewrap{margin-top:28px;overflow-x:auto;border:1px solid var(--bd);border-radius:12px;background:var(--bg2);box-shadow:var(--shadow)}
   table{width:100%;border-collapse:collapse;font-size:15px;min-width:560px}
   th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--bd)}
   th{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);font-weight:500}
@@ -112,7 +113,7 @@
 
   /* faq */
   .faq{margin-top:24px;display:grid;gap:2px}
-  details{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:0 20px}
+  details{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:0 20px;box-shadow:var(--shadow)}
   details+details{margin-top:10px}
   summary{cursor:pointer;list-style:none;padding:18px 0;font-weight:500;font-size:16px;display:flex;justify-content:space-between;gap:14px}
   summary::-webkit-details-marker{display:none}
@@ -124,12 +125,12 @@
   .authors{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
   .au{background:var(--bg2);border:1px solid var(--bd);border-radius:999px;padding:9px 16px;font-size:14px}
   .au span{color:var(--tx3)}
-  .disc{background:var(--tealbg);border:1px solid rgba(43,182,163,.3);border-radius:12px;padding:20px 24px;margin-top:26px;color:var(--tx);font-size:15px}
+  .disc{background:var(--tealbg);border:1px solid rgba(12,130,115,.3);border-radius:12px;padding:20px 24px;margin-top:26px;color:var(--tx);font-size:15px}
   .disc b{color:var(--teal)}
 
   footer{padding:48px 0 60px;color:var(--tx3);font-size:14px}
   footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
-  .cite{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:16px;font-family:var(--mono);font-size:12.5px;color:var(--tx2);white-space:pre-wrap;margin-top:14px;overflow-x:auto}
+  .cite{background:var(--bg3);border:1px solid var(--bd);border-radius:10px;padding:16px;font-family:var(--mono);font-size:12.5px;color:var(--tx2);white-space:pre-wrap;margin-top:14px;overflow-x:auto}
 </style>
 </head>
 <body>
@@ -259,14 +260,14 @@
     <div class="demos">
       <div class="demo">
         <div class="demoframe" data-video="media/a1-impersonation.mp4" data-poster="media/a1-poster.jpg">
-          <div class="play"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M0 0 L20 11 L0 22 Z" fill="#6B7686"/></svg></div>
+          <div class="play"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M0 0 L20 11 L0 22 Z" fill="#868D99"/></svg></div>
           <span>Demo video — coming soon</span>
         </div>
         <div class="cap"><b>A1 — Impersonation</b><p>A spoofed EVCCID authorizes a real charging session in 3.2 s, billed to the victim.</p></div>
       </div>
       <div class="demo">
         <div class="demoframe" data-video="media/a2-discharge.mp4" data-poster="media/a2-poster.jpg">
-          <div class="play"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M0 0 L20 11 L0 22 Z" fill="#6B7686"/></svg></div>
+          <div class="play"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M0 0 L20 11 L0 22 Z" fill="#868D99"/></svg></div>
           <span>Demo video — coming soon</span>
         </div>
         <div class="cap"><b>A2 — Forced discharge</b><p>A rogue EVSE forces a production EV to discharge its battery into a resistive load.</p></div>
