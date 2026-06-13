@@ -93,6 +93,7 @@
   @media(max-width:760px){.demos{grid-template-columns:1fr}}
   .demo{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
   .demoframe{aspect-ratio:16/9;background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--tx3);gap:12px;border-bottom:1px solid var(--bd)}
+  .demo video{width:100%;display:block;background:#000}
   .play{width:58px;height:58px;border-radius:50%;border:2px solid var(--tx3);display:flex;align-items:center;justify-content:center}
   .play svg{margin-left:4px}
   .demo .cap{padding:16px 20px}
@@ -155,8 +156,7 @@
     <p class="sub">Real-world impersonation and discharge attacks on electric vehicle charging systems.</p>
     <p class="pitch">With about <b>$180</b> of off-the-shelf hardware, we <b>steal charging</b> billed to a victim, and <b>drain an EV's battery</b> until it won't start — demonstrated on <b>production cars</b> and <b>live public charging networks</b>.</p>
     <div class="cta">
-      <!-- Update this href to the direct USENIX paper PDF once it is published -->
-      <a class="btn primary" href="https://www.usenix.org/conference/woot26" target="_blank" rel="noopener">Read the paper</a>
+      <a class="btn primary" href="2026_WOOT_paper_HotWire.pdf" target="_blank" rel="noopener">Read the paper (PDF)</a>
       <a class="btn" href="https://github.com/sickcell6000/HotWire" target="_blank" rel="noopener">Code &amp; toolkit</a>
       <a class="btn" href="https://doi.org/10.5281/zenodo.20596315" target="_blank" rel="noopener">Artifact (DOI)</a>
     </div>
@@ -255,21 +255,17 @@
   <div class="wrap">
     <p class="eyebrow">Demos</p>
     <h2>See the attacks in action</h2>
-    <p class="lead">Short clips of the live attacks. (Videos coming soon — replace each placeholder below with a <code>&lt;video&gt;</code> tag or an embed.)</p>
+    <p class="lead">Short clips of the live attacks. Videos drop in automatically once added to <code>docs/media/</code> — see that folder's README.</p>
     <div class="demos">
       <div class="demo">
-        <!-- Replace this .demoframe block with:
-             <video controls poster="img/a1-poster.jpg" style="width:100%;display:block">
-               <source src="media/a1-impersonation.mp4" type="video/mp4"></video> -->
-        <div class="demoframe">
+        <div class="demoframe" data-video="media/a1-impersonation.mp4" data-poster="media/a1-poster.jpg">
           <div class="play"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M0 0 L20 11 L0 22 Z" fill="#6B7686"/></svg></div>
           <span>Demo video — coming soon</span>
         </div>
         <div class="cap"><b>A1 — Impersonation</b><p>A spoofed EVCCID authorizes a real charging session in 3.2 s, billed to the victim.</p></div>
       </div>
       <div class="demo">
-        <!-- Replace with your forced-discharge clip the same way -->
-        <div class="demoframe">
+        <div class="demoframe" data-video="media/a2-discharge.mp4" data-poster="media/a2-poster.jpg">
           <div class="play"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M0 0 L20 11 L0 22 Z" fill="#6B7686"/></svg></div>
           <span>Demo video — coming soon</span>
         </div>
@@ -298,9 +294,10 @@
     <p class="eyebrow">Paper, code &amp; team</p>
     <h2>HotWire @ USENIX WOOT '26</h2>
     <div class="cta">
-      <a class="btn primary" href="https://www.usenix.org/conference/woot26" target="_blank" rel="noopener">Read the paper</a>
+      <a class="btn primary" href="2026_WOOT_paper_HotWire.pdf" target="_blank" rel="noopener">Read the paper (PDF)</a>
       <a class="btn" href="https://github.com/sickcell6000/HotWire" target="_blank" rel="noopener">GitHub — toolkit</a>
       <a class="btn" href="https://doi.org/10.5281/zenodo.20596315" target="_blank" rel="noopener">Zenodo — archived artifact</a>
+      <a class="btn" href="https://www.usenix.org/conference/woot26" target="_blank" rel="noopener">USENIX WOOT '26</a>
     </div>
 
     <div class="authors">
@@ -332,5 +329,22 @@
     <div><a href="https://github.com/sickcell6000/HotWire">github.com/sickcell6000/HotWire</a></div>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll('.demoframe[data-video]').forEach(function(frame){
+    var src = frame.getAttribute('data-video');
+    fetch(src, {method:'HEAD'}).then(function(r){
+      if(!r.ok) return;
+      var v = document.createElement('video');
+      v.controls = true; v.preload = 'metadata';
+      var poster = frame.getAttribute('data-poster');
+      if(poster){ v.setAttribute('poster', poster); }
+      var s = document.createElement('source');
+      s.src = src; s.type = 'video/mp4';
+      v.appendChild(s);
+      frame.replaceWith(v);
+    }).catch(function(){});
+  });
+</script>
 </body>
 </html>
