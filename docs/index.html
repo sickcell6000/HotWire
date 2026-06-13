@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HotWire — Real-World Impersonation &amp; Discharge Attacks on EV Charging</title>
+<meta name="description" content="HotWire: two practical attacks on the DIN 70121 EV charging protocol — steal charging (EVCCID impersonation) and drain EV batteries (forced discharge) — demonstrated on production vehicles and live public charging networks. USENIX WOOT '26." />
+<meta property="og:title" content="HotWire — Attacks on EV Charging" />
+<meta property="og:description" content="With ~$180 of hardware: steal charging billed to a victim, and drain an EV's battery — on production cars and live public networks. USENIX WOOT '26." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0E1117; --bg2:#151A23; --bg3:#1B212C;
+    --tx:#E8ECF2; --tx2:#9AA4B2; --tx3:#6B7686;
+    --red:#E5532B; --redbg:rgba(229,83,43,.12);
+    --teal:#2BB6A3; --tealbg:rgba(43,182,163,.12);
+    --bd:rgba(255,255,255,.10); --bd2:rgba(255,255,255,.18);
+    --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    --sans:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --max:1040px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--tx);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code,.mono{font-family:var(--mono)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(14,17,23,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+  .brand{font-weight:700;letter-spacing:.06em;font-size:18px}
+  .brand .spark{color:var(--red)}
+  .navlinks{display:flex;gap:22px;font-size:14px}
+  .navlinks a{color:var(--tx2)}
+  .navlinks a:hover{color:var(--tx);text-decoration:none}
+  @media(max-width:720px){.navlinks{display:none}}
+
+  /* hero */
+  .hero{padding:84px 0 64px;border-bottom:1px solid var(--bd)}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);border:1px solid var(--red);border-radius:999px;padding:5px 14px;margin-bottom:26px}
+  h1.title{font-size:clamp(48px,9vw,104px);font-weight:700;letter-spacing:.02em;line-height:.98}
+  h1.title .spark{color:var(--red)}
+  .sub{font-size:clamp(18px,2.6vw,24px);color:var(--tx);margin-top:18px;font-weight:500;max-width:760px}
+  .pitch{font-size:18px;color:var(--tx2);margin-top:18px;max-width:720px}
+  .pitch b{color:var(--tx);font-weight:500}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:500;padding:12px 20px;border-radius:8px;border:1px solid var(--bd2);color:var(--tx);transition:background .15s}
+  .btn:hover{background:var(--bg3);text-decoration:none}
+  .btn.primary{background:var(--red);border-color:var(--red);color:#fff}
+  .btn.primary:hover{background:#cf471f}
+
+  section{padding:64px 0;border-bottom:1px solid var(--bd)}
+  .eyebrow{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:10px}
+  h2{font-size:clamp(26px,4vw,34px);font-weight:700;letter-spacing:.01em}
+  h2 .spark{color:var(--red)}
+  .lead{color:var(--tx2);margin-top:12px;max-width:760px;font-size:17px}
+
+  /* attack cards */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+  .card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:26px}
+  .card .tag{font-family:var(--mono);font-size:13px;color:var(--red);font-weight:500}
+  .card h3{font-size:22px;font-weight:700;margin:8px 0 12px}
+  .card p{color:var(--tx2);font-size:15.5px}
+  .card ul{list-style:none;margin-top:14px;display:grid;gap:9px}
+  .card li{display:flex;gap:10px;font-size:15px;color:var(--tx)}
+  .card li::before{content:"";flex:0 0 7px;height:7px;margin-top:9px;background:var(--red);border-radius:2px}
+
+  /* stat grid */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:30px}
+  @media(max-width:860px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:22px}
+  .stat .n{font-size:34px;font-weight:700;color:var(--red);line-height:1}
+  .stat .n.teal{color:var(--teal)}
+  .stat .l{color:var(--tx2);font-size:14px;margin-top:10px}
+
+  /* how-it-works steps */
+  .flow{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+  @media(max-width:760px){.flow{grid-template-columns:1fr}}
+  .step{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:24px}
+  .step h4{font-size:17px;font-weight:700;margin-bottom:12px}
+  .msg{font-family:var(--mono);font-size:13.5px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:14px;color:var(--tx2);line-height:1.9;overflow-x:auto}
+  .msg .ev{color:var(--teal)} .msg .at{color:var(--red)} .msg .ok{color:var(--tx)}
+
+  /* demos */
+  .demos{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+  @media(max-width:760px){.demos{grid-template-columns:1fr}}
+  .demo{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+  .demoframe{aspect-ratio:16/9;background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--tx3);gap:12px;border-bottom:1px solid var(--bd)}
+  .play{width:58px;height:58px;border-radius:50%;border:2px solid var(--tx3);display:flex;align-items:center;justify-content:center}
+  .play svg{margin-left:4px}
+  .demo .cap{padding:16px 20px}
+  .demo .cap b{font-weight:500}
+  .demo .cap p{color:var(--tx2);font-size:14px;margin-top:4px}
+
+  /* table */
+  .tablewrap{margin-top:28px;overflow-x:auto;border:1px solid var(--bd);border-radius:12px}
+  table{width:100%;border-collapse:collapse;font-size:15px;min-width:560px}
+  th,td{text-align:left;padding:14px 18px;border-bottom:1px solid var(--bd)}
+  th{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);font-weight:500}
+  tr:last-child td{border-bottom:none}
+  .vyes{color:var(--red);font-weight:500}
+  .vno{color:var(--teal);font-weight:500}
+  .note{color:var(--tx3);font-size:13px;margin-top:12px}
+
+  /* faq */
+  .faq{margin-top:24px;display:grid;gap:2px}
+  details{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:0 20px}
+  details+details{margin-top:10px}
+  summary{cursor:pointer;list-style:none;padding:18px 0;font-weight:500;font-size:16px;display:flex;justify-content:space-between;gap:14px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--red);font-size:22px;line-height:1}
+  details[open] summary::after{content:"–"}
+  details p{color:var(--tx2);padding:0 0 20px;font-size:15px}
+
+  /* team */
+  .authors{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+  .au{background:var(--bg2);border:1px solid var(--bd);border-radius:999px;padding:9px 16px;font-size:14px}
+  .au span{color:var(--tx3)}
+  .disc{background:var(--tealbg);border:1px solid rgba(43,182,163,.3);border-radius:12px;padding:20px 24px;margin-top:26px;color:var(--tx);font-size:15px}
+  .disc b{color:var(--teal)}
+
+  footer{padding:48px 0 60px;color:var(--tx3);font-size:14px}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+  .cite{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:16px;font-family:var(--mono);font-size:12.5px;color:var(--tx2);white-space:pre-wrap;margin-top:14px;overflow-x:auto}
+</style>
+</head>
+<body>
+<h1 class="sr-only">HotWire: real-world impersonation and discharge attacks on electric vehicle charging systems</h1>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">HOT<span class="spark">WIRE</span></div>
+    <div class="navlinks">
+      <a href="#attacks">Attacks</a>
+      <a href="#findings">Findings</a>
+      <a href="#how">How it works</a>
+      <a href="#demos">Demos</a>
+      <a href="#faq">FAQ</a>
+      <a href="#paper">Paper &amp; code</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">USENIX WOOT '26</span>
+    <h1 class="title">HOT<span class="spark">WIRE</span></h1>
+    <p class="sub">Real-world impersonation and discharge attacks on electric vehicle charging systems.</p>
+    <p class="pitch">With about <b>$180</b> of off-the-shelf hardware, we <b>steal charging</b> billed to a victim, and <b>drain an EV's battery</b> until it won't start — demonstrated on <b>production cars</b> and <b>live public charging networks</b>.</p>
+    <div class="cta">
+      <!-- Update this href to the direct USENIX paper PDF once it is published -->
+      <a class="btn primary" href="https://www.usenix.org/conference/woot26" target="_blank" rel="noopener">Read the paper</a>
+      <a class="btn" href="https://github.com/sickcell6000/HotWire" target="_blank" rel="noopener">Code &amp; toolkit</a>
+      <a class="btn" href="https://doi.org/10.5281/zenodo.20596315" target="_blank" rel="noopener">Artifact (DOI)</a>
+    </div>
+  </div>
+</header>
+
+<section id="attacks">
+  <div class="wrap">
+    <p class="eyebrow">The attacks</p>
+    <h2>One protocol flaw, <span class="spark">two</span> ways to abuse it</h2>
+    <p class="lead">DIN 70121 — the protocol behind most DC fast charging — has no encryption and no authentication. Everything is plaintext, and the systems built on it trust <em>the message</em> over <em>physical reality</em>.</p>
+    <div class="two">
+      <div class="card">
+        <div class="tag">A1 — Impersonation</div>
+        <h3>Steal charging</h3>
+        <p>Autocharge bills a car automatically by its <code>EVCCID</code> — which is just the plaintext PLC MAC address. We harvest it in under 10 seconds, then replay it to charge anywhere, billed to the victim.</p>
+        <ul>
+          <li>Harvest the static identifier from a parked car</li>
+          <li>Replay it — no victim present, no station tampering</li>
+          <li>A permanent stolen credential (the ID never changes)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tag">A2 — Forced discharge</div>
+        <h3>Drain the battery</h3>
+        <p>During PreCharge, the charger reports a voltage the car's BMS should verify before closing contactors. Our rogue charger simply <em>claims</em> the right voltage — the pins are at 0&nbsp;V — and a vulnerable BMS connects the battery to our load.</p>
+        <ul>
+          <li>Forge <code>EVSEPresentVoltage</code> in <code>PreChargeRes</code></li>
+          <li>Vulnerable BMS closes contactors → battery discharges</li>
+          <li>No driver alert, no autonomous shutoff</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="findings">
+  <div class="wrap">
+    <p class="eyebrow">Key findings</p>
+    <h2>Validated on real cars and live networks</h2>
+    <div class="stats">
+      <div class="stat"><div class="n">88%</div><div class="l">of public stations run with no TLS</div></div>
+      <div class="stat"><div class="n">7/7</div><div class="l">networks had no fraud detection</div></div>
+      <div class="stat"><div class="n">3.2s</div><div class="l">to authorize a spoofed session</div></div>
+      <div class="stat"><div class="n">3 of 4</div><div class="l">vehicles vulnerable to forced discharge</div></div>
+      <div class="stat"><div class="n teal">$180</div><div class="l">cost of the attacker's hardware</div></div>
+      <div class="stat"><div class="n">1.25 kWh</div><div class="l">stolen in a single 30-min session</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">production EV models tested</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">commercial charging networks</div></div>
+    </div>
+
+    <p class="eyebrow" style="margin-top:46px">Forced discharge — comparative results</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Vehicle</th><th>Vulnerable?</th><th>Discharge (est.)</th><th>Driver alert</th></tr></thead>
+        <tbody>
+          <tr><td>Tesla Model Y</td><td class="vno">No — HW voltage sensor</td><td>—</td><td>—</td></tr>
+          <tr><td>Luxgen n7</td><td class="vyes">Yes</td><td>60 min / ~1.25 kWh</td><td>None</td></tr>
+          <tr><td>CMC (unpublished)</td><td class="vyes">Yes</td><td>~2 min / ~0.05 kWh</td><td>None</td></tr>
+          <tr><td>Hyundai IONIQ 6</td><td class="vyes">Yes</td><td>~26 min / ~0.5 kWh</td><td>None</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Energy is estimated from the load bank's rated power and discharge duration — protocol-reported, not externally metered. Tesla refused to close contactors and logged "External voltage verification failed."</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2>Trust-in-protocol vs trust-in-physics</h2>
+    <p class="lead">The root cause is architectural: a safety- or billing-critical decision is gated on a <em>message</em> instead of a <em>physical measurement</em>.</p>
+    <div class="flow">
+      <div class="step">
+        <h4>A1 — replay an identifier</h4>
+        <div class="msg">
+<span class="ev">EV  → EVSE</span>  SessionSetupReq { EVCCID: <span class="at">aabbccddeeff</span> }<br>
+<span class="ok">backend</span>   match EVCCID → victim account<br>
+<span class="ok">backend</span>   authorize + bill <span class="at">victim</span>  ⚠ no extra check
+        </div>
+      </div>
+      <div class="step">
+        <h4>A2 — forge a voltage</h4>
+        <div class="msg">
+<span class="ev">EV  → EVSE</span>  PreChargeReq  { EVTargetVoltage: 350V }<br>
+<span class="at">rogue EVSE</span> PreChargeRes  { EVSEPresentVoltage: <span class="at">350V</span> }<br>
+<span class="ok">reality</span>   DC pins = <span class="at">0V</span>, resistive load attached<br>
+<span class="ev">BMS</span>       trusts message → close contactors → discharge ⚠
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="demos">
+  <div class="wrap">
+    <p class="eyebrow">Demos</p>
+    <h2>See the attacks in action</h2>
+    <p class="lead">Short clips of the live attacks. (Videos coming soon — replace each placeholder below with a <code>&lt;video&gt;</code> tag or an embed.)</p>
+    <div class="demos">
+      <div class="demo">
+        <!-- Replace this .demoframe block with:
+             <video controls poster="img/a1-poster.jpg" style="width:100%;display:block">
+               <source src="media/a1-impersonation.mp4" type="video/mp4"></video> -->
+        <div class="demoframe">
+          <div class="play"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M0 0 L20 11 L0 22 Z" fill="#6B7686"/></svg></div>
+          <span>Demo video — coming soon</span>
+        </div>
+        <div class="cap"><b>A1 — Impersonation</b><p>A spoofed EVCCID authorizes a real charging session in 3.2 s, billed to the victim.</p></div>
+      </div>
+      <div class="demo">
+        <!-- Replace with your forced-discharge clip the same way -->
+        <div class="demoframe">
+          <div class="play"><svg width="20" height="22" viewBox="0 0 20 22"><path d="M0 0 L20 11 L0 22 Z" fill="#6B7686"/></svg></div>
+          <span>Demo video — coming soon</span>
+        </div>
+        <div class="cap"><b>A2 — Forced discharge</b><p>A rogue EVSE forces a production EV to discharge its battery into a resistive load.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <p class="eyebrow">FAQ</p>
+    <h2>Common questions</h2>
+    <div class="faq">
+      <details><summary>Isn't A1 just a replay attack?</summary><p>The novelty is the real-world result: it's the first end-to-end demonstration against live commercial Autocharge networks, with a single device (no two-station relay, no victim presence) — and the finding that all seven networks we tested have no fraud detection, so a statically harvested identifier is a repeatable, untraceable credential.</p></details>
+      <details><summary>Does ISO 15118-20 / Plug-and-Charge fix this?</summary><p>It fixes A1 — PKI binds identity cryptographically, so replay fails. It does not inherently fix A2: if the BMS still trusts an authenticated PreCharge message over its own sensors, the battery still closes contactors. Crypto does not substitute for a physical measurement.</p></details>
+      <details><summary>Only four vehicles — is this generalizable?</summary><p>We deliberately chose architectural diversity (BMS from Tesla in-house, Hyundai Mobis, and Delta Electronics) over sample size. It's an architectural insight, not a prevalence estimate — and a concurrent independent study (DrainDead) found the same flaw across a separate European fleet.</p></details>
+      <details><summary>Did you damage any battery? Was this safe and legal?</summary><p>No damage. We used only our own pre-registered accounts (self-paid, 1.25 kWh), tested on private property with our own or manufacturer-provided vehicles, with state-of-charge interlocks, emergency disconnect, and continuous monitoring. The work was IRB-approved and responsibly disclosed before publication.</p></details>
+      <details><summary>How do you know the energy numbers without a meter?</summary><p>All electrical values are protocol-reported, and energy is estimated from the load bank's rated power and the discharge duration — we state this explicitly and never claim externally metered values. The vulnerability is the contactor closing and current flowing; the exact wattage is secondary.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="paper">
+  <div class="wrap">
+    <p class="eyebrow">Paper, code &amp; team</p>
+    <h2>HotWire @ USENIX WOOT '26</h2>
+    <div class="cta">
+      <a class="btn primary" href="https://www.usenix.org/conference/woot26" target="_blank" rel="noopener">Read the paper</a>
+      <a class="btn" href="https://github.com/sickcell6000/HotWire" target="_blank" rel="noopener">GitHub — toolkit</a>
+      <a class="btn" href="https://doi.org/10.5281/zenodo.20596315" target="_blank" rel="noopener">Zenodo — archived artifact</a>
+    </div>
+
+    <div class="authors">
+      <div class="au">Kuan Yu (Jason) Chen <span>· NTUST</span></div>
+      <div class="au">Md Hasan Shahriar <span>· Virginia Tech</span></div>
+      <div class="au">Wen Wei Li <span>· NTUST</span></div>
+      <div class="au">Shi Cho Cha <span>· NTUST</span></div>
+      <div class="au">Wenjing Lou <span>· Virginia Tech</span></div>
+    </div>
+
+    <div class="disc">
+      <b>Responsible disclosure.</b> We disclosed through a coordinated program before publication. Two of the four manufacturers have committed to over-the-air firmware fixes that add hardware-based voltage verification. We release the toolkit and de-identified data, and withhold specific vehicle identifiers and station details that could enable real-world abuse.
+    </div>
+
+    <div class="cite">@inproceedings{hotwire2026,
+  title     = {HotWire: Real-World Impersonation and Discharge Attacks
+               on Electric Vehicle Charging Systems},
+  author    = {Chen, Kuan Yu and Shahriar, Md Hasan and Li, Wen Wei
+               and Cha, Shi Cho and Lou, Wenjing},
+  booktitle = {20th USENIX Workshop on Offensive Technologies (WOOT '26)},
+  year      = {2026}
+}</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>HotWire · USENIX WOOT '26 · for defensive research and authorized testing only.</div>
+    <div><a href="https://github.com/sickcell6000/HotWire">github.com/sickcell6000/HotWire</a></div>
+  </div>
+</footer>
+</body>
+</html>
