@@ -34,19 +34,20 @@
   .wrap{max-width:var(--max);margin:0 auto;padding:0 22px}
   .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 
-  /* high-voltage bolt mark */
-  .bolt{display:inline-flex;align-items:center;line-height:0;color:var(--volt)}
+  /* high-voltage bolt mark (sits at top-right of the E, like a superscript) */
+  .bolt{display:inline-flex;line-height:0;color:var(--volt)}
   .bolt svg{height:1em;width:auto;fill:currentColor;stroke:#15181F;stroke-width:.8;stroke-linejoin:round}
+  .bolt.mark{vertical-align:top}
+  .title .bolt.mark{font-size:.28em;margin-left:.04em}
+  .brand .bolt.mark{font-size:.66em;margin-left:1px}
 
   /* nav */
   nav{position:sticky;top:0;z-index:50;background:rgba(245,246,248,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd)}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
   .brand{font-weight:700;letter-spacing:.06em;font-size:18px}
-  .navright{display:flex;align-items:center;gap:20px}
   .navlinks{display:flex;gap:22px;font-size:14px}
   .navlinks a{color:var(--tx2)}
   .navlinks a:hover{color:var(--tx);text-decoration:none}
-  .topbolt{font-size:22px}
   @media(max-width:720px){.navlinks{display:none}}
 
   /* hero */
@@ -145,17 +146,14 @@
 
 <nav>
   <div class="wrap">
-    <div class="brand">HOT<span class="spark">WIRE</span></div>
-    <div class="navright">
-      <div class="navlinks">
-        <a href="#attacks">Attacks</a>
-        <a href="#findings">Findings</a>
-        <a href="#how">How it works</a>
-        <a href="#demos">Demos</a>
-        <a href="#faq">FAQ</a>
-        <a href="#paper">Paper &amp; code</a>
-      </div>
-      <span class="bolt topbolt" title="High voltage"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z"/></svg></span>
+    <div class="brand">HOT<span class="spark">WIRE</span><span class="bolt mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z"/></svg></span></div>
+    <div class="navlinks">
+      <a href="#attacks">Attacks</a>
+      <a href="#findings">Findings</a>
+      <a href="#how">How it works</a>
+      <a href="#demos">Demos</a>
+      <a href="#faq">FAQ</a>
+      <a href="#paper">Paper &amp; code</a>
     </div>
   </div>
 </nav>
@@ -163,7 +161,7 @@
 <header class="hero">
   <div class="wrap">
     <span class="badge">USENIX WOOT '26</span>
-    <h1 class="title">HOT<span class="spark">WIRE</span></h1>
+    <h1 class="title">HOT<span class="spark">WIRE</span><span class="bolt mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.615 1.595a.75.75 0 01.359.852L12.982 9.75h7.268a.75.75 0 01.548 1.262l-10.5 11.25a.75.75 0 01-1.272-.71l1.992-7.302H3.75a.75.75 0 01-.548-1.262l10.5-11.25a.75.75 0 01.913-.143z"/></svg></span></h1>
     <p class="sub">Real-world impersonation and discharge attacks on electric vehicle charging systems.</p>
     <p class="pitch">With about <b>$180</b> of off-the-shelf hardware, we <b>steal charging</b> billed to a victim, and <b>drain an EV's battery</b> until it won't start — demonstrated on <b>production cars</b> and <b>live public charging networks</b>.</p>
     <div class="cta">
