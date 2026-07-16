@@ -27,8 +27,8 @@ implements the two attacks described there:
 > 📄 **Full reviewer-facing guide:**
 > [`docs/AEC_REVIEWER_GUIDE.md`](docs/AEC_REVIEWER_GUIDE.md) (also
 > as PDF in the same folder).
-> 🔖 **Zenodo DOI:** [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377)
-> (latest version: <https://zenodo.org/records/20185373>)
+> 🔖 **Zenodo concept DOI:** [10.5281/zenodo.19754104](https://doi.org/10.5281/zenodo.19754104)
+> (latest version: <https://zenodo.org/records/20596315>)
 > · **License:** GPL-3.0.
 > The section below is the same content
 > condensed; the linked guide is what we submit to HotCRP.

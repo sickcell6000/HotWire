@@ -2,8 +2,7 @@
 title: "HotWire — AEC Reviewer Guide"
 subtitle: "WOOT '26 Artifact Evaluation"
 author:
-  - "Kuan Yu Chen, Wen Wei Li, Shi Cho Cha (National Taiwan University of Science and Technology)"
-  - "Md Hasan Shahriar, Wenjing Lou (Virginia Tech)"
+  - "Kuan Yu Chen, Wen Wei Li, Shi Cho Cha (National Taiwan University of Science and Technology)\nMd Hasan Shahriar, Wenjing Lou (Virginia Tech)"
 date: "2026-05-02"
 geometry: margin=1in
 fontsize: 11pt
@@ -16,13 +15,14 @@ Committee.
 
 - **Public source repository:** <https://github.com/sickcell6000/HotWire>
 - **License:** GPL-3.0
-- **Zenodo DOI:** [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377)
-  (original v1 submission snapshot at the `woot26-artifact-rc1` tag).
-  **Reviewers should fetch the post-fix v2 record at
-  <https://zenodo.org/records/20185373>** (see Step 0 below). The
-  concept DOI resolves to the latest version. A separate post-AE
-  version will be archived for the camera-ready paper per the
-  WOOT '26 CFA two-stage process.
+- **Zenodo concept DOI:** [10.5281/zenodo.19754104](https://doi.org/10.5281/zenodo.19754104)
+  — always resolves to the latest version. The current release is the
+  **v8 record at <https://zenodo.org/records/20596315>** (see Step 0
+  below). The original v1 submission snapshot is preserved at
+  [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377)
+  (GitHub tag `woot26-artifact-rc1`). A separate post-AE version will
+  be archived for the camera-ready paper per the WOOT '26 CFA
+  two-stage process.
 
 ## Badges requested
 
@@ -30,8 +30,8 @@ We request evaluation for two badges:
 
 - **Artifact Available.** *The artifact is publicly available.*
   Public GitHub repository under GPL-3.0, archived under a release
-  tag, and mirrored to Zenodo DOI
-  [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377).
+  tag, and mirrored to Zenodo concept DOI
+  [10.5281/zenodo.19754104](https://doi.org/10.5281/zenodo.19754104).
 
 - **Artifact Functional.** *The core functionality of the artifact
   can be confirmed by the AEC.* One command — `bash verify_artifact.sh`
@@ -72,13 +72,13 @@ record below — please download the zip from there rather than `git
 clone`-ing the repo, so reviewers and authors look at exactly the
 same bytes:
 
-> **Download:** <https://zenodo.org/records/20185373>
-> (concept DOI [10.5281/zenodo.19986377](https://doi.org/10.5281/zenodo.19986377)
-> auto-redirects to this latest version)
+> **Download:** <https://zenodo.org/records/20596315>
+> (or the concept DOI [10.5281/zenodo.19754104](https://doi.org/10.5281/zenodo.19754104),
+> which always resolves to this latest version)
 
 The download is a single file, `HotWire-woot26-artifact-rc1.zip`
-(2.5 MB, MD5 `59de7f9820fc57b2c2afdb4cdd77fb4a`,
-SHA-256 `3bbb5c8d0a9a344307bae5eae3e2076c9917f65db54a0aa4cd37ff89b5bc29f7`).
+(2.6 MB, MD5 `78cb775ebf57a2224a3a53222696aa1d`,
+SHA-256 `2c90dd1c1616da2e7144b04a3e418c7fbd1aa8d188fc8d5581baa0cdae497018`).
 Save it somewhere convenient (e.g. `~/Downloads/`), then follow the
 platform-specific block below — each starts with `unzip` + `cd`
 into the unpacked directory.
@@ -157,7 +157,10 @@ Expected last line:
 The script runs eight checks (F0 through F6) covering:
 
 - **F0** OpenV2G codec binary check — auto-builds from
-  `vendor/OpenV2Gx` if the platform binary is missing.
+  `vendor/OpenV2Gx` if the platform binary is missing. Source patches
+  are applied non-interactively (`patch` reads from `/dev/null`), so
+  the build never stops to prompt on the terminal and a fresh checkout
+  compiles end-to-end with no manual key-presses.
 - **F1** pytest regression — 278 unit + integration tests via
   Docker CI when available, ~179 via host fallback (the Docker-only
   tests auto-skip).
