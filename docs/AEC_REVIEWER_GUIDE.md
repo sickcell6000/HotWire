@@ -3,7 +3,7 @@ title: "HotWire — AEC Reviewer Guide"
 subtitle: "WOOT '26 Artifact Evaluation"
 author:
   - "Kuan Yu Chen, Wen Wei Li, Shi Cho Cha (National Taiwan University of Science and Technology)\nMd Hasan Shahriar, Wenjing Lou (Virginia Tech)"
-date: "2026-05-02"
+date: "2026-07-16"
 geometry: margin=1in
 fontsize: 11pt
 ---
