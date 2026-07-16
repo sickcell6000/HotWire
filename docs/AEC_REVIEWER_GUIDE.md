@@ -6,6 +6,7 @@ author:
 date: "2026-07-16"
 geometry: margin=1in
 fontsize: 11pt
+page-numbering: false
 ---
 
 This is a one-page guide for the WOOT '26 Artifact Evaluation
